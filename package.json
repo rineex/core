@@ -11,6 +11,7 @@
     "version-packages": "changeset version",
     "publish-packages": "changeset publish",
     "v": "changeset version",
+    "ci:publish": "turbo run build --filter=...[HEAD^1] && changeset publish",
     "release": "changeset publish"
   },
   "keywords": [
