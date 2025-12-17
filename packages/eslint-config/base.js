@@ -18,4 +18,11 @@ export default defineConfig(
       'turbo/no-undeclared-env-vars': 'warn',
     },
   },
+
+  {
+    files: ['**/*.{js,mjs,cjs,ts,tsx}'],
+    rules: {
+      'n/no-unpublished-import': 'off',
+    },
+  },
 );
