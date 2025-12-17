@@ -83,4 +83,3 @@ jobs:
           publish: pnpm ci:publish
         env:
           GITHUB_TOKEN: ${{ secrets.CHANGESET_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

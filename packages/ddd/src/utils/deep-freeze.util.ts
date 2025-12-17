@@ -1,5 +1,9 @@
 /**
- * Utility to deeply freeze objects to ensure immutability
+ * Utility to deeply freeze objects to ensure immutability - handles nested objects and arrays.
+ *
+ * @param obj - The object to be deeply frozen.
+ * @param seen - A WeakSet to track already processed objects (for circular references).
+ * @returns A deeply frozen version of the input object.
  */
 export function deepFreeze<T>(
   obj: T,
