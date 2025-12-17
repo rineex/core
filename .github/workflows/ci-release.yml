@@ -19,15 +19,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2 # Required for Turbo's git diffing
+          fetch-depth: 2 # Needed for Turbo git diff caching
 
-      - name: Setup Node & pnpm
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'pnpm'
 
-      - uses: pnpm/action-setup@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
           version: 10
 
@@ -36,6 +37,16 @@ jobs:
 
       - name: Lint, Test, Build
         run: pnpm turbo run lint test build
+
+      - name: Cache Turbo
+        uses: actions/cache@v3
+        with:
+          path: |
+            .turbo
+            node_modules/.cache/turbo
+          key: turbo-${{ github.sha }}
+          restore-keys: |
+            turbo-
 
   # 2. RELEASE (Run only on Main, after checks pass)
   release:
@@ -47,20 +58,21 @@ jobs:
       contents: write # for releases/tags
       issues: write
       pull-requests: write # for version PR
-      id-token: write # REQUIRED for npm Provenance
+      id-token: write # for npm Provenance
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node & pnpm
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org'
 
-      - uses: pnpm/action-setup@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
           version: 10
 
