@@ -15,22 +15,22 @@ jobs:
   check:
     name: Lint, Test & Build
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [22, 24]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2 # Needed for Turbo git diff caching
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: 'pnpm'
-
-      - name: Setup pnpm
+      - uses: actions/checkout@v4
+      - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10
+          fetch-depth: 2 # Needed for Turbo git diff caching
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
 
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
@@ -61,8 +61,11 @@ jobs:
       id-token: write # for npm Provenance
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -71,16 +74,11 @@ jobs:
           cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Create Release Pull Request or Publish
-        uses: changesets/action@v2
+        uses: changesets/action@v1
         with:
           publish: pnpm ci:publish
         env:
