@@ -14,6 +14,7 @@
     "dist/**"
   ],
   "devDependencies": {
+    "@changesets/cli": "2.29.8",
     "@rineex/eslint-config": "workspace:*",
     "@rineex/typescript-config": "workspace:*",
     "@types/node": "24.10.4",
