@@ -2,16 +2,19 @@
   "name": "@rineex/ddd",
   "version": "1.0.0",
   "description": "Domain Driven Design package for Rineex core modules",
-  "main": "index.js",
   "author": "Rineex Team",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsup --format cjs,esm --dts"
   },
   "devDependencies": {
     "@rineex/eslint-config": "workspace:*",
-    "typescript": "5.9.3",
     "@rineex/typescript-config": "workspace:*",
-    "@types/node": "24.10.4"
+    "@types/node": "24.10.4",
+    "tsup": "8.5.1",
+    "typescript": "5.9.3"
   },
   "keywords": [],
   "license": "Apache-2.0"
