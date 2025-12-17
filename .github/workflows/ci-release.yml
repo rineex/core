@@ -27,15 +27,13 @@ jobs:
           node-version: 24
           cache: 'pnpm'
 
-      - uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@v4
         with:
           version: 10
 
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      # Turbo automatically caches these.
-      # On 2nd run, this is near-instant.
       - name: Lint, Test, Build
         run: pnpm turbo run lint test build
 
@@ -46,9 +44,9 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
-      contents: write # to create releases/tags
+      contents: write # for releases/tags
       issues: write
-      pull-requests: write # to open "Version Packages" PR
+      pull-requests: write # for version PR
       id-token: write # REQUIRED for npm Provenance
 
     steps:
@@ -62,7 +60,7 @@ jobs:
           cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org'
 
-      - uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@v4
         with:
           version: 10
 
@@ -70,13 +68,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Create Release Pull Request or Publish
-        id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@v2
         with:
-          # This command runs when a "Version Packages" PR is merged
           publish: pnpm ci:publish
-          commit: 'chore: update versions'
-          title: 'chore: update versions'
         env:
           GITHUB_TOKEN: ${{ secrets.CHANGESET_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
