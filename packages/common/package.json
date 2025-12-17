@@ -1,0 +1,17 @@
+{
+  "name": "@rineex/common",
+  "version": "1.0.0",
+  "description": "Common utilities and shared components for Rineex projects",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "common",
+    "utilities",
+    "shared"
+  ],
+  "author": "Rineex Team",
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@10.22.0"
+}
