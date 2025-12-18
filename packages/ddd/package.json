@@ -15,6 +15,7 @@
   "files": [
     "dist/**"
   ],
+  "sideEffects": false,
   "devDependencies": {
     "@changesets/cli": "2.29.8",
     "@rineex/eslint-config": "workspace:*",
