@@ -11,7 +11,7 @@
     "bump:next": "changeset version --snapshot",
     "bump:check": "changeset status --since=main",
     "release:stable": "pnpm publish -r --access public",
-    "ci:canary": "turbo run build && pnpm version prerelease --preid=canary --no-git-tag-version && pnpm publish -r --access public --tag canary --no-git-checks",
+    "ci:canary": "turbo run build && pnpm version prerelease --preid=canary.$(git rev-parse --short HEAD) --no-git-tag-version && pnpm publish -r --access public --tag canary --no-git-checks",
     "release:stable:ci": "pnpm publish -r --access public --publish-branch stable",
     "release:next": "pnpm publish -r --access public --tag next"
   },

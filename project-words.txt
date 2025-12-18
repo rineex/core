@@ -6,9 +6,10 @@ ioredis
 isbot
 pgcrypto
 plpgsql
+preid
 rineex
 slonik
+softprops
 topbar
 tsup
 unplugin
-softprops
