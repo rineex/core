@@ -33,7 +33,7 @@ export function deepFreeze<T>(
     // Handle plain objects
     for (const key in obj) {
       if (Object.hasOwn(obj, key)) {
-        deepFreeze((obj as any)[key], seen); // Use 'any' here as T[key] might not be assignable to T for deepFreeze's input
+        deepFreeze((obj as Record<string, unknown>)[key], seen);
       }
     }
   }
