@@ -3,19 +3,19 @@
   "ui": "tui",
   "tasks": {
     "build": {
-      "env": ["CI"],
-
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["dist/**", "!.next/cache/**", ".next/**"]
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "!**/*.test.ts", "!**/*.md"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+      "env": ["NODE_ENV", "CI", "NEXT_PUBLIC_*"]
     },
     "test": {
-      "outputs": ["coverage/**"],
-      "dependsOn": []
+      "dependsOn": ["build"],
+      "inputs": ["$TURBO_DEFAULT$", "src/**/*.test.ts", "src/**/*.test.tsx"],
+      "outputs": ["coverage/**"]
     },
-
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": ["^lint"],
+      "inputs": ["$TURBO_DEFAULT$"]
     }
   }
 }

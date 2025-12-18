@@ -7,13 +7,8 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "test": "turbo run test",
-    "bump:stable": "changeset version",
-    "bump:next": "changeset version --snapshot",
-    "bump:check": "changeset status --since=main",
-    "release:stable": "pnpm publish -r --access public",
-    "ci:canary": "turbo run build && pnpm changeset version --snapshot canary.$(git rev-parse --short HEAD) && pnpm changeset publish --tag canary",
-    "release:stable:ci": "pnpm publish -r --access public --publish-branch stable",
-    "release:next": "pnpm publish -r --access public --tag next"
+    "version-packages": "changeset version",
+    "release": "pnpm build && changeset publish --provenance"
   },
   "keywords": [
     "rineex",
