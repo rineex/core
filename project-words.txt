@@ -9,4 +9,5 @@ plpgsql
 rineex
 slonik
 topbar
+tsup
 unplugin

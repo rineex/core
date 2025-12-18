@@ -10,7 +10,7 @@
     "test": "vitest run",
     "lint": "eslint 'src/**/*.ts'",
     "check-types": "tsc --noEmit",
-    "build": "tsup --format cjs,esm --dts  --tsconfig  ./tsconfig.build.json"
+    "build": "tsup"
   },
   "files": [
     "dist/**"
