@@ -11,3 +11,4 @@ slonik
 topbar
 tsup
 unplugin
+softprops

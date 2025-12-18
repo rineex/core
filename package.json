@@ -7,11 +7,12 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "test": "turbo run test",
-    "changeset": "changeset",
-    "version-packages": "changeset version",
-    "publish-packages": "changeset publish",
-    "ci:publish": "turbo run build --filter=...[HEAD~1] && changeset publish",
-    "release": "changeset publish"
+    "bump:stable": "changeset version",
+    "bump:next": "changeset version --snapshot",
+    "bump:check": "changeset status --since=main",
+    "release:stable": "pnpm publish -r --access public",
+    "release:stable:ci": "pnpm publish -r --access public --publish-branch stable",
+    "release:next": "pnpm publish -r --access public --tag next"
   },
   "keywords": [
     "rineex",
@@ -21,6 +22,7 @@
   "author": "Rineex Team",
   "license": "Apache-2.0",
   "packageManager": "pnpm@10.22.0",
+  "private": true,
   "devDependencies": {
     "@changesets/changelog-github": "0.5.2",
     "@changesets/cli": "2.29.8",

@@ -1,0 +1,10 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "@rineex/ddd": "0.1.0",
+    "@rineex/eslint-config": "0.0.0",
+    "@rineex/typescript-config": "0.0.0"
+  },
+  "changesets": []
+}

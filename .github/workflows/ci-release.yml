@@ -5,81 +5,106 @@ on:
     branches: ['main']
   pull_request:
     branches: ['main']
+  workflow_dispatch: # for manual stable release
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  # 1. QUALITY GATES (Run on PRs and Main)
+  # 1️⃣ Quality Gates
   check:
-    name: Lint, Test & Build
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [22, 24]
+        node-version: [24]
     steps:
       - uses: actions/checkout@v4
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          fetch-depth: 2 # Needed for Turbo git diff caching
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
-
-      - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint, Test, Build
-        run: pnpm turbo run lint test build
-
-      - name: Cache Turbo
-        uses: actions/cache@v3
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run lint test build
+      - uses: actions/cache@v3
         with:
           path: |
             .turbo
             node_modules/.cache/turbo
           key: turbo-${{ github.sha }}
-          restore-keys: |
-            turbo-
+          restore-keys: turbo-
 
-  # 2. RELEASE (Run only on Main, after checks pass)
-  release:
-    name: Release
-    needs: check
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  # 2️⃣ Canary Publish
+  canary:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # for releases/tags
-      issues: write
-      pull-requests: write # for version PR
-      id-token: write # for npm Provenance
-
+    needs: check
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # full history
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm ci:canary
 
-      - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Create Release Pull Request or Publish
-        uses: changesets/action@v1
+  # 3️⃣ Next / Pre-release
+  next:
+    runs-on: ubuntu-latest
+    needs: check
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
         with:
-          publish: pnpm ci:publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.CHANGESET_TOKEN }}
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm bump:next
+      - run: pnpm release:next
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "chore(release): next pre-release [skip ci]" || echo "No changes"
+          VERSION=$(jq -r '.packages["@rineex/ddd"].version' .changeset/.tmp/changes.json || echo "next")
+          git tag v$VERSION
+          git push origin main --tags
+
+  # 4️⃣ Stable Release
+  stable:
+    runs-on: ubuntu-latest
+    needs: check
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm bump:stable
+      - run: pnpm release:stable:ci
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "chore(release): stable release [skip ci]" || echo "No changes"
+          VERSION=$(jq -r '.packages["@rineex/ddd"].version' .changeset/.tmp/changes.json || echo "stable")
+          git tag v$VERSION
+          git push origin main --tags
+      - uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.VERSION }}
+          name: Stable Release
+          draft: false
+          prerelease: false
