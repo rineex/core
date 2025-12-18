@@ -8,6 +8,17 @@
  * - Values are numeric status codes.
  * - Frozen to prevent runtime mutation.
  * - Exporting `HttpStatus` ensures type-safe usage across the codebase.
+ * Usage:
+ * ```ts
+ * import { HttpStatus } from 'path-to-this-file';
+ *
+ * function handleRequest() {
+ *   return {
+ *     statusCode: HttpStatus.OK,
+ *     body: 'Success',
+ *   };
+ * }
+ * ```
  */
 export const HttpStatus = Object.freeze({
   REQUEST_HEADER_FIELDS_TOO_LARGE: 431,
