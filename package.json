@@ -1,5 +1,5 @@
 {
-  "name": "@rineex/root",
+  "name": "rineex-root",
   "version": "1.0.0",
   "description": "Root package for Rineex core modules",
   "main": "index.js",
@@ -7,13 +7,16 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "test": "turbo run test",
-    "version-packages": "changeset version",
-    "release": "pnpm build && changeset publish --provenance"
+    "prepublish": "pnpm run build",
+    "prettier": "prettier --experimental-cli --ignore-unknown '**/*'",
+    "prettier:write": "pnpm run prettier --write",
+    "changeset": "changeset",
+    "changeset:version": "changeset version && pnpm install --no-frozen-lockfile && pnpm prettier:write",
+    "changeset:publish": "changeset publish"
   },
   "keywords": [
     "rineex",
-    "core",
-    "packages"
+    "core"
   ],
   "author": "Rineex Team",
   "license": "Apache-2.0",
@@ -23,6 +26,7 @@
     "@changesets/changelog-github": "0.5.2",
     "@changesets/cli": "2.29.8",
     "@fullstacksjs/eslint-config": "13.11.2",
+    "@svitejs/changesets-changelog-github-compact": "1.2.0",
     "@vitest/ui": "4.0.16",
     "cspell": "9.4.0",
     "eslint": "9.39.2",

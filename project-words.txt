@@ -11,6 +11,7 @@ preid
 rineex
 slonik
 softprops
+svitejs
 topbar
 tsup
 unplugin

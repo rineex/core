@@ -1,66 +1,43 @@
 name: Release
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 on:
   push:
-    branches:
-      - main
-      - next
-      - dev
-  pull_request:
-    branches: ['main']
-  workflow_dispatch: # for manual stable release
+    branches: [main, alpha, beta]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
 
 permissions:
   contents: write
-  pull-requests: write
   id-token: write
+  pull-requests: write
+  issues: write
 
 jobs:
   release:
-    name: Build & Publish
+    name: Release
+    if: github.repository_owner == 'rineex'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v6.0.1
         with:
           fetch-depth: 0
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: 'pnpm'
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Initialize Pre-release State
-        # Logic: If on dev/next and NOT in pre-release mode, enter it.
-        # This automates the 'pnpm changeset pre enter' command.
-        run: |
-          if [[ "${{ github.ref_name }}" == "dev" && ! -f .changeset/pre.json ]]; then
-            pnpm changeset pre enter canary
-          elif [[ "${{ github.ref_name }}" == "next" && ! -f .changeset/pre.json ]]; then
-            pnpm changeset pre enter next
-          elif [[ "${{ github.ref_name }}" == "main" && -f .changeset/pre.json ]]; then
-            pnpm changeset pre exit
-          fi
-
-      - name: Create Release PR or Publish to npm
+      - name: Setup Tools
+        uses: ./.github/setup
+      - name: Run Tests
+        run: pnpm run test:ci
+      - name: Run Changesets (version or publish)
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@v1.5.3
         with:
-          # version: Bumps versions and creates PR on main, or updates versions on dev/next
-          version: pnpm version-packages
-          # publish: Runs the build and publishes to npm
-          publish: pnpm release
+          version: pnpm run changeset:version
+          publish: pnpm run changeset:publish
+          commit: 'ci: Version Packages'
+          title: 'ci: Version Packages'
         env:
           GITHUB_TOKEN: ${{ secrets.CHANGESET_TOKEN }}

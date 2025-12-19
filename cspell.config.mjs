@@ -10,5 +10,13 @@ export default defineConfig({
     },
   ],
   dictionaries: ['project-words'],
-  ignorePaths: ['node_modules', '/project-words.txt', "dist", "build", ".turbo", ".git", "pnpm-lock.yaml"],
+  ignorePaths: [
+    'node_modules',
+    '/project-words.txt',
+    'dist',
+    'build',
+    '.turbo',
+    '.git',
+    'pnpm-lock.yaml',
+  ],
 });
