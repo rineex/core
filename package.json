@@ -51,8 +51,8 @@
     ]
   },
   "simple-git-hooks": {
-    "pre-commit": "lint-staged",
-    "pre-push": "npm run format",
+    "pre-commit": "pnpm lint-staged",
+    "pre-push": "npm run prettier",
     "preserveUnused": true
   }
 }
