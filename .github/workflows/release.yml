@@ -2,14 +2,14 @@ name: Release
 
 on:
   push:
-    branches: [main, alpha, beta]
+    branches:
+      - main # Stable
+      - next # Next/Beta
+      - dev # Canary
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
   cancel-in-progress: true
-
-env:
-  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
 
 permissions:
   contents: write
