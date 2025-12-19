@@ -45,8 +45,6 @@ importers:
         specifier: 4.0.16
         version: 4.0.16(@types/node@24.10.4)(@vitest/ui@4.0.16)(jiti@2.6.1)(yaml@2.8.2)
 
-  packages/common: {}
-
   packages/ddd:
     dependencies:
       fast-deep-equal:
