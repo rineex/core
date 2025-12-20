@@ -1,64 +1,37 @@
-import { UAParser } from 'ua-parser-js';
-import { isbot } from 'isbot';
-import { z } from 'zod';
-
 import { InvalidValueObjectError } from '../errors/invalid-vo.error';
 import { ValueObject } from '../base/vo';
 
-type Props = string;
+export interface UserAgentProps {
+  readonly raw: string;
+  readonly browser: { name?: string; version?: string };
+  readonly os: { name?: string; version?: string };
+  readonly device: { model?: string; type?: string; vendor?: string };
+  readonly isBot: boolean;
+}
+export class UserAgent extends ValueObject<string> {
+  // Store metadata as a private field, not part of the ValueObject identity (props)
+  // This keeps .equals() fast (only compares the UA string)
+  private readonly metadata: UserAgentProps;
 
-export class UserAgent extends ValueObject<Props> {
-  private static schema = z.string().min(5).max(512);
-
-  get browser(): Pick<UAParser.IBrowser, 'name' | 'version'> {
-    return {
-      version: this.parsed.browser.version,
-      name: this.parsed.browser.name,
-    };
+  // We make the constructor internal-friendly
+  constructor(rawString: string, metadata: UserAgentProps) {
+    super(rawString);
+    this.metadata = metadata;
   }
 
-  get device(): Pick<UAParser.IDevice, 'model' | 'type' | 'vendor'> {
-    return this.parsed.device;
-  }
-
-  get isBot(): boolean {
-    return isbot(this.props);
-  }
-
-  get isDesktop(): boolean {
-    return !this.parsed.device.type;
+  protected validate(value: string): void {
+    if (value.length < 5) throw new InvalidValueObjectError('UA too short');
   }
 
   get isMobile(): boolean {
-    return this.parsed.device.type === 'mobile';
+    return this.metadata.device.type === 'mobile';
   }
 
-  get isTablet(): boolean {
-    return this.parsed.device.type === 'tablet';
+  get isBot(): boolean {
+    return this.metadata.isBot;
   }
 
-  get os(): Pick<UAParser.IOS, 'name' | 'version'> {
-    return {
-      version: this.parsed.os.version,
-      name: this.parsed.os.name,
-    };
-  }
-
-  private get parsed(): UAParser.IResult {
-    return new UAParser().setUA(this.props).getResult();
-  }
-
-  public static create(value: string) {
-    return new UserAgent(value);
-  }
-
-  protected validate(value: Props): void {
-    const result = UserAgent.schema.safeParse(value);
-
-    if (!result.success) {
-      throw new InvalidValueObjectError(
-        `Invalid UserAgent: ${result.error.message}`,
-      );
-    }
+  getProps(): string {
+    return this.props;
   }
 }
