@@ -15,6 +15,20 @@ export abstract class ValueObject<T> {
   }
 
   /**
+   * Standard for clean API integration and logging.
+   */
+  public toJSON(): T {
+    return this.props;
+  }
+
+  /**
+   * Useful for debugging and string-based indexing.
+   */
+  public toString(): string {
+    return JSON.stringify(this.props);
+  }
+
+  /**
    * Type guard to check if an unknown object is an instance of ValueObject.
    * This is useful for runtime type checking.
    *
@@ -29,10 +43,10 @@ export abstract class ValueObject<T> {
    * Deep equality comparison of ValueObjects
    */
   public equals(other?: ValueObject<T>): boolean {
-    if (
-      !other ||
-      !(other instanceof (this.constructor as typeof ValueObject))
-    ) {
+    if (other === null || other === undefined) return false;
+
+    // Check if they share the same constructor (Type check)
+    if (Object.getPrototypeOf(this) !== Object.getPrototypeOf(other)) {
       return false;
     }
 
