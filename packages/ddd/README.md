@@ -1,6 +1,8 @@
 # @rineex/ddd
 
-> Domain-Driven Design (DDD) utilities and abstractions for building maintainable, scalable, and testable Node.js applications with clear separation of concerns.
+> Domain-Driven Design (DDD) utilities and abstractions for building
+> maintainable, scalable, and testable Node.js applications with clear
+> separation of concerns.
 
 [![npm version](https://img.shields.io/npm/v/@rineex/ddd)](https://www.npmjs.com/package/@rineex/ddd)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
@@ -28,17 +30,24 @@
 
 ## Overview
 
-`@rineex/ddd` is a lightweight TypeScript library that provides production-grade abstractions for implementing Domain-Driven Design patterns. It enforces architectural constraints that prevent common pitfalls in large-scale applications while maintaining flexibility for domain-specific requirements.
+`@rineex/ddd` is a lightweight TypeScript library that provides production-grade
+abstractions for implementing Domain-Driven Design patterns. It enforces
+architectural constraints that prevent common pitfalls in large-scale
+applications while maintaining flexibility for domain-specific requirements.
 
 ### Key Features
 
-- **Type-Safe Abstractions**: Fully typed base classes for all DDD building blocks
-- **Immutability by Default**: Value objects and entities are frozen to prevent accidental mutations
-- **Domain Events Support**: First-class support for event sourcing and event-driven architectures
+- **Type-Safe Abstractions**: Fully typed base classes for all DDD building
+  blocks
+- **Immutability by Default**: Value objects and entities are frozen to prevent
+  accidental mutations
+- **Domain Events Support**: First-class support for event sourcing and
+  event-driven architectures
 - **Validation Framework**: Built-in validation for value objects and entities
 - **Zero Dependencies**: Only peer dependencies, minimal bundle footprint
 - **Production Ready**: Used in high-performance systems at scale
-- **Comprehensive Error Types**: Specific error classes for domain-driven validation failures
+- **Comprehensive Error Types**: Specific error classes for domain-driven
+  validation failures
 
 ## Philosophy
 
@@ -130,7 +139,7 @@ user.addEvent(
     schemaVersion: 1,
     occurredAt: Date.now(),
     payload: { email: user.email.value },
-  })
+  }),
 );
 
 const events = user.pullDomainEvents();
@@ -141,7 +150,9 @@ console.log(events); // [UserCreatedEvent]
 
 ### Value Objects
 
-Value Objects are immutable objects that are distinguished by their value rather than their identity. They represent concepts within the domain that have no lifecycle.
+Value Objects are immutable objects that are distinguished by their value rather
+than their identity. They represent concepts within the domain that have no
+lifecycle.
 
 #### Characteristics
 
@@ -210,7 +221,8 @@ const address = Address.create({
 
 #### Type Safety with `unwrapValueObject`
 
-When working with collections of value objects, use the `unwrapValueObject` utility:
+When working with collections of value objects, use the `unwrapValueObject`
+utility:
 
 ```typescript
 import { unwrapValueObject, UnwrapValueObject } from '@rineex/ddd';
@@ -225,14 +237,16 @@ const unwrapped: UnwrapValueObject<UserProps> = unwrapValueObject(userProps);
 
 ### Entities
 
-Entities are objects with a unique identity that persists over time. Unlike value objects, they can be mutable and have a lifecycle.
+Entities are objects with a unique identity that persists over time. Unlike
+value objects, they can be mutable and have a lifecycle.
 
 #### Characteristics
 
 - **Unique Identity**: Distinguished by a unique identifier (not just value)
 - **Lifecycle**: Can be created, modified, and deleted
 - **Mutable**: State can change, but identity remains constant
-- **Equality by Identity**: Two entities with different properties but the same ID are equal
+- **Equality by Identity**: Two entities with different properties but the same
+  ID are equal
 
 #### Implementation
 
@@ -289,14 +303,17 @@ console.log(item.total); // 59.98
 
 ### Aggregate Roots
 
-Aggregate Roots are entities that serve as entry points to aggregates. They enforce invariants, manage transactions, and raise domain events.
+Aggregate Roots are entities that serve as entry points to aggregates. They
+enforce invariants, manage transactions, and raise domain events.
 
 #### Characteristics
 
 - **Boundary**: Define the scope of consistency within a transaction
-- **Invariant Enforcement**: Validate rules that involve multiple entities or value objects
+- **Invariant Enforcement**: Validate rules that involve multiple entities or
+  value objects
 - **Event Publisher**: Raise domain events to notify other parts of the system
-- **Transaction Consistency**: All changes within an aggregate should be persisted atomically
+- **Transaction Consistency**: All changes within an aggregate should be
+  persisted atomically
 
 #### Implementation
 
@@ -315,7 +332,7 @@ class UserCreatedEvent extends DomainEvent {
   constructor(
     props: Parameters<DomainEvent['constructor']>[0] & {
       payload: { email: string };
-    }
+    },
   ) {
     super(props);
   }
@@ -354,7 +371,7 @@ class User extends AggregateRoot<UserProps> {
         schemaVersion: 1,
         occurredAt: Date.now(),
         payload: { email },
-      })
+      }),
     );
 
     return user;
@@ -375,7 +392,7 @@ class User extends AggregateRoot<UserProps> {
         schemaVersion: 1,
         occurredAt: Date.now(),
         payload: { oldEmail: this.props.email, newEmail },
-      })
+      }),
     );
   }
 
@@ -396,13 +413,16 @@ console.log(events); // [UserCreatedEvent, UserEmailChangedEvent]
 
 #### Key Methods
 
-- **`addEvent(event: DomainEvent): void`** - Adds a domain event after validating invariants
-- **`pullDomainEvents(): readonly DomainEvent[]`** - Retrieves and clears all domain events
+- **`addEvent(event: DomainEvent): void`** - Adds a domain event after
+  validating invariants
+- **`pullDomainEvents(): readonly DomainEvent[]`** - Retrieves and clears all
+  domain events
 - **`validate(): void`** - Abstract method for enforcing aggregate invariants
 
 ### Domain Events
 
-Domain Events represent significant things that happened in the domain. They are immutable records of past events and enable event-driven architectures.
+Domain Events represent significant things that happened in the domain. They are
+immutable records of past events and enable event-driven architectures.
 
 #### Characteristics
 
@@ -430,9 +450,12 @@ class OrderPlacedEvent extends DomainEvent<OrderPlacedPayload> {
   public readonly eventName = 'OrderPlaced';
 
   constructor(
-    props: Omit<Parameters<DomainEvent<OrderPlacedPayload>['constructor']>[0], 'payload'> & {
+    props: Omit<
+      Parameters<DomainEvent<OrderPlacedPayload>['constructor']>[0],
+      'payload'
+    > & {
       payload: OrderPlacedPayload;
-    }
+    },
   ) {
     super(props);
   }
@@ -466,13 +489,16 @@ const primitives = event.toPrimitives();
 
 ### Application Services
 
-Application Services orchestrate the business logic of the domain. They are the entry points for handling use cases and commands.
+Application Services orchestrate the business logic of the domain. They are the
+entry points for handling use cases and commands.
 
 #### Characteristics
 
-- **Use Case Implementation**: Each service handles a single, well-defined use case
+- **Use Case Implementation**: Each service handles a single, well-defined use
+  case
 - **Port Interface**: Implement a standard interface for consistency
-- **Orchestration**: Coordinate domain objects, repositories, and external services
+- **Orchestration**: Coordinate domain objects, repositories, and external
+  services
 - **Transaction Management**: Define transaction boundaries
 - **Error Handling**: Map domain errors to application-level responses
 
@@ -495,10 +521,13 @@ interface CreateUserOutput {
 }
 
 // Implement the service
-class CreateUserService implements ApplicationServicePort<CreateUserInput, CreateUserOutput> {
+class CreateUserService implements ApplicationServicePort<
+  CreateUserInput,
+  CreateUserOutput
+> {
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly eventPublisher: EventPublisher
+    private readonly eventPublisher: EventPublisher,
   ) {}
 
   async execute(args: CreateUserInput): Promise<CreateUserOutput> {
@@ -553,6 +582,7 @@ export abstract class ValueObject<T> {
 ```
 
 **Methods:**
+
 - `value` - Returns the immutable properties
 - `is(vo)` - Type guard for runtime checking
 - `equals(other)` - Deep equality comparison
@@ -575,6 +605,7 @@ export abstract class Entity<EntityProps> {
 ```
 
 **Constructor:**
+
 ```typescript
 new Entity({
   id?: AggregateId;        // Generated if not provided
@@ -599,6 +630,7 @@ export abstract class AggregateRoot<EntityProps> extends Entity<EntityProps> {
 ```
 
 **Methods:**
+
 - `addEvent(event)` - Add an event after validating invariants
 - `pullDomainEvents()` - Get and clear all recorded events
 - `domainEvents` - Read-only view of current events
@@ -617,7 +649,7 @@ export abstract class DomainEvent<T extends DomainEventPayload> {
   readonly schemaVersion: number;
   readonly occurredAt: number;
   readonly payload: Readonly<T>;
-  
+
   toPrimitives(): {
     id: string;
     aggregateId: string;
@@ -724,7 +756,8 @@ export class ApplicationError extends DomainError {}
 
 ### Complete Order Management System
 
-Here's a realistic example showing how to structure a domain with multiple aggregates:
+Here's a realistic example showing how to structure a domain with multiple
+aggregates:
 
 ```typescript
 import {
@@ -788,10 +821,7 @@ class OrderLine extends Entity<OrderLineProps> {
   }
 
   get subtotal(): Money {
-    return Money.create(
-      this.price.amount * this.quantity,
-      this.price.currency
-    );
+    return Money.create(this.price.amount * this.quantity, this.price.currency);
   }
 
   protected validate(): void {
@@ -860,7 +890,7 @@ class Order extends AggregateRoot<OrderProps> {
         schemaVersion: 1,
         occurredAt: Date.now(),
         payload: { customerId },
-      })
+      }),
     );
 
     return order;
@@ -883,7 +913,7 @@ class Order extends AggregateRoot<OrderProps> {
         schemaVersion: 1,
         occurredAt: Date.now(),
         payload: { productId, quantity },
-      })
+      }),
     );
   }
 
@@ -901,15 +931,12 @@ class Order extends AggregateRoot<OrderProps> {
         schemaVersion: 1,
         occurredAt: Date.now(),
         payload: { total: this.total.amount },
-      })
+      }),
     );
   }
 
   private recalculateTotal(): void {
-    const sum = this.lines.reduce(
-      (acc, line) => acc + line.subtotal.amount,
-      0
-    );
+    const sum = this.lines.reduce((acc, line) => acc + line.subtotal.amount, 0);
     this.props.total = Money.create(sum, 'USD');
   }
 
@@ -937,18 +964,17 @@ interface CreateOrderOutput {
   lineCount: number;
 }
 
-class CreateOrderService implements ApplicationServicePort<CreateOrderInput, CreateOrderOutput> {
+class CreateOrderService implements ApplicationServicePort<
+  CreateOrderInput,
+  CreateOrderOutput
+> {
   constructor(private readonly orderRepository: OrderRepository) {}
 
   async execute(args: CreateOrderInput): Promise<CreateOrderOutput> {
     const order = Order.create(args.customerId);
 
     for (const line of args.lines) {
-      order.addLine(
-        line.productId,
-        line.quantity,
-        Money.create(line.price)
-      );
+      order.addLine(line.productId, line.quantity, Money.create(line.price));
     }
 
     order.complete();
@@ -984,7 +1010,8 @@ class VerifiedUser extends ValueObject<{ email: string; verifiedAt: Date }> {}
 
 ### 2. **Keep Aggregates Small**
 
-Prefer small aggregates with clear boundaries over large aggregates with many entities:
+Prefer small aggregates with clear boundaries over large aggregates with many
+entities:
 
 ```typescript
 // ❌ BAD: Too many entities in one aggregate
@@ -1058,7 +1085,7 @@ class User extends AggregateRoot {
   changeEmail(newEmail: Email): void {
     const oldEmail = this.email;
     this.props.email = newEmail;
-    
+
     this.addEvent(
       new EmailChangedEvent({
         id: crypto.randomUUID(),
@@ -1066,7 +1093,7 @@ class User extends AggregateRoot {
         schemaVersion: 1,
         occurredAt: Date.now(),
         payload: { oldEmail: oldEmail.value, newEmail: newEmail.value },
-      })
+      }),
     );
   }
 }
@@ -1092,14 +1119,15 @@ async function handle(command: CreateUserCommand): Promise<void> {
 
 ### 7. **Immutability by Convention**
 
-Even though TypeScript doesn't enforce it, treat all domain objects as immutable:
+Even though TypeScript doesn't enforce it, treat all domain objects as
+immutable:
 
 ```typescript
 // ✅ GOOD: Replace entire aggregate when state changes
 class User extends AggregateRoot {
   changeName(newName: string): void {
     // Don't mutate: this.props.name = newName;
-    
+
     // Instead, create new object:
     this.props = { ...this.props, name: newName };
   }
@@ -1156,7 +1184,8 @@ try {
 
 ## TypeScript Support
 
-This library is built with TypeScript 5.9+ and provides comprehensive type safety:
+This library is built with TypeScript 5.9+ and provides comprehensive type
+safety:
 
 ```typescript
 // Full type inference
@@ -1165,7 +1194,7 @@ const id: AggregateId = user.id; // Correctly typed
 
 // Type-safe event handling
 const events = user.pullDomainEvents();
-events.forEach((event) => {
+events.forEach(event => {
   if (event instanceof UserCreatedEvent) {
     // Type guard works correctly
     const payload = event.payload; // Correctly inferred type
@@ -1239,18 +1268,23 @@ pnpm build
 
 ## License
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the
+[LICENSE](LICENSE) file for details.
 
 ## Related Resources
 
-- [Domain-Driven Design: Tackling Complexity in the Heart of Software](https://www.domainlanguage.com/ddd/) by Eric Evans
-- [Implementing Domain-Driven Design](https://vaughnvernon.com/books/) by Vaughn Vernon
-- [Architecture Patterns with Python](https://www.cosmicpython.com/) by Harry J. W. Percival and Bob Gregory
+- [Domain-Driven Design: Tackling Complexity in the Heart of Software](https://www.domainlanguage.com/ddd/)
+  by Eric Evans
+- [Implementing Domain-Driven Design](https://vaughnvernon.com/books/) by Vaughn
+  Vernon
+- [Architecture Patterns with Python](https://www.cosmicpython.com/) by Harry J.
+  W. Percival and Bob Gregory
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 
 ## Support
 
-For issues, questions, or suggestions, please open an issue on [GitHub](https://github.com/rineex/core/issues).
+For issues, questions, or suggestions, please open an issue on
+[GitHub](https://github.com/rineex/core/issues).
 
 ---
 

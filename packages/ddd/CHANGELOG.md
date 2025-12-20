@@ -1,5 +1,12 @@
 # @rineex/ddd
 
+## 1.1.1
+
+### Patch Changes
+
+- documentation for `@rineex/ddd` added
+  ([`59c548c`](https://github.com/rineex/core/commit/59c548c5bba66be101bd532e62afd49e383b9af7))
+
 ## 1.1.0
 
 ### Minor Changes
