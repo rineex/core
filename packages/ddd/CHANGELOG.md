@@ -1,5 +1,12 @@
 # @rineex/ddd
 
+## 1.1.0
+
+### Minor Changes
+
+- aggregate root + base entity + domain events added
+  ([`9e56fdf`](https://github.com/rineex/core/commit/9e56fdfdfbbad16825170385ec324ef0867b3b7a))
+
 ## 1.0.0
 
 ### Major Changes
