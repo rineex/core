@@ -1,5 +1,13 @@
 # @rineex/ddd
 
+## 1.2.0
+
+### Minor Changes
+
+- feat: implement UserAgentFactory and update UserAgent for better metadata
+  ([`9519aa9`](https://github.com/rineex/core/commit/9519aa9d281e7242e3bd3500c43299569c454725))
+  handling
+
 ## 1.1.1
 
 ### Patch Changes
