@@ -1,6 +1,7 @@
 # Rineex Core
 
-> A monorepo containing essential, production-grade packages for building scalable and maintainable TypeScript/Node.js applications.
+> A monorepo containing essential, production-grade packages for building
+> scalable and maintainable TypeScript/Node.js applications.
 
 [![monorepo](https://img.shields.io/badge/monorepo-turbo-blue.svg)](https://turbo.build/)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
@@ -8,7 +9,10 @@
 
 ## Overview
 
-Rineex Core is a collection of carefully crafted, battle-tested packages designed following Domain-Driven Design (DDD) principles and industry best practices. Each package is independently versioned and published to npm, enabling teams to adopt only what they need.
+Rineex Core is a collection of carefully crafted, battle-tested packages
+designed following Domain-Driven Design (DDD) principles and industry best
+practices. Each package is independently versioned and published to npm,
+enabling teams to adopt only what they need.
 
 ## Packages
 
@@ -17,22 +21,29 @@ Rineex Core is a collection of carefully crafted, battle-tested packages designe
 [![npm version](https://img.shields.io/npm/v/@rineex/ddd)](https://www.npmjs.com/package/@rineex/ddd)
 [![npm downloads](https://img.shields.io/npm/dm/@rineex/ddd)](https://www.npmjs.com/package/@rineex/ddd)
 
-A comprehensive, production-grade TypeScript library providing battle-tested abstractions for implementing Domain-Driven Design patterns. Build maintainable, scalable applications with type-safe entities, aggregates, value objects, and domain events.
+A comprehensive, production-grade TypeScript library providing battle-tested
+abstractions for implementing Domain-Driven Design patterns. Build maintainable,
+scalable applications with type-safe entities, aggregates, value objects, and
+domain events.
 
 #### Quick Summary
 
 - **Value Objects**: Immutable objects distinguished by value, not identity
 - **Entities**: Objects with unique identity and lifecycle
-- **Aggregate Roots**: Entry points to aggregates with invariant enforcement and event support
+- **Aggregate Roots**: Entry points to aggregates with invariant enforcement and
+  event support
 - **Domain Events**: Immutable records of significant domain occurrences
 - **Application Services**: Orchestrators for use cases and commands
 - **Zero Dependencies**: Lightweight with only peer dependencies
 
 #### Key Features
 
-✨ **Type-Safe Abstractions** - Fully typed base classes for all DDD building blocks  
-🔒 **Immutability by Default** - Value objects and entities are frozen to prevent mutations  
-📡 **Domain Events Support** - First-class support for event sourcing and event-driven architectures  
+✨ **Type-Safe Abstractions** - Fully typed base classes for all DDD building
+blocks  
+🔒 **Immutability by Default** - Value objects and entities are frozen to
+prevent mutations  
+📡 **Domain Events Support** - First-class support for event sourcing and
+event-driven architectures  
 ✅ **Built-in Validation** - Enforce domain rules at aggregate boundaries  
 ⚡ **Zero Dependencies** - Minimal bundle footprint for maximum flexibility  
 🏢 **Production Ready** - Used in high-performance systems at scale
@@ -44,7 +55,12 @@ npm install @rineex/ddd
 ```
 
 ```typescript
-import { AggregateRoot, ValueObject, AggregateId, DomainEvent } from '@rineex/ddd';
+import {
+  AggregateRoot,
+  ValueObject,
+  AggregateId,
+  DomainEvent,
+} from '@rineex/ddd';
 
 // Define a Value Object
 class Email extends ValueObject<string> {
@@ -81,14 +97,21 @@ const user = new User({
 
 #### Comprehensive Documentation
 
-For in-depth guidance, examples, and best practices, see the [**@rineex/ddd Documentation**](./packages/ddd/README.md):
+For in-depth guidance, examples, and best practices, see the
+[**@rineex/ddd Documentation**](./packages/ddd/README.md):
 
-- 📚 [Core Concepts Guide](./packages/ddd/README.md#core-concepts) - Value Objects, Entities, Aggregates, Events
-- 🔧 [Complete API Reference](./packages/ddd/README.md#api-reference) - All classes, interfaces, and methods
-- 💡 [Real-World Examples](./packages/ddd/README.md#examples) - Full order management system implementation
-- ✅ [Best Practices](./packages/ddd/README.md#best-practices) - FAANG-level patterns and principles
-- 🚨 [Error Handling](./packages/ddd/README.md#error-handling) - Proper error management strategies
-- 🤝 [Contributing Guide](./packages/ddd/README.md#contributing) - Development setup and guidelines
+- 📚 [Core Concepts Guide](./packages/ddd/README.md#core-concepts) - Value
+  Objects, Entities, Aggregates, Events
+- 🔧 [Complete API Reference](./packages/ddd/README.md#api-reference) - All
+  classes, interfaces, and methods
+- 💡 [Real-World Examples](./packages/ddd/README.md#examples) - Full order
+  management system implementation
+- ✅ [Best Practices](./packages/ddd/README.md#best-practices) - FAANG-level
+  patterns and principles
+- 🚨 [Error Handling](./packages/ddd/README.md#error-handling) - Proper error
+  management strategies
+- 🤝 [Contributing Guide](./packages/ddd/README.md#contributing) - Development
+  setup and guidelines
 
 #### Included Value Objects
 
@@ -149,7 +172,8 @@ pnpm check-types
 
 ### Workspace Scripts
 
-The monorepo uses [Turborepo](https://turbo.build/) for efficient task execution across packages.
+The monorepo uses [Turborepo](https://turbo.build/) for efficient task execution
+across packages.
 
 ```bash
 # Run command in all packages
@@ -164,7 +188,9 @@ pnpm turbo run dev --parallel
 
 ## Publishing
 
-Packages are published automatically through GitHub Actions when changes are merged to the main branch. Version management is handled via [Changesets](https://github.com/changesets/changesets).
+Packages are published automatically through GitHub Actions when changes are
+merged to the main branch. Version management is handled via
+[Changesets](https://github.com/changesets/changesets).
 
 ### Creating a Changeset
 
@@ -172,13 +198,15 @@ Packages are published automatically through GitHub Actions when changes are mer
 pnpm changeset
 ```
 
-Follow the prompts to document your changes. This will create a changeset file that will be used to automatically bump versions and generate changelogs.
+Follow the prompts to document your changes. This will create a changeset file
+that will be used to automatically bump versions and generate changelogs.
 
 ## Architecture Principles
 
 This monorepo follows these key principles:
 
-1. **Domain-Driven Design** - Clear separation of domain logic from infrastructure
+1. **Domain-Driven Design** - Clear separation of domain logic from
+   infrastructure
 2. **Type Safety** - Strict TypeScript configuration for compile-time safety
 3. **Immutability** - Default-immutable data structures to prevent bugs
 4. **Composition** - Small, focused packages that can be used independently
@@ -187,7 +215,8 @@ This monorepo follows these key principles:
 
 ## Contributing
 
-We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md)
+for details on our code of conduct and the process for submitting pull requests.
 
 ### Quick Start for Contributors
 
@@ -210,18 +239,23 @@ git push origin feature/your-feature
 
 ## License
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the
+[LICENSE](LICENSE) file for details.
 
 ## Support
 
 - 📖 **Documentation** - See individual package READMEs
-- 🐛 **Issues** - Report bugs on [GitHub Issues](https://github.com/rineex/core/issues)
-- 💬 **Discussions** - Ask questions on [GitHub Discussions](https://github.com/rineex/core/discussions)
+- 🐛 **Issues** - Report bugs on
+  [GitHub Issues](https://github.com/rineex/core/issues)
+- 💬 **Discussions** - Ask questions on
+  [GitHub Discussions](https://github.com/rineex/core/discussions)
 
 ## Related Resources
 
-- [Domain-Driven Design: Tackling Complexity in the Heart of Software](https://www.domainlanguage.com/ddd/) by Eric Evans
-- [Implementing Domain-Driven Design](https://vaughnvernon.com/books/) by Vaughn Vernon
+- [Domain-Driven Design: Tackling Complexity in the Heart of Software](https://www.domainlanguage.com/ddd/)
+  by Eric Evans
+- [Implementing Domain-Driven Design](https://vaughnvernon.com/books/) by Vaughn
+  Vernon
 - [Turborepo Documentation](https://turbo.build/repo/docs)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 
