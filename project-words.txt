@@ -6,6 +6,7 @@ fullstacksjs
 initdb
 ioredis
 isbot
+passwordless
 pgcrypto
 plpgsql
 preid
