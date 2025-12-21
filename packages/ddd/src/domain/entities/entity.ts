@@ -55,7 +55,7 @@ export abstract class Entity<EntityProps> {
   public get metadata() {
     return Object.freeze({
       createdAt: this.#createdAt.toISOString(),
-      id: this.#id.uuid,
+      id: this.#id,
     });
   }
 
@@ -141,9 +141,9 @@ export abstract class Entity<EntityProps> {
    *
    * @returns True if the entity is transient (not persisted), otherwise false.
    */
-  public isPersisted(): boolean {
-    return this.#id.isEmpty();
-  }
+  // public isPersisted(): boolean {
+  //   return this.#id.isEmpty();
+  // }
 
   public toJSON(): Record<string, unknown> {
     return this.toObject();

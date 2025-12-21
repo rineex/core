@@ -24,11 +24,16 @@ import { PrimitiveValueObject } from '../base/primitive-vo';
 export class UUID extends PrimitiveValueObject<string> {
   private static readonly schema = z.uuid();
 
+  public constructor(value: string) {
+    super(value);
+    this.validate(value);
+  }
+
   /**
    * Generates a new AggregateId.
    */
-  public static generate(): UUID {
-    return new UUID(v4());
+  public static generate<T extends typeof UUID>(this: T): InstanceType<T> {
+    return new this(v4()) as InstanceType<T>;
   }
 
   /**
@@ -38,7 +43,7 @@ export class UUID extends PrimitiveValueObject<string> {
    * @param value - UUID string
    */
   public static fromString(value: string): UUID {
-    return new UUID(value);
+    return new this(value);
   }
 
   protected validate(value: string): void {
