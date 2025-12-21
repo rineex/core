@@ -18,6 +18,7 @@ permissions:
 jobs:
   autofix:
     name: autofix
+    if: vars.AUTOFIX_CI_ENABLED == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
