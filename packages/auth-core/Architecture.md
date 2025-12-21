@@ -4,13 +4,14 @@
 
 Design a **framework-agnostic, storage-agnostic authentication core** that:
 
-* Works with **zero customization**
-* Supports **incremental auth methods**
-* Is suitable for **enterprise and simple products**
-* Is extensible without modifying existing domain code
-* Is independent of HTTP, DB, tokens, providers, or frameworks
+- Works with **zero customization**
+- Supports **incremental auth methods**
+- Is suitable for **enterprise and simple products**
+- Is extensible without modifying existing domain code
+- Is independent of HTTP, DB, tokens, providers, or frameworks
 
-This module defines **what authentication is**, not **how it is transported or stored**.
+This module defines **what authentication is**, not **how it is transported or
+stored**.
 
 ---
 
@@ -36,19 +37,19 @@ If a new auth method breaks a rule → architecture is wrong.
 
 Responsibilities:
 
-* Verifying proof of access
-* Orchestrating authentication flows
-* Enforcing policies
-* Producing authenticated sessions
+- Verifying proof of access
+- Orchestrating authentication flows
+- Enforcing policies
+- Producing authenticated sessions
 
 Non-responsibilities:
 
-* User profile management
-* Authorization / permissions
-* HTTP handling
-* UI flows
-* Token formats
-* Database schemas
+- User profile management
+- Authorization / permissions
+- HTTP handling
+- UI flows
+- Token formats
+- Database schemas
 
 ---
 
@@ -79,9 +80,9 @@ Represents **who or what** is authenticating.
 
 **Key rules**
 
-* Can exist without credentials
-* Can represent humans, services, or devices
-* Is auth-method agnostic
+- Can exist without credentials
+- Can represent humans, services, or devices
+- Is auth-method agnostic
 
 ---
 
@@ -91,9 +92,9 @@ Represents **what the principal owns** to authenticate.
 
 **Key rules**
 
-* Domain never stores secrets
-* Lifecycle is domain-controlled
-* Verification is delegated to infrastructure
+- Domain never stores secrets
+- Lifecycle is domain-controlled
+- Verification is delegated to infrastructure
 
 ---
 
@@ -103,9 +104,9 @@ Represents **one authentication process**.
 
 **Why it exists**
 
-* Prevents replay
-* Supports MFA and step-up
-* Enables audit and risk evaluation
+- Prevents replay
+- Supports MFA and step-up
+- Enables audit and risk evaluation
 
 ---
 
@@ -115,9 +116,9 @@ Represents **authenticated continuity**.
 
 **Key rules**
 
-* Created only after successful authentication
-* Stateless vs stateful is infrastructure choice
-* Trust level is domain-owned
+- Created only after successful authentication
+- Stateless vs stateful is infrastructure choice
+- Trust level is domain-owned
 
 ---
 
@@ -125,20 +126,20 @@ Represents **authenticated continuity**.
 
 Value Objects define meaning, not storage:
 
-* AuthMethodType
-* AuthFactorType
-* AuthProof
-* TrustLevel
-* RiskScore
-* Challenge
-* ContextSnapshot
+- AuthMethodType
+- AuthFactorType
+- AuthProof
+- TrustLevel
+- RiskScore
+- Challenge
+- ContextSnapshot
 
 Auth factors are **categories**, not implementations:
 
-* Knowledge
-* Possession
-* Inherence
-* Delegated
+- Knowledge
+- Possession
+- Inherence
+- Delegated
 
 ---
 
@@ -150,16 +151,16 @@ They are **capabilities described by data**.
 
 An Auth Method defines:
 
-* Its identifier
-* Supported factors
-* Required inputs
-* Output proof type
+- Its identifier
+- Supported factors
+- Required inputs
+- Output proof type
 
 The domain:
 
-* Does not know *how* a method works
-* Does not know *who* provides it
-* Does not change when a method is added
+- Does not know _how_ a method works
+- Does not know _who_ provides it
+- Does not change when a method is added
 
 ---
 
@@ -173,15 +174,15 @@ Coordinates attempts, proofs, and policies.
 
 Decides:
 
-* Whether authentication is allowed
-* Whether step-up is required
-* Which flow applies
+- Whether authentication is allowed
+- Whether step-up is required
+- Which flow applies
 
 No domain service:
 
-* Talks to HTTP
-* Knows about tokens
-* Knows about databases
+- Talks to HTTP
+- Knows about tokens
+- Knows about databases
 
 ---
 
@@ -189,20 +190,19 @@ No domain service:
 
 ### Persistence Ports
 
-* PrincipalRepository
-* CredentialRepository
-* AuthenticationAttemptRepository
-* AuthenticationSessionRepository
+- PrincipalRepository
+- CredentialRepository
+- AuthenticationAttemptRepository
+- AuthenticationSessionRepository
 
 ### Capability Ports
 
-* AuthProofVerifier
-* ChallengeIssuer
-* RiskEvaluator
-* TokenIssuer
+- AuthProofVerifier
+- ChallengeIssuer
+- RiskEvaluator
+- TokenIssuer
 
-Infrastructure implements ports.
-Domain only defines **contracts**.
+Infrastructure implements ports. Domain only defines **contracts**.
 
 ---
 
@@ -225,12 +225,12 @@ Everything else is additive.
 
 These are **intentionally excluded**:
 
-* HTTP redirects
-* Cookies and headers
-* JWT structure
-* OAuth provider SDKs
-* UI workflows
-* Database schemas
+- HTTP redirects
+- Cookies and headers
+- JWT structure
+- OAuth provider SDKs
+- UI workflows
+- Database schemas
 
 They belong to adapters, not the core.
 
@@ -240,11 +240,11 @@ They belong to adapters, not the core.
 
 Before adding any auth feature, verify:
 
-* No existing aggregate changes
-* No domain branching
-* No infrastructure assumptions
-* No HTTP dependency
-* Enabled via configuration or policy
+- No existing aggregate changes
+- No domain branching
+- No infrastructure assumptions
+- No HTTP dependency
+- Enabled via configuration or policy
 
 Failing any → redesign first.
 
@@ -252,6 +252,6 @@ Failing any → redesign first.
 
 ## 13. Document Status
 
-* This document is **authoritative**
-* Any implementation must conform to it
-* Changes require architectural justification
+- This document is **authoritative**
+- Any implementation must conform to it
+- Changes require architectural justification

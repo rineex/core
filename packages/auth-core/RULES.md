@@ -1,7 +1,7 @@
-
 # Step 7 — Port & Adapter Map (with Bundle-Size & Modularization First)
 
-This step defines **what gets compiled together, what is optional, and what can be tree-shaken**.
+This step defines **what gets compiled together, what is optional, and what can
+be tree-shaken**.
 
 If this is wrong, your “install only what you need” promise is impossible.
 
@@ -11,15 +11,15 @@ If this is wrong, your “install only what you need” promise is impossible.
 
 Your auth core must satisfy **all** of these:
 
-* Zero required adapters
-* Zero required auth methods
-* Zero required storage
-* Domain usable alone
-* Each auth method installable separately
-* Each adapter installable separately
-* No transitive bloat
-* Tree-shakable
-* Side-effect free modules
+- Zero required adapters
+- Zero required auth methods
+- Zero required storage
+- Domain usable alone
+- Each auth method installable separately
+- Each adapter installable separately
+- No transitive bloat
+- Tree-shakable
+- Side-effect free modules
 
 If any package pulls more than it needs → fail.
 
@@ -51,11 +51,11 @@ This is the **only sane layout**:
 
 ### Rules
 
-* `core-domain` depends on **nothing**
-* `core-ports` depends only on `core-domain`
-* Methods depend on `core-domain + core-ports`
-* Adapters depend on `core-ports`
-* No reverse dependencies. Ever.
+- `core-domain` depends on **nothing**
+- `core-ports` depends only on `core-domain`
+- Methods depend on `core-domain + core-ports`
+- Adapters depend on `core-ports`
+- No reverse dependencies. Ever.
 
 ---
 
@@ -65,23 +65,22 @@ This is the **only sane layout**:
 
 Includes:
 
-* Aggregates
-* Entities
-* Value Objects
-* Domain Services
-* Invariants
-* Domain Events
+- Aggregates
+- Entities
+- Value Objects
+- Domain Services
+- Invariants
+- Domain Events
 
 Explicitly excluded:
 
-* Interfaces to infra
-* Repositories
-* Verification logic
-* Serialization
-* Config loading
+- Interfaces to infra
+- Repositories
+- Verification logic
+- Serialization
+- Config loading
 
-Bundle size: **tiny**
-This package should never change often.
+Bundle size: **tiny** This package should never change often.
 
 ---
 
@@ -92,38 +91,38 @@ This is the **only dependency surface** for extensions.
 ### 4.1 Persistence Ports
 
 ```ts
-PrincipalRepository
-CredentialRepository
-AuthenticationAttemptRepository
-AuthenticationSessionRepository
+PrincipalRepository;
+CredentialRepository;
+AuthenticationAttemptRepository;
+AuthenticationSessionRepository;
 ```
 
 Rules:
 
-* No SQL
-* No ORM
-* No query builders
-* No pagination logic
+- No SQL
+- No ORM
+- No query builders
+- No pagination logic
 
 ---
 
 ### 4.2 Capability / SPI Ports
 
 ```ts
-AuthMethodRegistry
-AuthProofVerifier
-ChallengeIssuer
-RiskEvaluator
-TokenIssuer
-SessionRepresentationFactory
+AuthMethodRegistry;
+AuthProofVerifier;
+ChallengeIssuer;
+RiskEvaluator;
+TokenIssuer;
+SessionRepresentationFactory;
 ```
 
 Rules:
 
-* Stateless interfaces
-* No default implementations
-* No optional methods
-* No framework types
+- Stateless interfaces
+- No default implementations
+- No optional methods
+- No framework types
 
 ---
 
@@ -139,23 +138,23 @@ Example:
 
 Contains:
 
-* AuthMethodDefinition
-* Required input schema (domain-level)
-* Proof mapping
-* Registration function
+- AuthMethodDefinition
+- Required input schema (domain-level)
+- Proof mapping
+- Registration function
 
 Does NOT contain:
 
-* Hashing logic
-* DB access
-* HTTP handling
-* SDKs
+- Hashing logic
+- DB access
+- HTTP handling
+- SDKs
 
 This guarantees:
 
-* Installing OTP does not install OAuth
-* Installing OAuth does not install JWT
-* Bundle size stays minimal
+- Installing OTP does not install OAuth
+- Installing OAuth does not install JWT
+- Bundle size stays minimal
 
 ---
 
@@ -179,9 +178,9 @@ Good ✅
 
 Each adapter:
 
-* Implements interfaces from `core-ports`
-* Knows nothing about domain internals
-* Can be swapped freely
+- Implements interfaces from `core-ports`
+- Knows nothing about domain internals
+- Can be swapped freely
 
 ---
 
@@ -199,10 +198,10 @@ This diagram must never be violated:
 
 Never:
 
-* Adapter → Method
-* Method → Adapter
-* Domain → Port implementation
-* Domain → Method
+- Adapter → Method
+- Method → Adapter
+- Domain → Port implementation
+- Domain → Method
 
 ---
 
@@ -210,12 +209,12 @@ Never:
 
 To make bundle-size guarantees real:
 
-* No side effects in module root
-* No auto-registration
-* Explicit `register()` calls
-* Pure ES modules
-* No global singletons
-* No reflection-based loading
+- No side effects in module root
+- No auto-registration
+- Explicit `register()` calls
+- Pure ES modules
+- No global singletons
+- No reflection-based loading
 
 If a user doesn’t import it → it must not exist in bundle.
 
@@ -225,22 +224,22 @@ If a user doesn’t import it → it must not exist in bundle.
 
 The **consumer** wires things together:
 
-* Registers methods
-* Provides adapters
-* Selects flows
-* Configures policies
+- Registers methods
+- Provides adapters
+- Selects flows
+- Configures policies
 
 Your core:
 
-* Does not auto-wire
-* Does not scan
-* Does not assume environment
+- Does not auto-wire
+- Does not scan
+- Does not assume environment
 
 This keeps:
 
-* Core small
-* Behavior explicit
-* Enterprise-safe
+- Core small
+- Behavior explicit
+- Enterprise-safe
 
 ---
 
@@ -248,12 +247,9 @@ This keeps:
 
 Before moving forward:
 
-✔ Core domain installs alone
-✔ No auth method is mandatory
-✔ No adapter is mandatory
-✔ Importing one method doesn’t pull others
-✔ Infra choices are replaceable
-✔ Bundle analyzer shows only used code
+✔ Core domain installs alone ✔ No auth method is mandatory ✔ No adapter is
+mandatory ✔ Importing one method doesn’t pull others ✔ Infra choices are
+replaceable ✔ Bundle analyzer shows only used code
 
 If any fails → restructure now.
 
@@ -261,17 +257,15 @@ If any fails → restructure now.
 
 ## Step 7 Status
 
-✅ Port boundaries defined
-✅ Modular packaging model defined
-✅ Bundle-size safe
-✅ Tree-shakable
-✅ Enterprise-usable
+✅ Port boundaries defined ✅ Modular packaging model defined ✅ Bundle-size
+safe ✅ Tree-shakable ✅ Enterprise-usable
 
 ---
 
 # Step 9 — Minimal End-to-End Walkthrough (Passwordless)
 
-> Goal: Show a complete authentication cycle using **Passwordless Email**, fully abstract, modular, and documented.
+> Goal: Show a complete authentication cycle using **Passwordless Email**, fully
+> abstract, modular, and documented.
 
 ---
 
@@ -286,10 +280,10 @@ If any fails → restructure now.
 
 Rules:
 
-* Core-domain + core-ports always installed
-* Method installed separately
-* Adapter optional
-* No infra dependencies required
+- Core-domain + core-ports always installed
+- Method installed separately
+- Adapter optional
+- No infra dependencies required
 
 ---
 
@@ -299,7 +293,7 @@ Rules:
 // AuthenticationAttempt aggregate
 const attempt = AuthenticationAttempt.create({
   flowId: 'passwordless_flow',
-  principalId: 'user-123'
+  principalId: 'user-123',
 });
 
 // Principal entity exists
@@ -310,15 +304,15 @@ const credential = Credential.create({
   principalId: principal.id,
   methodType: 'passwordless_email',
   factor: 'possession',
-  status: 'Active'
+  status: 'Active',
 });
 ```
 
 **Notes:**
 
-* All objects are **domain-pure**.
-* No secrets stored in domain.
-* All lifecycle and invariants enforced.
+- All objects are **domain-pure**.
+- No secrets stored in domain.
+- All lifecycle and invariants enforced.
 
 ---
 
@@ -328,16 +322,17 @@ const credential = Credential.create({
 const registry: IAuthMethodRegistry = new AuthMethodRegistry();
 
 // Passwordless Method (installed separately)
-const passwordlessMethod: IAuthMethod<{ email: string }, AuthProof> = new PasswordlessEmailMethod();
+const passwordlessMethod: IAuthMethod<{ email: string }, AuthProof> =
+  new PasswordlessEmailMethod();
 
 registry.register(passwordlessMethod);
 ```
 
 **Documentation Notes:**
 
-* Registration explicit, tree-shakable.
-* SPI ensures domain does not know implementation.
-* Developers can see registry calls in code history for traceability.
+- Registration explicit, tree-shakable.
+- SPI ensures domain does not know implementation.
+- Developers can see registry calls in code history for traceability.
 
 ---
 
@@ -353,20 +348,20 @@ const passwordlessFlow = new AuthenticationFlow({
       authMethodType: 'passwordless_email',
       required: true,
       onSuccess: { targetStepId: 'terminal_success' },
-      onFailure: { targetStepId: 'terminal_failed' }
-    }
+      onFailure: { targetStepId: 'terminal_failed' },
+    },
   ],
   entryConditions: [],
-  exitConditions: []
+  exitConditions: [],
 });
 ```
 
 **Documentation Notes:**
 
-* Flow is declarative and versionable.
-* Steps link to AuthMethodType.
-* Developers reading code see the exact orchestration chain.
-* Policy references are explicit (future step-up integration).
+- Flow is declarative and versionable.
+- Steps link to AuthMethodType.
+- Developers reading code see the exact orchestration chain.
+- Policy references are explicit (future step-up integration).
 
 ---
 
@@ -376,15 +371,15 @@ const passwordlessFlow = new AuthenticationFlow({
 attempt.startFlow(passwordlessFlow);
 ```
 
-* Creates domain snapshot
-* Status = `InProgress`
-* Step = first step
-* Immutable reference to flow
+- Creates domain snapshot
+- Status = `InProgress`
+- Step = first step
+- Immutable reference to flow
 
 **Documentation Notes:**
 
-* All state transitions logged in code via events
-* Chainable domain events can be traced to attempt creation
+- All state transitions logged in code via events
+- Chainable domain events can be traced to attempt creation
 
 ---
 
@@ -394,24 +389,27 @@ attempt.startFlow(passwordlessFlow);
 const challenge = await passwordlessMethod.issueChallenge?.({
   principalId: principal.id,
   attemptId: attempt.id,
-  metadata: { email: 'user@example.com' }
+  metadata: { email: 'user@example.com' },
 });
 ```
 
-* Returns a Challenge object (domain-agnostic)
-* No SMTP logic in domain
-* Code clearly separates **domain vs infra**
-* Challenge metadata traceable in code comments
+- Returns a Challenge object (domain-agnostic)
+- No SMTP logic in domain
+- Code clearly separates **domain vs infra**
+- Challenge metadata traceable in code comments
 
 ---
 
 ## 7. Verify Challenge / Authenticate Step
 
 ```ts
-const proof = await passwordlessMethod.verifyChallenge?.({
-  challengeId: challenge.id,
-  response: 'user-clicked-link'
-}, { principalId: principal.id, attemptId: attempt.id });
+const proof = await passwordlessMethod.verifyChallenge?.(
+  {
+    challengeId: challenge.id,
+    response: 'user-clicked-link',
+  },
+  { principalId: principal.id, attemptId: attempt.id },
+);
 
 if (proof) {
   attempt.completeStep(proof);
@@ -420,9 +418,9 @@ if (proof) {
 
 **Documentation Notes:**
 
-* Proof is immutable and domain-pure
-* Chainable: attempt -> proof -> session creation
-* Developer reading this sees exact flow progression
+- Proof is immutable and domain-pure
+- Chainable: attempt -> proof -> session creation
+- Developer reading this sees exact flow progression
 
 ---
 
@@ -430,20 +428,20 @@ if (proof) {
 
 ```ts
 const session = AuthenticationSession.createFromAttempt(attempt, {
-  trustLevel: 'Medium'
+  trustLevel: 'Medium',
 });
 ```
 
-* Generates domain session only
-* No tokens, cookies, or DB
-* TrustLevel reflects factors used
-* ContextSnapshot stored for audit
+- Generates domain session only
+- No tokens, cookies, or DB
+- TrustLevel reflects factors used
+- ContextSnapshot stored for audit
 
 **Documentation Notes:**
 
-* Sessions are traceable back to attempt
-* Code comments and JSDoc describe domain reasoning
-* Any developer reading can follow entire chain
+- Sessions are traceable back to attempt
+- Code comments and JSDoc describe domain reasoning
+- Any developer reading can follow entire chain
 
 ---
 
@@ -458,8 +456,8 @@ if (policyResult.decision === 'RequireStepUp') {
 
 **Notes:**
 
-* Policies are referenced, not hard-coded
-* Fully traceable, chainable in domain events
+- Policies are referenced, not hard-coded
+- Fully traceable, chainable in domain events
 
 ---
 
@@ -469,53 +467,54 @@ if (policyResult.decision === 'RequireStepUp') {
 Principal -> Credential -> AuthFlow -> AuthenticationAttempt -> Challenge -> AuthProof -> AuthenticationSession
 ```
 
-**All events are documented, chainable, and domain-pure**.
-Developers reading code can **trace every step** without touching infra.
+**All events are documented, chainable, and domain-pure**. Developers reading
+code can **trace every step** without touching infra.
 
 ---
 
 ## 11. Developer Documentation Strategy (Recommended)
 
-* Each class/interface has **JSDoc** explaining:
+- Each class/interface has **JSDoc** explaining:
+  - Purpose
+  - Usage
+  - Domain invariants
+  - Chainable events
+  - Hooks for adapters
 
-  * Purpose
-  * Usage
-  * Domain invariants
-  * Chainable events
-  * Hooks for adapters
-* SPI registration, flows, attempts, proofs, sessions — **all documented**
-* Link to external docs:
+- SPI registration, flows, attempts, proofs, sessions — **all documented**
+- Link to external docs:
+  - Passwordless installation guide
+  - Adapter setup
+  - Policy DSL examples
 
-  * Passwordless installation guide
-  * Adapter setup
-  * Policy DSL examples
-* Optional: `@link` in JSDoc for chainable navigation
+- Optional: `@link` in JSDoc for chainable navigation
 
 ---
 
 ## Step 9 Status
 
-✅ Minimal end-to-end flow defined (Passwordless)
-✅ Domain-only, infra-agnostic
-✅ Traceable chain with chainable documentation
-✅ Modular, tree-shakable, extensible
+✅ Minimal end-to-end flow defined (Passwordless) ✅ Domain-only, infra-agnostic
+✅ Traceable chain with chainable documentation ✅ Modular, tree-shakable,
+extensible
 
 ---
 
 # Step 10 — Policy DSL Formalization
 
-> Goal: Enable fully declarative policies for authentication, step-up, risk, and multi-factor flows.
-> Policies must be **versionable, chainable, and traceable**.
+> Goal: Enable fully declarative policies for authentication, step-up, risk, and
+> multi-factor flows. Policies must be **versionable, chainable, and
+> traceable**.
 
 ---
 
 ## 1. Core Principles
 
-* Policies are **data**, not logic.
-* Evaluated by a domain service (e.g., `AuthenticationPolicyEvaluator`).
-* Traceable: each policy evaluation leaves a chainable record.
-* Extensible: new conditions, actions, or flows can be added without code change.
-* Enterprise-ready: multi-tenant, step-up, conditional flows supported.
+- Policies are **data**, not logic.
+- Evaluated by a domain service (e.g., `AuthenticationPolicyEvaluator`).
+- Traceable: each policy evaluation leaves a chainable record.
+- Extensible: new conditions, actions, or flows can be added without code
+  change.
+- Enterprise-ready: multi-tenant, step-up, conditional flows supported.
 
 ---
 
@@ -563,8 +562,8 @@ type PolicyScope =
   | 'Resource';
 ```
 
-* Declarative scope ensures traceability.
-* Policies applied to same subject are evaluated in order.
+- Declarative scope ensures traceability.
+- Policies applied to same subject are evaluated in order.
 
 ---
 
@@ -589,8 +588,8 @@ interface PolicyRule {
 }
 ```
 
-* Rules are **atomic**, traceable, and versionable.
-* Reason field ensures **chainable audit logging**.
+- Rules are **atomic**, traceable, and versionable.
+- Reason field ensures **chainable audit logging**.
 
 ---
 
@@ -604,9 +603,9 @@ interface ConditionExpression {
 }
 ```
 
-* Minimal, domain-agnostic
-* Serializable
-* Developers can trace which condition triggered which action
+- Minimal, domain-agnostic
+- Serializable
+- Developers can trace which condition triggered which action
 
 ### Operators
 
@@ -633,10 +632,10 @@ type PolicyAction =
   | { type: 'LimitTrustLevel'; level: TrustLevel };
 ```
 
-* Fully declarative
-* Chainable
-* Traceable in logs
-* Supports step-up, conditional flows, multi-factor, trust downgrades
+- Fully declarative
+- Chainable
+- Traceable in logs
+- Supports step-up, conditional flows, multi-factor, trust downgrades
 
 ---
 
@@ -650,9 +649,9 @@ interface PolicyEvaluationResult {
 }
 ```
 
-* All rules evaluated or short-circuited
-* `triggeredRules` allows **audit trail chaining**
-* Metadata includes reason, timestamp, and evaluation context
+- All rules evaluated or short-circuited
+- `triggeredRules` allows **audit trail chaining**
+- Metadata includes reason, timestamp, and evaluation context
 
 ---
 
@@ -662,7 +661,7 @@ interface PolicyEvaluationResult {
 class AuthenticationPolicyEvaluator {
   async evaluate(
     context: AuthEvaluationContext,
-    policies: AuthenticationPolicy[]
+    policies: AuthenticationPolicy[],
   ): Promise<PolicyEvaluationResult> {
     // Abstract: domain only
     // Implementations will run the rules, produce decision, and trigger events
@@ -670,9 +669,10 @@ class AuthenticationPolicyEvaluator {
 }
 ```
 
-* `AuthEvaluationContext` includes attempt, session, principal, device, risk, etc.
-* Result is **domain-only**, no infra logic.
-* Each evaluation is **traceable, versionable, chainable**.
+- `AuthEvaluationContext` includes attempt, session, principal, device, risk,
+  etc.
+- Result is **domain-only**, no infra logic.
+- Each evaluation is **traceable, versionable, chainable**.
 
 ---
 
@@ -687,15 +687,15 @@ const highRiskStepUpPolicy: AuthenticationPolicy = {
     {
       condition: { subject: 'risk.score', operator: 'greaterThan', value: 70 },
       action: { type: 'RequireStepUp', requiredFactors: ['otp'] },
-      reason: 'High-risk login requires additional verification'
-    }
-  ]
+      reason: 'High-risk login requires additional verification',
+    },
+  ],
 };
 ```
 
-* Traceable in logs (`policyId`, `reason`)
-* Serializable for storage or audit
-* Extensible for enterprise tenants
+- Traceable in logs (`policyId`, `reason`)
+- Serializable for storage or audit
+- Extensible for enterprise tenants
 
 ---
 
@@ -708,62 +708,67 @@ const enterpriseFlowPolicy: AuthenticationPolicy = {
   scope: 'Principal',
   rules: [
     {
-      condition: { subject: 'principal.type', operator: 'equals', value: 'Service' },
+      condition: {
+        subject: 'principal.type',
+        operator: 'equals',
+        value: 'Service',
+      },
       action: { type: 'SelectFlow', flowId: 'm2m_flow' },
-      reason: 'Service accounts must use machine-to-machine flow'
-    }
-  ]
+      reason: 'Service accounts must use machine-to-machine flow',
+    },
+  ],
 };
 ```
 
-* Policies **do not execute flows**, just select them
-* Chainable and auditable
+- Policies **do not execute flows**, just select them
+- Chainable and auditable
 
 ---
 
 ## 11. Documentation & Traceability Rules
 
-* Every policy and rule must have:
+- Every policy and rule must have:
+  - `policyId`
+  - `reason`
+  - Optional metadata linking to docs or JSDoc
 
-  * `policyId`
-  * `reason`
-  * Optional metadata linking to docs or JSDoc
-* All evaluations **emit triggeredRules** → chainable audit trail
-* Developers can **follow evaluation chain in code** and see exact reasoning
+- All evaluations **emit triggeredRules** → chainable audit trail
+- Developers can **follow evaluation chain in code** and see exact reasoning
 
 ---
 
 ## 12. Extensibility Guarantees
 
-* New operators: add to `Operator` enum
-* New actions: extend `PolicyAction` union
-* New condition subjects: extend `AuthEvaluationContext`
-* All changes are **modular, traceable, and versionable**
+- New operators: add to `Operator` enum
+- New actions: extend `PolicyAction` union
+- New condition subjects: extend `AuthEvaluationContext`
+- All changes are **modular, traceable, and versionable**
 
 ---
 
 ## Step 10 Status
 
-✅ Policy DSL formalized
-✅ Declarative, auditable, traceable
-✅ Enterprise-ready (step-up, multi-flow, trust-level)
-✅ Chainable in code for developer reference
+✅ Policy DSL formalized ✅ Declarative, auditable, traceable ✅
+Enterprise-ready (step-up, multi-flow, trust-level) ✅ Chainable in code for
+developer reference
 
 ---
 
 # Step 11 — Multi-Tenant / Enterprise Extension Model
 
-> Goal: Enable the auth core to serve multiple tenants or enterprise clients with isolated configurations, policies, flows, and custom auth methods, without changing core domain.
+> Goal: Enable the auth core to serve multiple tenants or enterprise clients
+> with isolated configurations, policies, flows, and custom auth methods,
+> without changing core domain.
 
 ---
 
 ## 1. Core Principles
 
-* Each tenant can have **custom flows, policies, and auth methods**.
-* Domain objects remain **tenant-agnostic**.
-* Configuration is **composable**, versioned, and auditable.
-* No core domain changes required for new tenants.
-* Traceable: every domain object records **tenant context**.
+- Each tenant can have **custom flows, policies, and auth methods**.
+- Domain objects remain **tenant-agnostic**.
+- Configuration is **composable**, versioned, and auditable.
+- No core domain changes required for new tenants.
+- Traceable: every domain object records **tenant context**.
 
 ---
 
@@ -777,16 +782,17 @@ interface TenantContext {
 }
 ```
 
-* Attached to **Principal, AuthenticationAttempt, AuthenticationSession, Policy evaluation**.
-* Provides **traceable chain** of which tenant a domain object belongs to.
-* Supports **multi-tenant logging and auditing**.
+- Attached to **Principal, AuthenticationAttempt, AuthenticationSession, Policy
+  evaluation**.
+- Provides **traceable chain** of which tenant a domain object belongs to.
+- Supports **multi-tenant logging and auditing**.
 
 ---
 
 ## 3. Tenant-Specific Flows
 
-* Flows can be defined **per tenant**.
-* Example:
+- Flows can be defined **per tenant**.
+- Example:
 
 ```ts
 const tenantFlow = new AuthenticationFlow({
@@ -794,20 +800,24 @@ const tenantFlow = new AuthenticationFlow({
   tenantId: 'tenant-123',
   name: 'Enterprise Passwordless Flow',
   steps: [
-    { stepId: 'email_link_step', authMethodType: 'passwordless_email', required: true }
-  ]
+    {
+      stepId: 'email_link_step',
+      authMethodType: 'passwordless_email',
+      required: true,
+    },
+  ],
 });
 ```
 
-* `tenantId` ensures flows are isolated.
-* Developers can **trace flows by tenant**.
+- `tenantId` ensures flows are isolated.
+- Developers can **trace flows by tenant**.
 
 ---
 
 ## 4. Tenant-Specific Policies
 
-* Policies are scoped per tenant.
-* Example:
+- Policies are scoped per tenant.
+- Example:
 
 ```ts
 const enterprisePolicy: AuthenticationPolicy = {
@@ -818,86 +828,88 @@ const enterprisePolicy: AuthenticationPolicy = {
     {
       condition: { subject: 'risk.score', operator: 'greaterThan', value: 50 },
       action: { type: 'RequireStepUp', requiredFactors: ['otp'] },
-      reason: 'Tenant requires additional verification for medium-risk logins'
-    }
+      reason: 'Tenant requires additional verification for medium-risk logins',
+    },
   ],
-  metadata: { tenantId: 'tenant-123' }
+  metadata: { tenantId: 'tenant-123' },
 };
 ```
 
-* Policies are **versioned** and **audit-traceable** per tenant.
-* Chainable evaluation ensures **who read/triggered each policy** is recorded.
+- Policies are **versioned** and **audit-traceable** per tenant.
+- Chainable evaluation ensures **who read/triggered each policy** is recorded.
 
 ---
 
 ## 5. Tenant-Specific Auth Methods
 
-* Methods can be **enabled or disabled per tenant**.
-* Registration API supports tenant-scoping:
+- Methods can be **enabled or disabled per tenant**.
+- Registration API supports tenant-scoping:
 
 ```ts
 tenantRegistry.register('tenant-123', passwordlessMethod);
 ```
 
-* Core domain sees only abstract `IAuthMethod`.
-* Tree-shakable: uninstalled methods do not affect bundle size.
+- Core domain sees only abstract `IAuthMethod`.
+- Tree-shakable: uninstalled methods do not affect bundle size.
 
 ---
 
 ## 6. Tenant-Specific Credential Configuration
 
-* Credential lifecycles can be configured per tenant:
+- Credential lifecycles can be configured per tenant:
+  - Expiration time
+  - Rotation rules
+  - Step-up requirements
 
-  * Expiration time
-  * Rotation rules
-  * Step-up requirements
-* Credentials remain domain-agnostic; tenant-specific behavior enforced via policies and adapters.
+- Credentials remain domain-agnostic; tenant-specific behavior enforced via
+  policies and adapters.
 
 ---
 
 ## 7. Tenant Context in AuthenticationAttempt
 
-* Attach `tenantId` to each attempt:
+- Attach `tenantId` to each attempt:
 
 ```ts
 const attempt = AuthenticationAttempt.create({
   flowId: 'enterprise_passwordless',
   principalId: 'user-456',
-  tenantId: 'tenant-123'
+  tenantId: 'tenant-123',
 });
 ```
 
-* Ensures **flow, policies, session, and proofs** are evaluated within tenant scope.
-* Supports **audit and traceability** across multi-tenant systems.
+- Ensures **flow, policies, session, and proofs** are evaluated within tenant
+  scope.
+- Supports **audit and traceability** across multi-tenant systems.
 
 ---
 
 ## 8. Tenant Context in AuthenticationSession
 
-* Session includes tenant metadata:
+- Session includes tenant metadata:
 
 ```ts
 const session = AuthenticationSession.createFromAttempt(attempt, {
   trustLevel: 'Medium',
-  tenantContext: { tenantId: 'tenant-123' }
+  tenantContext: { tenantId: 'tenant-123' },
 });
 ```
 
-* Downstream authorization can enforce **tenant isolation**.
-* Chainable: developers can trace session → attempt → tenant.
+- Downstream authorization can enforce **tenant isolation**.
+- Chainable: developers can trace session → attempt → tenant.
 
 ---
 
 ## 9. Extensibility & Overrides
 
-* Tenants can:
+- Tenants can:
+  - Add custom flows
+  - Override default policies
+  - Enable/disable auth methods
+  - Adjust trust-level rules
 
-  * Add custom flows
-  * Override default policies
-  * Enable/disable auth methods
-  * Adjust trust-level rules
-* Core domain is **unchanged**.
-* Chainable documentation ensures each override is traceable.
+- Core domain is **unchanged**.
+- Chainable documentation ensures each override is traceable.
 
 ---
 
@@ -910,35 +922,36 @@ interface TenantAwareRepository<T> {
 }
 ```
 
-* Ensures **tenant isolation at domain level**.
-* Infrastructure handles actual storage, domain only sees tenant-scoped interfaces.
+- Ensures **tenant isolation at domain level**.
+- Infrastructure handles actual storage, domain only sees tenant-scoped
+  interfaces.
 
 ---
 
 ## 11. Audit and Traceability
 
-* Every domain event, policy evaluation, session creation, or flow execution:
+- Every domain event, policy evaluation, session creation, or flow execution:
+  - Includes `tenantId`
+  - Includes `principalId`
+  - Optional metadata for chainable docs or code references
 
-  * Includes `tenantId`
-  * Includes `principalId`
-  * Optional metadata for chainable docs or code references
-* Developers reading code can follow **exact tenant-specific logic**.
+- Developers reading code can follow **exact tenant-specific logic**.
 
 ---
 
 ## 12. Step 11 Status
 
-✅ Multi-tenant support defined
-✅ Tenant-scoped flows, policies, auth methods, sessions, attempts
-✅ Chainable, traceable for audit
-✅ Core domain remains tenant-agnostic
-✅ Enterprise-ready, tree-shakable, modular
+✅ Multi-tenant support defined ✅ Tenant-scoped flows, policies, auth methods,
+sessions, attempts ✅ Chainable, traceable for audit ✅ Core domain remains
+tenant-agnostic ✅ Enterprise-ready, tree-shakable, modular
 
 ---
 
 # Step 12 — Additional AuthMethod Implementations (Abstract)
 
-> Goal: Provide modular contracts and structure for common auth methods beyond Passwordless, ensuring traceability, enterprise readiness, and minimal bundle size.
+> Goal: Provide modular contracts and structure for common auth methods beyond
+> Passwordless, ensuring traceability, enterprise readiness, and minimal bundle
+> size.
 
 ---
 
@@ -950,12 +963,12 @@ interface TenantAwareRepository<T> {
 @auth/method-passkey
 ```
 
-* Each package is **optional**.
-* Depends only on:
+- Each package is **optional**.
+- Depends only on:
+  - `@auth/core-domain`
+  - `@auth/core-ports`
 
-  * `@auth/core-domain`
-  * `@auth/core-ports`
-* Does **not depend** on other methods or adapters.
+- Does **not depend** on other methods or adapters.
 
 ---
 
@@ -963,30 +976,39 @@ interface TenantAwareRepository<T> {
 
 ### Purpose
 
-* One-time codes delivered via email, SMS, or push.
-* Supports **step-up, MFA, or primary auth**.
+- One-time codes delivered via email, SMS, or push.
+- Supports **step-up, MFA, or primary auth**.
 
 ### SPI Skeleton
 
 ```ts
-export interface IOtpMethod extends IAuthMethod<{ destination: string }, AuthProof> {
+export interface IOtpMethod extends IAuthMethod<
+  { destination: string },
+  AuthProof
+> {
   /**
    * Generate and issue OTP challenge
    */
-  issueChallenge(context: AuthContext, options?: { length?: number; ttl?: number }): Promise<Challenge>;
+  issueChallenge(
+    context: AuthContext,
+    options?: { length?: number; ttl?: number },
+  ): Promise<Challenge>;
 
   /**
    * Verify OTP response
    */
-  verifyChallenge(response: ChallengeResponse, context: AuthContext): Promise<AuthProof>;
+  verifyChallenge(
+    response: ChallengeResponse,
+    context: AuthContext,
+  ): Promise<AuthProof>;
 }
 ```
 
 **Documentation Notes:**
 
-* `destination` is transport-agnostic.
-* Challenge and proof remain domain-pure.
-* Developers can trace OTP flow from attempt → challenge → proof → session.
+- `destination` is transport-agnostic.
+- Challenge and proof remain domain-pure.
+- Developers can trace OTP flow from attempt → challenge → proof → session.
 
 ---
 
@@ -994,13 +1016,16 @@ export interface IOtpMethod extends IAuthMethod<{ destination: string }, AuthPro
 
 ### Purpose
 
-* Delegated authentication via third-party providers (Google, Azure, etc.)
-* Supports SSO and enterprise logins.
+- Delegated authentication via third-party providers (Google, Azure, etc.)
+- Supports SSO and enterprise logins.
 
 ### SPI Skeleton
 
 ```ts
-export interface IOAuthMethod extends IAuthMethod<{ code: string; provider: string }, AuthProof> {
+export interface IOAuthMethod extends IAuthMethod<
+  { code: string; provider: string },
+  AuthProof
+> {
   /**
    * Initiate OAuth authorization
    */
@@ -1015,9 +1040,9 @@ export interface IOAuthMethod extends IAuthMethod<{ code: string; provider: stri
 
 **Documentation Notes:**
 
-* Domain sees only `AuthProof`.
-* No HTTP or token parsing in domain.
-* Chainable: principal → attempt → proof → session → policy evaluation.
+- Domain sees only `AuthProof`.
+- No HTTP or token parsing in domain.
+- Chainable: principal → attempt → proof → session → policy evaluation.
 
 ---
 
@@ -1025,17 +1050,23 @@ export interface IOAuthMethod extends IAuthMethod<{ code: string; provider: stri
 
 ### Purpose
 
-* Hardware-backed or platform credentials (biometrics, security keys)
-* Supports phishing-resistant enterprise login
+- Hardware-backed or platform credentials (biometrics, security keys)
+- Supports phishing-resistant enterprise login
 
 ### SPI Skeleton
 
 ```ts
-export interface IPasskeyMethod extends IAuthMethod<{ clientData: unknown }, AuthProof> {
+export interface IPasskeyMethod extends IAuthMethod<
+  { clientData: unknown },
+  AuthProof
+> {
   /**
    * Initiate passkey registration or authentication
    */
-  initiate(context: AuthContext, options?: { type: 'register' | 'authenticate' }): Promise<Challenge>;
+  initiate(
+    context: AuthContext,
+    options?: { type: 'register' | 'authenticate' },
+  ): Promise<Challenge>;
 
   /**
    * Verify passkey response
@@ -1046,18 +1077,19 @@ export interface IPasskeyMethod extends IAuthMethod<{ clientData: unknown }, Aut
 
 **Documentation Notes:**
 
-* `clientData` is abstracted; adapter handles platform specifics.
-* Challenge/proof remain domain-pure.
-* Developers can trace registration/authentication per attempt.
+- `clientData` is abstracted; adapter handles platform specifics.
+- Challenge/proof remain domain-pure.
+- Developers can trace registration/authentication per attempt.
 
 ---
 
 ## 5. Common Principles Across Methods
 
-* Tree-shakable: install only the methods you need.
-* Domain-agnostic: all proofs and challenges are abstractions.
-* Chainable: attempts, proofs, sessions, and policies are auditable.
-* Extensible: adding new methods requires only a new package implementing `IAuthMethod`.
+- Tree-shakable: install only the methods you need.
+- Domain-agnostic: all proofs and challenges are abstractions.
+- Chainable: attempts, proofs, sessions, and policies are auditable.
+- Extensible: adding new methods requires only a new package implementing
+  `IAuthMethod`.
 
 ---
 
@@ -1065,39 +1097,39 @@ export interface IPasskeyMethod extends IAuthMethod<{ clientData: unknown }, Aut
 
 ```ts
 const registry = new AuthMethodRegistry();
-registry.register(otpMethod);         // @auth/method-otp
-registry.register(oauthMethod);       // @auth/method-oauth
-registry.register(passkeyMethod);     // @auth/method-passkey
+registry.register(otpMethod); // @auth/method-otp
+registry.register(oauthMethod); // @auth/method-oauth
+registry.register(passkeyMethod); // @auth/method-passkey
 ```
 
-* Explicit registration ensures **tree-shakability**.
-* Developers can trace **which methods are enabled per tenant or flow**.
+- Explicit registration ensures **tree-shakability**.
+- Developers can trace **which methods are enabled per tenant or flow**.
 
 ---
 
 ## 7. Step 12 Status
 
-✅ Additional auth methods abstracted
-✅ OTP, OAuth, Passkey supported
-✅ Modular, optional, installable separately
-✅ Traceable chain from attempt → proof → session → policy
-✅ Enterprise-ready, extensible, tree-shakable
+✅ Additional auth methods abstracted ✅ OTP, OAuth, Passkey supported ✅
+Modular, optional, installable separately ✅ Traceable chain from attempt →
+proof → session → policy ✅ Enterprise-ready, extensible, tree-shakable
 
 ---
 
 # Step 13 — Adapter Implementation Guides
 
-> Goal: Provide a **modular, optional, and tree-shakable** adapter structure for storage, token management, and transport layers.
+> Goal: Provide a **modular, optional, and tree-shakable** adapter structure for
+> storage, token management, and transport layers.
 
 ---
 
 ## 1. Adapter Principles
 
-* Implements **ports defined in `@auth/core-ports`**.
-* Tree-shakable: install only what you need.
-* Fully replaceable: e.g., Postgres ↔ Redis ↔ Memory.
-* Modular: one adapter per concern.
-* Traceable: every adapter operation can emit domain events or logs for auditing.
+- Implements **ports defined in `@auth/core-ports`**.
+- Tree-shakable: install only what you need.
+- Fully replaceable: e.g., Postgres ↔ Redis ↔ Memory.
+- Modular: one adapter per concern.
+- Traceable: every adapter operation can emit domain events or logs for
+  auditing.
 
 ---
 
@@ -1113,9 +1145,9 @@ registry.register(passkeyMethod);     // @auth/method-passkey
 @auth/adapter-http-hono     ← alternative HTTP framework
 ```
 
-* Each package is optional.
-* Depends only on `@auth/core-ports`.
-* No cross-dependencies.
+- Each package is optional.
+- Depends only on `@auth/core-ports`.
+- No cross-dependencies.
 
 ---
 
@@ -1131,22 +1163,23 @@ export interface CredentialRepositoryAdapter extends CredentialRepository {
 
 **Documentation Notes:**
 
-* Must implement domain interface `CredentialRepository`.
-* Domain only sees abstract operations:
+- Must implement domain interface `CredentialRepository`.
+- Domain only sees abstract operations:
+  - save()
+  - findById()
+  - revoke()
 
-  * save()
-  * findById()
-  * revoke()
-* Storage details hidden in adapter.
-* Traceable via adapter logs or emitted events.
+- Storage details hidden in adapter.
+- Traceable via adapter logs or emitted events.
 
 ---
 
 ### 3.2 Principal / Session / Attempt Repositories
 
-* Same pattern: implement `PrincipalRepository`, `AuthenticationSessionRepository`, `AuthenticationAttemptRepository`.
-* Example adapter: `PostgresPrincipalRepositoryAdapter`.
-* Optional: emit domain events for auditing.
+- Same pattern: implement `PrincipalRepository`,
+  `AuthenticationSessionRepository`, `AuthenticationAttemptRepository`.
+- Example adapter: `PostgresPrincipalRepositoryAdapter`.
+- Optional: emit domain events for auditing.
 
 ---
 
@@ -1161,9 +1194,9 @@ export interface JwtAdapter extends SessionRepresentationFactory {
 }
 ```
 
-* Purely optional.
-* Domain never depends on JWT format.
-* Traceable: JWT issuance linked to sessionId → tenantId.
+- Purely optional.
+- Domain never depends on JWT format.
+- Traceable: JWT issuance linked to sessionId → tenantId.
 
 ---
 
@@ -1176,30 +1209,30 @@ export interface OidcAdapter extends IOAuthMethod {
 }
 ```
 
-* Adapter handles HTTP redirect, code exchange.
-* Domain sees only `AuthProof`.
-* Traceable through context and tenant metadata.
+- Adapter handles HTTP redirect, code exchange.
+- Domain sees only `AuthProof`.
+- Traceable through context and tenant metadata.
 
 ---
 
 ## 5. Caching / Temporary Storage Adapters
 
-* OTP codes, challenge states, rate limiting.
-* Interface: implement `ChallengeStore` or `CredentialMaterialStore`.
-* Example: `RedisOtpAdapter`, `MemoryOtpAdapter`.
-* Modular: can swap infra without affecting domain.
+- OTP codes, challenge states, rate limiting.
+- Interface: implement `ChallengeStore` or `CredentialMaterialStore`.
+- Example: `RedisOtpAdapter`, `MemoryOtpAdapter`.
+- Modular: can swap infra without affecting domain.
 
 ---
 
 ## 6. HTTP Adapters
 
-* Optional transport layer integration: Express, Hono, Fastify.
-* Implement endpoint wiring:
+- Optional transport layer integration: Express, Hono, Fastify.
+- Implement endpoint wiring:
+  - Receive request
+  - Call registered auth method
+  - Return proof/session
 
-  * Receive request
-  * Call registered auth method
-  * Return proof/session
-* Domain remains **transport-agnostic**.
+- Domain remains **transport-agnostic**.
 
 ---
 
@@ -1210,36 +1243,37 @@ export interface OidcAdapter extends IOAuthMethod {
 3. **Emit events** for auditing / tracing.
 4. **Configurable per tenant** — adapter can read tenant-specific metadata.
 5. **Tree-shakable** — unused adapters never included in bundle.
-6. **Traceable code links** — each adapter operation references domain events or JSDoc for auditing.
+6. **Traceable code links** — each adapter operation references domain events or
+   JSDoc for auditing.
 
 ---
 
 ## 8. Adapter Documentation Strategy
 
-* Each adapter includes:
+- Each adapter includes:
+  - JSDoc explaining mapping to ports
+  - Tenant-aware behavior
+  - Optional emitted events for traceability
+  - Usage example (tree-shakable)
 
-  * JSDoc explaining mapping to ports
-  * Tenant-aware behavior
-  * Optional emitted events for traceability
-  * Usage example (tree-shakable)
-* Chainable: core-domain → port → adapter → infra action
-* Developers can trace **who read / executed** each operation.
+- Chainable: core-domain → port → adapter → infra action
+- Developers can trace **who read / executed** each operation.
 
 ---
 
 ## Step 13 Status
 
-✅ Adapter types and patterns defined
-✅ Storage, caching, tokens, HTTP, OIDC, JWT covered
-✅ Modular, tree-shakable, optional
-✅ Traceable chain from domain → port → adapter
-✅ Enterprise-ready and multi-tenant safe
+✅ Adapter types and patterns defined ✅ Storage, caching, tokens, HTTP, OIDC,
+JWT covered ✅ Modular, tree-shakable, optional ✅ Traceable chain from domain →
+port → adapter ✅ Enterprise-ready and multi-tenant safe
 
 ---
 
 # Step 14 — End-to-End Modular Integration Examples
 
-> Goal: Show how to wire **core-domain, core-ports, methods, adapters, policies, and multi-tenant context** together in a modular, traceable, and enterprise-ready way.
+> Goal: Show how to wire **core-domain, core-ports, methods, adapters, policies,
+> and multi-tenant context** together in a modular, traceable, and
+> enterprise-ready way.
 
 ---
 
@@ -1255,8 +1289,8 @@ export interface OidcAdapter extends IOAuthMethod {
 @auth/adapter-jwt
 ```
 
-* Each module optional
-* Installed only if needed → tree-shakable
+- Each module optional
+- Installed only if needed → tree-shakable
 
 ---
 
@@ -1266,8 +1300,8 @@ export interface OidcAdapter extends IOAuthMethod {
 const tenant: TenantContext = { tenantId: 'tenant-123', name: 'Acme Corp' };
 ```
 
-* All subsequent flows, policies, and sessions are **scoped to tenant**
-* Chainable: attempt → session → policy → tenant
+- All subsequent flows, policies, and sessions are **scoped to tenant**
+- Chainable: attempt → session → policy → tenant
 
 ---
 
@@ -1281,8 +1315,8 @@ registry.registerForTenant(tenant.tenantId, otpMethod);
 registry.registerForTenant(tenant.tenantId, oauthMethod);
 ```
 
-* Tree-shakable: unused methods not included
-* Traceable: registry logs tenant + methodType
+- Tree-shakable: unused methods not included
+- Traceable: registry logs tenant + methodType
 
 ---
 
@@ -1294,15 +1328,19 @@ const flow = new AuthenticationFlow({
   tenantId: tenant.tenantId,
   name: 'Enterprise Multi-Method Flow',
   steps: [
-    { stepId: 'passwordless_step', authMethodType: 'passwordless_email', required: true },
-    { stepId: 'otp_step', authMethodType: 'otp', required: false }
-  ]
+    {
+      stepId: 'passwordless_step',
+      authMethodType: 'passwordless_email',
+      required: true,
+    },
+    { stepId: 'otp_step', authMethodType: 'otp', required: false },
+  ],
 });
 ```
 
-* Steps refer to registered methods
-* Flow scoped per tenant
-* Chainable: each step → proof → policy evaluation
+- Steps refer to registered methods
+- Flow scoped per tenant
+- Chainable: each step → proof → policy evaluation
 
 ---
 
@@ -1317,37 +1355,50 @@ const policy: AuthenticationPolicy = {
     {
       condition: { subject: 'risk.score', operator: 'greaterThan', value: 70 },
       action: { type: 'RequireStepUp', requiredFactors: ['otp'] },
-      reason: 'High-risk logins require OTP'
-    }
+      reason: 'High-risk logins require OTP',
+    },
   ],
-  metadata: { tenantId: tenant.tenantId }
+  metadata: { tenantId: tenant.tenantId },
 };
 ```
 
-* Policies applied **before or after each step**
-* Chainable evaluation logged for traceability
+- Policies applied **before or after each step**
+- Chainable evaluation logged for traceability
 
 ---
 
 ## 6. Authentication Attempt & Execution
 
 ```ts
-const principal = Principal.create({ id: 'user-001', tenantId: tenant.tenantId });
-const attempt = AuthenticationAttempt.create({ flowId: flow.flowId, principalId: principal.id, tenantId: tenant.tenantId });
+const principal = Principal.create({
+  id: 'user-001',
+  tenantId: tenant.tenantId,
+});
+const attempt = AuthenticationAttempt.create({
+  flowId: flow.flowId,
+  principalId: principal.id,
+  tenantId: tenant.tenantId,
+});
 
 // Execute passwordless step
-const passwordlessProof = await passwordlessMethod.authenticate({ email: 'user@example.com' }, { principalId: principal.id, attemptId: attempt.id });
+const passwordlessProof = await passwordlessMethod.authenticate(
+  { email: 'user@example.com' },
+  { principalId: principal.id, attemptId: attempt.id },
+);
 
 // Update attempt
 attempt.completeStep(passwordlessProof);
 
 // Evaluate policy after step
-const policyResult = await policyEvaluator.evaluate({ attempt, session: null, context: { tenantId: tenant.tenantId } }, [policy]);
+const policyResult = await policyEvaluator.evaluate(
+  { attempt, session: null, context: { tenantId: tenant.tenantId } },
+  [policy],
+);
 ```
 
-* Domain-only, infra-agnostic
-* Proof → session → policy evaluation chain traceable
-* Developers can see **full execution path** for audit
+- Domain-only, infra-agnostic
+- Proof → session → policy evaluation chain traceable
+- Developers can see **full execution path** for audit
 
 ---
 
@@ -1356,13 +1407,13 @@ const policyResult = await policyEvaluator.evaluate({ attempt, session: null, co
 ```ts
 const session = AuthenticationSession.createFromAttempt(attempt, {
   trustLevel: 'Medium',
-  tenantContext: tenant
+  tenantContext: tenant,
 });
 ```
 
-* Captures **tenant, principal, flow, steps, proofs**
-* Immutable ContextSnapshot stored
-* Domain-pure, transport-agnostic
+- Captures **tenant, principal, flow, steps, proofs**
+- Immutable ContextSnapshot stored
+- Domain-pure, transport-agnostic
 
 ---
 
@@ -1377,9 +1428,9 @@ const jwtAdapter = new JwtAdapter({ secret: 'dummy' });
 // Domain only interacts with repositories via core-ports interfaces
 ```
 
-* Tree-shakable: only installed adapters included
-* Modular: can swap Postgres / Redis / JWT
-* Traceable: all actions reference tenant + attempt + session
+- Tree-shakable: only installed adapters included
+- Modular: can swap Postgres / Redis / JWT
+- Traceable: all actions reference tenant + attempt + session
 
 ---
 
@@ -1389,33 +1440,31 @@ const jwtAdapter = new JwtAdapter({ secret: 'dummy' });
 Tenant -> Principal -> AuthenticationAttempt -> AuthMethod Step -> Proof -> Session -> Policy Evaluation -> Adapter Event
 ```
 
-* Every step **documented with JSDoc**
-* Events or logs link **who executed / evaluated**
-* Developers can trace **full end-to-end path** without touching infra
+- Every step **documented with JSDoc**
+- Events or logs link **who executed / evaluated**
+- Developers can trace **full end-to-end path** without touching infra
 
 ---
 
 ## 10. Developer Documentation Strategy
 
-* Use **JSDoc** for:
+- Use **JSDoc** for:
+  - Modules
+  - SPI methods
+  - Flows and steps
+  - Policy evaluation
+  - Tenant context
+  - Adapter mapping
 
-  * Modules
-  * SPI methods
-  * Flows and steps
-  * Policy evaluation
-  * Tenant context
-  * Adapter mapping
-* Include `@link` to related domain objects
-* Chainable audit references included for every step
+- Include `@link` to related domain objects
+- Chainable audit references included for every step
 
 ---
 
 ## Step 14 Status
 
-✅ Full modular integration example complete
-✅ Multi-tenant, multi-method, policy-driven
-✅ Tree-shakable and modular
-✅ Domain-only traceable chain
-✅ Enterprise-ready
+✅ Full modular integration example complete ✅ Multi-tenant, multi-method,
+policy-driven ✅ Tree-shakable and modular ✅ Domain-only traceable chain ✅
+Enterprise-ready
 
 ---

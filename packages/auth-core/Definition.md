@@ -1,7 +1,7 @@
 ## Step 1 — Define **Auth Method SPI (Plugin Contract)**
 
-This is the **most critical step**.
-If this is wrong, everything after becomes rigid.
+This is the **most critical step**. If this is wrong, everything after becomes
+rigid.
 
 ---
 
@@ -11,19 +11,19 @@ If this is wrong, everything after becomes rigid.
 
 Define **how authentication methods plug into the core** without:
 
-* Modifying domain logic
-* Adding conditionals (`if password`, `if oauth`)
-* Leaking protocol / provider / infra concerns
-* Forcing storage or transport choices
+- Modifying domain logic
+- Adding conditionals (`if password`, `if oauth`)
+- Leaking protocol / provider / infra concerns
+- Forcing storage or transport choices
 
 This SPI must support:
 
-* Password
-* Passwordless
-* OTP
-* OAuth / OIDC
-* Social login
-* Future methods (passkeys, DID, etc.)
+- Password
+- Passwordless
+- OTP
+- OAuth / OIDC
+- Social login
+- Future methods (passkeys, DID, etc.)
 
 ---
 
@@ -31,18 +31,18 @@ This SPI must support:
 
 ### ✅ IS
 
-* A **capability descriptor**
-* A **set of required inputs**
-* A **type of proof produced**
-* A **participant in a flow**
+- A **capability descriptor**
+- A **set of required inputs**
+- A **type of proof produced**
+- A **participant in a flow**
 
 ### ❌ IS NOT
 
-* A service with business logic
-* A protocol implementation
-* A provider SDK wrapper
-* A controller or handler
-* A persistence concern
+- A service with business logic
+- A protocol implementation
+- A provider SDK wrapper
+- A controller or handler
+- A persistence concern
 
 If logic creeps in here → stop.
 
@@ -61,17 +61,17 @@ AuthMethodType
 
 Rules:
 
-* Stable identifier
-* Configurable
-* No enums hardcoded in domain
+- Stable identifier
+- Configurable
+- No enums hardcoded in domain
 
 Examples:
 
-* `password`
-* `passwordless_email`
-* `otp_totp`
-* `oauth_oidc`
-* `social_google`
+- `password`
+- `passwordless_email`
+- `otp_totp`
+- `oauth_oidc`
+- `social_google`
 
 ---
 
@@ -90,46 +90,41 @@ AuthMethodDefinition
 
 This object:
 
-* Is immutable
-* Is registered at startup
-* Contains **no logic**
+- Is immutable
+- Is registered at startup
+- Contains **no logic**
 
 ---
 
 ## 4. Auth Inputs (What the method needs)
 
-Auth methods declare **what they need**, not *how it arrives*.
+Auth methods declare **what they need**, not _how it arrives_.
 
 ```ts
-AuthInputType
-- identifier
-- secret
-- otp
-- assertion
-- authorization_code
-- device_context
-- redirect_context
+AuthInputType -
+  identifier -
+  secret -
+  otp -
+  assertion -
+  authorization_code -
+  device_context -
+  redirect_context;
 ```
 
 Rules:
 
-* Transport-agnostic
-* Serializable
-* Validated at boundaries
+- Transport-agnostic
+- Serializable
+- Validated at boundaries
 
 ---
 
 ## 5. Auth Proof (What the method produces)
 
-Auth methods **do not authenticate**.
-They produce **proof**.
+Auth methods **do not authenticate**. They produce **proof**.
 
 ```ts
-AuthProofType
-- password_proof
-- otp_proof
-- oauth_proof
-- assertion_proof
+AuthProofType - password_proof - otp_proof - oauth_proof - assertion_proof;
 ```
 
 The **domain decides** what to do with the proof.
@@ -149,10 +144,10 @@ AuthProofVerifierPort
 
 This allows:
 
-* Swapping providers
-* Mocking
-* Enterprise overrides
-* Multiple verification strategies
+- Swapping providers
+- Mocking
+- Enterprise overrides
+- Multiple verification strategies
 
 ---
 
@@ -161,17 +156,14 @@ This allows:
 Auth methods are **registered**, not hardcoded.
 
 ```ts
-AuthMethodRegistry
-- register(definition)
-- get(type)
-- list()
+AuthMethodRegistry - register(definition) - get(type) - list();
 ```
 
 Rules:
 
-* Registry is read-only at runtime
-* Domain depends only on interface
-* Infrastructure provides implementations
+- Registry is read-only at runtime
+- Domain depends only on interface
+- Infrastructure provides implementations
 
 ---
 
@@ -187,10 +179,10 @@ Rules:
 
 Notice:
 
-* No HTTP
-* No redirects
-* No JWT
-* No providers
+- No HTTP
+- No redirects
+- No JWT
+- No providers
 
 ---
 
@@ -198,11 +190,11 @@ Notice:
 
 With this SPI, you can:
 
-* Add a new auth method **without touching domain logic**
-* Compose methods into MFA
-* Enable / disable methods via config
-* Support enterprise overrides
-* Keep core stable for years
+- Add a new auth method **without touching domain logic**
+- Compose methods into MFA
+- Enable / disable methods via config
+- Support enterprise overrides
+- Keep core stable for years
 
 ---
 
@@ -210,11 +202,11 @@ With this SPI, you can:
 
 Before moving forward, confirm:
 
-* No logic inside method definitions
-* No branching by method type
-* No enum explosion
-* No provider coupling
-* No storage assumptions
+- No logic inside method definitions
+- No branching by method type
+- No enum explosion
+- No provider coupling
+- No storage assumptions
 
 If any fails → redesign now.
 
@@ -222,24 +214,21 @@ If any fails → redesign now.
 
 ## Step 1 Status
 
-✅ Auth Method SPI defined
-✅ Extensible
-✅ Domain-pure
-✅ Hexagonal-safe
+✅ Auth Method SPI defined ✅ Extensible ✅ Domain-pure ✅ Hexagonal-safe
 
 ---
-
 
 # Step 2 — Authentication Flow DSL (Orchestration Model)
 
 This step defines **how authentication happens**, without:
 
-* Hard-coding flows
-* Coupling to methods
-* Assuming HTTP redirects
-* Embedding logic in code paths
+- Hard-coding flows
+- Coupling to methods
+- Assuming HTTP redirects
+- Embedding logic in code paths
 
-If flows are not modeled explicitly, you will **never** support enterprise auth cleanly.
+If flows are not modeled explicitly, you will **never** support enterprise auth
+cleanly.
 
 ---
 
@@ -247,15 +236,16 @@ If flows are not modeled explicitly, you will **never** support enterprise auth 
 
 An **Authentication Flow** answers one question:
 
-> *“In what order, under what conditions, and with which rules are auth methods executed?”*
+> _“In what order, under what conditions, and with which rules are auth methods
+> executed?”_
 
 It must support:
 
-* Single-step auth (password, social)
-* Multi-step auth (OTP, MFA)
-* Conditional auth (risk-based)
-* Enterprise SSO
-* Future orchestration (passkeys, step-up)
+- Single-step auth (password, social)
+- Multi-step auth (OTP, MFA)
+- Conditional auth (risk-based)
+- Enterprise SSO
+- Future orchestration (passkeys, step-up)
 
 ---
 
@@ -271,9 +261,9 @@ if (method === 'password') { ... }
 
 Instead:
 
-* Declarative steps
-* Explicit transitions
-* Policy-driven decisions
+- Declarative steps
+- Explicit transitions
+- Policy-driven decisions
 
 ---
 
@@ -292,10 +282,10 @@ AuthenticationFlow
 
 Rules:
 
-* Immutable
-* Versionable
-* Serializable
-* Loaded at startup or via config
+- Immutable
+- Versionable
+- Serializable
+- Loaded at startup or via config
 
 ---
 
@@ -315,9 +305,9 @@ AuthFlowStep
 
 Each step:
 
-* Executes **exactly one Auth Method**
-* Produces a proof
-* Does NOT decide success globally
+- Executes **exactly one Auth Method**
+- Produces a proof
+- Does NOT decide success globally
 
 ---
 
@@ -333,15 +323,15 @@ Transition
 
 Terminal states:
 
-* `AUTHENTICATED`
-* `FAILED`
-* `CHALLENGED`
+- `AUTHENTICATED`
+- `FAILED`
+- `CHALLENGED`
 
 This enables:
 
-* Retry
-* Step-up
-* Short-circuiting
+- Retry
+- Step-up
+- Short-circuiting
 
 ---
 
@@ -352,16 +342,14 @@ Flows do **not** evaluate logic themselves.
 They reference policies:
 
 ```ts
-PolicyExpression
-- policyId
-- parameters
+PolicyExpression - policyId - parameters;
 ```
 
 Examples:
 
-* `risk.score > threshold`
-* `principal.trustLevel < required`
-* `device.notTrusted`
+- `risk.score > threshold`
+- `principal.trustLevel < required`
+- `device.notTrusted`
 
 (Policy language comes in Step 4.)
 
@@ -373,18 +361,18 @@ The flow **drives the attempt**, not the other way around.
 
 States:
 
-* `Initialized`
-* `InProgress`
-* `AwaitingChallenge`
-* `Succeeded`
-* `Failed`
+- `Initialized`
+- `InProgress`
+- `AwaitingChallenge`
+- `Succeeded`
+- `Failed`
 
 Rules:
 
-* One flow per attempt
-* Steps are executed sequentially
-* Proofs are accumulated
-* Finalization happens only at terminal state
+- One flow per attempt
+- Steps are executed sequentially
+- Proofs are accumulated
+- Finalization happens only at terminal state
 
 ---
 
@@ -438,8 +426,7 @@ Step 1: oauth_oidc
   onChallenge → AWAITING_EXTERNAL_ASSERTION
 ```
 
-No redirects modeled.
-That’s infrastructure.
+No redirects modeled. That’s infrastructure.
 
 ---
 
@@ -447,19 +434,19 @@ That’s infrastructure.
 
 Flows do **not** know about:
 
-* HTTP redirects
-* UI screens
-* Cookies
-* Tokens
-* OAuth providers
-* Mobile vs web
-* DB schemas
+- HTTP redirects
+- UI screens
+- Cookies
+- Tokens
+- OAuth providers
+- Mobile vs web
+- DB schemas
 
 They only know:
 
-* Steps
-* Transitions
-* Policies
+- Steps
+- Transitions
+- Policies
 
 ---
 
@@ -467,11 +454,11 @@ They only know:
 
 With this DSL, you can:
 
-* Add new auth methods without new flows
-* Add new flows without code changes
-* Customize enterprise flows via config
-* Reuse flows across products
-* Audit authentication behavior deterministically
+- Add new auth methods without new flows
+- Add new flows without code changes
+- Customize enterprise flows via config
+- Reuse flows across products
+- Audit authentication behavior deterministically
 
 ---
 
@@ -479,12 +466,9 @@ With this DSL, you can:
 
 Before moving forward:
 
-✔ Flow is declarative
-✔ No branching by method type
-✔ No protocol assumptions
-✔ No infrastructure knowledge
-✔ Supports MFA and step-up
-✔ Serializable and versionable
+✔ Flow is declarative ✔ No branching by method type ✔ No protocol assumptions ✔
+No infrastructure knowledge ✔ Supports MFA and step-up ✔ Serializable and
+versionable
 
 If any fails → redesign.
 
@@ -492,17 +476,15 @@ If any fails → redesign.
 
 ## Step 2 Status
 
-✅ Authentication Flow DSL defined
-✅ Orchestration decoupled from methods
-✅ Enterprise-ready
-✅ Hexagonal-safe
+✅ Authentication Flow DSL defined ✅ Orchestration decoupled from methods ✅
+Enterprise-ready ✅ Hexagonal-safe
 
 ---
 
 # Step 3 — **AuthenticationAttempt Lifecycle (Aggregate Rules)**
 
-This step defines **the heart of correctness**.
-If this aggregate is weak, you’ll get replay attacks, broken MFA, and inconsistent auth state.
+This step defines **the heart of correctness**. If this aggregate is weak,
+you’ll get replay attacks, broken MFA, and inconsistent auth state.
 
 ---
 
@@ -510,15 +492,15 @@ If this aggregate is weak, you’ll get replay attacks, broken MFA, and inconsis
 
 An **AuthenticationAttempt** represents:
 
-> *One and only one execution of an authentication flow.*
+> _One and only one execution of an authentication flow._
 
 It exists to:
 
-* Enforce invariants
-* Track progress across steps
-* Collect proofs
-* Coordinate challenges
-* Produce a single outcome
+- Enforce invariants
+- Track progress across steps
+- Collect proofs
+- Coordinate challenges
+- Produce a single outcome
 
 It is the **source of truth** for authentication state.
 
@@ -528,11 +510,11 @@ It is the **source of truth** for authentication state.
 
 Because it controls **critical invariants**:
 
-* A step cannot be skipped
-* A proof cannot be reused
-* An attempt cannot succeed twice
-* A failed attempt cannot be resumed
-* MFA ordering must be enforced
+- A step cannot be skipped
+- A proof cannot be reused
+- An attempt cannot succeed twice
+- A failed attempt cannot be resumed
+- MFA ordering must be enforced
 
 If this is not an aggregate → bugs are guaranteed.
 
@@ -544,14 +526,14 @@ If this is not an aggregate → bugs are guaranteed.
 
 **Key Attributes**
 
-* AttemptId
-* FlowId
-* PrincipalId? (optional initially)
-* CurrentStepId
-* Status
-* CollectedProofs
-* StartedAt
-* CompletedAt?
+- AttemptId
+- FlowId
+- PrincipalId? (optional initially)
+- CurrentStepId
+- Status
+- CollectedProofs
+- StartedAt
+- CompletedAt?
 
 ---
 
@@ -565,8 +547,7 @@ Only these states are allowed:
 4. `Succeeded`
 5. `Failed`
 
-No others.
-No “partial success”.
+No others. No “partial success”.
 
 ---
 
@@ -574,27 +555,27 @@ No “partial success”.
 
 ### 5.1 Initialization
 
-* Created with a Flow
-* No proofs
-* No session
-* Status = `Initialized`
+- Created with a Flow
+- No proofs
+- No session
+- Status = `Initialized`
 
 Allowed transitions:
 
-* → `InProgress`
+- → `InProgress`
 
 ---
 
 ### 5.2 InProgress
 
-* Actively executing a flow step
-* Accepts exactly **one proof per step**
+- Actively executing a flow step
+- Accepts exactly **one proof per step**
 
 Allowed transitions:
 
-* → `AwaitingChallenge`
-* → `Succeeded`
-* → `Failed`
+- → `AwaitingChallenge`
+- → `Succeeded`
+- → `Failed`
 
 ---
 
@@ -602,20 +583,20 @@ Allowed transitions:
 
 Used when:
 
-* External action is required
-* OTP sent
-* OAuth assertion pending
-* Push approval pending
+- External action is required
+- OTP sent
+- OAuth assertion pending
+- Push approval pending
 
 Rules:
 
-* No new step allowed
-* Only challenge response accepted
+- No new step allowed
+- Only challenge response accepted
 
 Allowed transitions:
 
-* → `InProgress`
-* → `Failed`
+- → `InProgress`
+- → `Failed`
 
 ---
 
@@ -623,9 +604,9 @@ Allowed transitions:
 
 Rules:
 
-* Immutable
-* Produces AuthenticationSession
-* No further actions allowed
+- Immutable
+- Produces AuthenticationSession
+- No further actions allowed
 
 ---
 
@@ -633,9 +614,9 @@ Rules:
 
 Rules:
 
-* Immutable
-* No retry inside same attempt
-* New attempt required
+- Immutable
+- No retry inside same attempt
+- New attempt required
 
 ---
 
@@ -645,16 +626,16 @@ Proofs are **append-only**.
 
 Rules:
 
-* One proof per step
-* Proof must match expected AuthMethodType
-* Proof must be verified before progressing
-* Proofs cannot be modified or deleted
+- One proof per step
+- Proof must match expected AuthMethodType
+- Proof must be verified before progressing
+- Proofs cannot be modified or deleted
 
 This guarantees:
 
-* Auditability
-* Determinism
-* Replay prevention
+- Auditability
+- Determinism
+- Replay prevention
 
 ---
 
@@ -662,13 +643,12 @@ This guarantees:
 
 The aggregate enforces:
 
-* Steps must be executed in order
-* Transition conditions must be satisfied
-* Skipping steps is forbidden
-* Optional steps are flow-defined, not attempt-defined
+- Steps must be executed in order
+- Transition conditions must be satisfied
+- Skipping steps is forbidden
+- Optional steps are flow-defined, not attempt-defined
 
-The attempt **does not decide** what the next step is.
-It **asks the flow**.
+The attempt **does not decide** what the next step is. It **asks the flow**.
 
 ---
 
@@ -678,29 +658,29 @@ Failures are **final**.
 
 Examples:
 
-* Wrong password → Failed
-* OTP expired → Failed
-* OAuth assertion invalid → Failed
+- Wrong password → Failed
+- OTP expired → Failed
+- OAuth assertion invalid → Failed
 
 Retries:
 
-* Require a **new AuthenticationAttempt**
-* Rate limiting is policy/infrastructure concern
+- Require a **new AuthenticationAttempt**
+- Rate limiting is policy/infrastructure concern
 
 This avoids:
 
-* State confusion
-* Timing attacks
-* Complex rollback logic
+- State confusion
+- Timing attacks
+- Complex rollback logic
 
 ---
 
 ## 9. Relationship to Other Aggregates
 
-* Uses **AuthenticationFlow** (read-only)
-* Produces **AuthenticationSession**
-* References **Principal**, but does not own it
-* Uses **Policies**, but does not evaluate them
+- Uses **AuthenticationFlow** (read-only)
+- Produces **AuthenticationSession**
+- References **Principal**, but does not own it
+- Uses **Policies**, but does not evaluate them
 
 No bidirectional coupling.
 
@@ -710,12 +690,12 @@ No bidirectional coupling.
 
 Explicitly forbidden:
 
-* Creating credentials
-* Issuing tokens
-* Storing secrets
-* Evaluating risk
-* Talking to HTTP
-* Calling providers
+- Creating credentials
+- Issuing tokens
+- Storing secrets
+- Evaluating risk
+- Talking to HTTP
+- Calling providers
 
 It enforces **process**, not mechanics.
 
@@ -723,12 +703,8 @@ It enforces **process**, not mechanics.
 
 ## 11. Invariant Checklist (Must Always Hold)
 
-✔ One flow per attempt
-✔ One terminal state only
-✔ No step skipping
-✔ No proof reuse
-✔ No resurrection after failure
-✔ Deterministic outcome
+✔ One flow per attempt ✔ One terminal state only ✔ No step skipping ✔ No proof
+reuse ✔ No resurrection after failure ✔ Deterministic outcome
 
 If any invariant breaks → security issue.
 
@@ -736,24 +712,22 @@ If any invariant breaks → security issue.
 
 ## 12. Step 3 Status
 
-✅ Aggregate boundaries defined
-✅ State machine enforced
-✅ MFA-safe
-✅ Replay-safe
-✅ Audit-ready
+✅ Aggregate boundaries defined ✅ State machine enforced ✅ MFA-safe ✅
+Replay-safe ✅ Audit-ready
 
 ---
 
 # Step 4 — **Authentication Policy Model (Risk, Conditions, Step-Up)**
 
-This step defines **who is allowed to authenticate, under what conditions, and with which strength** — without hard-coding logic.
+This step defines **who is allowed to authenticate, under what conditions, and
+with which strength** — without hard-coding logic.
 
 If policies are not modeled cleanly, you will:
 
-* Hard-code MFA rules
-* Fork enterprise behavior
-* Break extensibility
-* Lose auditability
+- Hard-code MFA rules
+- Fork enterprise behavior
+- Break extensibility
+- Lose auditability
 
 ---
 
@@ -761,14 +735,13 @@ If policies are not modeled cleanly, you will:
 
 A **Policy** answers questions like:
 
-* Is this authentication allowed?
-* Is step-up required?
-* Which flow should apply?
-* Is this context risky?
-* Is the current proof sufficient?
+- Is this authentication allowed?
+- Is step-up required?
+- Which flow should apply?
+- Is this context risky?
+- Is the current proof sufficient?
 
-Policies **do not authenticate**.
-They **constrain and steer** authentication.
+Policies **do not authenticate**. They **constrain and steer** authentication.
 
 ---
 
@@ -779,14 +752,14 @@ They **constrain and steer** authentication.
 No:
 
 ```ts
-if (ip === 'x') requireOtp()
+if (ip === 'x') requireOtp();
 ```
 
 Yes:
 
-* Policy definitions
-* Policy evaluation results
-* Policy-driven decisions
+- Policy definitions
+- Policy evaluation results
+- Policy-driven decisions
 
 ---
 
@@ -805,10 +778,10 @@ AuthenticationPolicy
 
 Rules:
 
-* Immutable
-* Versionable
-* Serializable
-* Configurable per tenant / environment
+- Immutable
+- Versionable
+- Serializable
+- Configurable per tenant / environment
 
 ---
 
@@ -827,10 +800,10 @@ PolicyScope =
 
 Examples:
 
-* Global MFA enforcement
-* Principal-specific restrictions
-* Method-specific constraints
-* Flow selection rules
+- Global MFA enforcement
+- Principal-specific restrictions
+- Method-specific constraints
+- Flow selection rules
 
 ---
 
@@ -846,9 +819,9 @@ PolicyRule
 
 Each rule:
 
-* Evaluates **one condition**
-* Produces **one action**
-* Has no side effects
+- Evaluates **one condition**
+- Produces **one action**
+- Has no side effects
 
 ---
 
@@ -857,31 +830,28 @@ Each rule:
 Conditions evaluate **context**, never infrastructure.
 
 ```ts
-ConditionExpression
-- subject
-- operator
-- value
+ConditionExpression - subject - operator - value;
 ```
 
 ### Common Subjects
 
-* risk.score
-* principal.trustLevel
-* device.trusted
-* location.country
-* time.window
-* auth.method
-* auth.factor
-* attempt.count
+- risk.score
+- principal.trustLevel
+- device.trusted
+- location.country
+- time.window
+- auth.method
+- auth.factor
+- attempt.count
 
 ### Operators
 
-* equals
-* notEquals
-* greaterThan
-* lessThan
-* in
-* notIn
+- equals
+- notEquals
+- greaterThan
+- lessThan
+- in
+- notIn
 
 ---
 
@@ -900,10 +870,10 @@ PolicyAction =
 
 Examples:
 
-* Require OTP if risk > threshold
-* Deny auth from blocked country
-* Force enterprise SSO
-* Downgrade session trust
+- Require OTP if risk > threshold
+- Deny auth from blocked country
+- Force enterprise SSO
+- Downgrade session trust
 
 ---
 
@@ -922,9 +892,9 @@ PolicyEvaluationResult
 
 This allows:
 
-* Explainability
-* Auditing
-* Compliance
+- Explainability
+- Auditing
+- Compliance
 
 ---
 
@@ -939,10 +909,10 @@ AuthenticationPolicyEvaluator
 
 Context includes:
 
-* Principal snapshot
-* AuthenticationAttempt snapshot
-* Device/context snapshot
-* Risk assessment (via port)
+- Principal snapshot
+- AuthenticationAttempt snapshot
+- Device/context snapshot
+- Risk assessment (via port)
 
 ---
 
@@ -950,17 +920,17 @@ Context includes:
 
 Policies can:
 
-* Select a flow
-* Alter transitions
-* Require additional steps
+- Select a flow
+- Alter transitions
+- Require additional steps
 
 Flows **reference policies**, but do not contain logic.
 
 This separation allows:
 
-* Same flow, different behavior
-* Enterprise overrides
-* Runtime reconfiguration
+- Same flow, different behavior
+- Enterprise overrides
+- Runtime reconfiguration
 
 ---
 
@@ -1006,12 +976,12 @@ THEN SelectFlow = m2m_flow
 
 Forbidden:
 
-* Issuing challenges
-* Sending OTPs
-* Creating sessions
-* Calling providers
-* Accessing databases directly
-* Knowing HTTP headers
+- Issuing challenges
+- Sending OTPs
+- Creating sessions
+- Calling providers
+- Accessing databases directly
+- Knowing HTTP headers
 
 They only **decide**.
 
@@ -1021,25 +991,24 @@ They only **decide**.
 
 With this model you can:
 
-* Add new conditions without changing flows
-* Add new actions without breaking domain
-* Support enterprise policy engines later
-* Audit decisions deterministically
+- Add new conditions without changing flows
+- Add new actions without breaking domain
+- Support enterprise policy engines later
+- Audit decisions deterministically
 
 ---
 
 ## 14. Step 4 Status
 
-✅ Policy model defined
-✅ Risk-adaptive ready
-✅ Enterprise-grade
-✅ Explainable and auditable
+✅ Policy model defined ✅ Risk-adaptive ready ✅ Enterprise-grade ✅
+Explainable and auditable
 
 ---
 
 # Step 5 — **Credential Lifecycle Modeling**
 
-This step defines **what a credential is**, how it is created, validated, rotated, revoked, and expired — without storing secrets or coupling to storage.
+This step defines **what a credential is**, how it is created, validated,
+rotated, revoked, and expired — without storing secrets or coupling to storage.
 
 If credential lifecycle is vague, security degrades fast.
 
@@ -1049,14 +1018,14 @@ If credential lifecycle is vague, security degrades fast.
 
 A **Credential** represents:
 
-> *A verifiable authentication capability bound to a Principal.*
+> _A verifiable authentication capability bound to a Principal._
 
 It is **not**:
 
-* A password hash
-* An OTP secret
-* A token
-* A provider artifact
+- A password hash
+- An OTP secret
+- A token
+- A provider artifact
 
 Those are **infrastructure details**.
 
@@ -1094,9 +1063,9 @@ CredentialStatus =
 
 Rules:
 
-* Revoked and Compromised are terminal
-* Expired is time-based
-* Suspended is reversible
+- Revoked and Compromised are terminal
+- Expired is time-based
+- Suspended is reversible
 
 ---
 
@@ -1104,12 +1073,12 @@ Rules:
 
 A credential must always satisfy:
 
-* Belongs to exactly one Principal
-* Is bound to exactly one Auth Method
-* Cannot be reused across principals
-* Cannot be reactivated after Revocation
-* Cannot authenticate if not Active
-* Cannot exist without lifecycle metadata
+- Belongs to exactly one Principal
+- Is bound to exactly one Auth Method
+- Cannot be reused across principals
+- Cannot be reactivated after Revocation
+- Cannot authenticate if not Active
+- Cannot exist without lifecycle metadata
 
 Violation = security bug.
 
@@ -1119,15 +1088,15 @@ Violation = security bug.
 
 Credential creation:
 
-* Is explicit
-* Requires policy approval
-* Produces **no secret** in domain
-* Delegates material generation to infrastructure
+- Is explicit
+- Requires policy approval
+- Produces **no secret** in domain
+- Delegates material generation to infrastructure
 
 Example:
 
-* Domain: “Create OTP credential”
-* Infra: Generates secret, stores it securely
+- Domain: “Create OTP credential”
+- Infra: Generates secret, stores it securely
 
 ---
 
@@ -1135,10 +1104,10 @@ Example:
 
 On each successful authentication:
 
-* Credential status must be Active
-* Expiration must be checked
-* Usage timestamp may be updated
-* Compromise signals may suspend or revoke
+- Credential status must be Active
+- Expiration must be checked
+- Usage timestamp may be updated
+- Compromise signals may suspend or revoke
 
 Credential usage is **observed**, not enforced here.
 
@@ -1148,17 +1117,17 @@ Credential usage is **observed**, not enforced here.
 
 Rotation is modeled as:
 
-* Create new credential
-* Activate new
-* Suspend or revoke old
+- Create new credential
+- Activate new
+- Suspend or revoke old
 
 No mutation-in-place.
 
 This allows:
 
-* Auditability
-* Rollback
-* Compliance
+- Auditability
+- Rollback
+- Compliance
 
 ---
 
@@ -1166,17 +1135,17 @@ This allows:
 
 Revocation reasons:
 
-* User action
-* Admin action
-* Policy decision
-* Risk detection
-* Breach response
+- User action
+- Admin action
+- Policy decision
+- Risk detection
+- Breach response
 
 Revocation:
 
-* Is immediate
-* Is irreversible
-* Must propagate to infra adapters
+- Is immediate
+- Is irreversible
+- Must propagate to infra adapters
 
 ---
 
@@ -1184,10 +1153,10 @@ Revocation:
 
 Expiration:
 
-* Is time-based
-* Evaluated at authentication time
-* Does not delete credential
-* Transitions to Expired
+- Is time-based
+- Evaluated at authentication time
+- Does not delete credential
+- Transitions to Expired
 
 Deletion is **not** domain responsibility.
 
@@ -1195,10 +1164,10 @@ Deletion is **not** domain responsibility.
 
 ## 10. Relationship to AuthenticationAttempt
 
-* Attempts **reference** credentials
-* Attempts do not own credentials
-* Credential state is checked during verification
-* No attempt may mutate credential directly
+- Attempts **reference** credentials
+- Attempts do not own credentials
+- Credential state is checked during verification
+- No attempt may mutate credential directly
 
 ---
 
@@ -1220,12 +1189,12 @@ Types are **data**, not inheritance.
 
 Explicitly forbidden:
 
-* Hash algorithms
-* OTP secrets
-* Token formats
-* Storage engines
-* Providers
-* Encryption
+- Hash algorithms
+- OTP secrets
+- Token formats
+- Storage engines
+- Providers
+- Encryption
 
 Those live behind ports.
 
@@ -1234,10 +1203,10 @@ Those live behind ports.
 ## 13. Ports Related to Credentials
 
 ```ts
-CredentialRepository
-CredentialMaterialStore (infra)
-CredentialUsageReporter
-CredentialRevocationPublisher
+CredentialRepository;
+CredentialMaterialStore(infra);
+CredentialUsageReporter;
+CredentialRevocationPublisher;
 ```
 
 Domain only depends on interfaces.
@@ -1248,30 +1217,28 @@ Domain only depends on interfaces.
 
 With this model:
 
-* New credential types require no domain change
-* Infra can store secrets however it wants
-* Enterprise policies can control lifecycle
-* Auditing is deterministic
+- New credential types require no domain change
+- Infra can store secrets however it wants
+- Enterprise policies can control lifecycle
+- Auditing is deterministic
 
 ---
 
 ## 15. Step 5 Status
 
-✅ Credential lifecycle defined
-✅ Security invariants enforced
-✅ Storage-agnostic
-✅ Enterprise-ready
+✅ Credential lifecycle defined ✅ Security invariants enforced ✅
+Storage-agnostic ✅ Enterprise-ready
 
 ---
 
-We continue.
-This is the **last foundational domain step**.
+We continue. This is the **last foundational domain step**.
 
 ---
 
 # Step 6 — **AuthenticationSession & Trust Levels**
 
-This step defines **what “being authenticated” actually means** in your system, independent of tokens, cookies, or transport.
+This step defines **what “being authenticated” actually means** in your system,
+independent of tokens, cookies, or transport.
 
 If this is weak, authorization, SSO, and enterprise security all collapse.
 
@@ -1281,20 +1248,20 @@ If this is weak, authorization, SSO, and enterprise security all collapse.
 
 An **AuthenticationSession** represents:
 
-> *A time-bounded, trust-scoped result of a successful authentication.*
+> _A time-bounded, trust-scoped result of a successful authentication._
 
 It is:
 
-* The output of Authentication
-* The input to Authorization
-* The anchor for SSO, re-auth, and step-up
+- The output of Authentication
+- The input to Authorization
+- The anchor for SSO, re-auth, and step-up
 
 It is **not**:
 
-* A cookie
-* A JWT
-* A refresh token
-* An HTTP session
+- A cookie
+- A JWT
+- A refresh token
+- An HTTP session
 
 Those are representations.
 
@@ -1305,16 +1272,16 @@ Those are representations.
 ### AuthenticationSession (Aggregate Root)
 
 ```ts
-AuthenticationSession
-- SessionId
-- PrincipalId
-- FlowId
-- IssuedAt
-- ExpiresAt
-- TrustLevel
-- AuthFactorsUsed
-- ContextSnapshot
-- Status
+AuthenticationSession -
+  SessionId -
+  PrincipalId -
+  FlowId -
+  IssuedAt -
+  ExpiresAt -
+  TrustLevel -
+  AuthFactorsUsed -
+  ContextSnapshot -
+  Status;
 ```
 
 ---
@@ -1330,9 +1297,9 @@ SessionStatus =
 
 Rules:
 
-* Expired is time-based
-* Revoked is explicit and terminal
-* Active is the only usable state
+- Expired is time-based
+- Revoked is explicit and terminal
+- Active is the only usable state
 
 ---
 
@@ -1352,25 +1319,25 @@ TrustLevel =
 
 Interpretation:
 
-* **Anonymous** → unauthenticated
-* **Low** → weak auth (magic link, social)
-* **Medium** → single strong factor
-* **High** → MFA / hardware-backed
+- **Anonymous** → unauthenticated
+- **Low** → weak auth (magic link, social)
+- **Medium** → single strong factor
+- **High** → MFA / hardware-backed
 
 Trust is:
 
-* Computed from proofs + policies
-* Stored in session
-* Used by authorization
+- Computed from proofs + policies
+- Stored in session
+- Used by authorization
 
 ---
 
 ## 5. Trust Level Invariants
 
-* TrustLevel is **assigned at session creation**
-* TrustLevel can be **downgraded**
-* TrustLevel can **never be upgraded in-place**
-* Upgrade requires **new AuthenticationAttempt**
+- TrustLevel is **assigned at session creation**
+- TrustLevel can be **downgraded**
+- TrustLevel can **never be upgraded in-place**
+- Upgrade requires **new AuthenticationAttempt**
 
 This prevents silent privilege escalation.
 
@@ -1378,10 +1345,10 @@ This prevents silent privilege escalation.
 
 ## 6. Relationship to AuthenticationAttempt
 
-* Exactly one session per successful attempt
-* Attempt produces session
-* Session references attempt context (read-only)
-* Session lifecycle is independent afterward
+- Exactly one session per successful attempt
+- Attempt produces session
+- Session references attempt context (read-only)
+- Session lifecycle is independent afterward
 
 No circular dependency.
 
@@ -1393,18 +1360,18 @@ No circular dependency.
 
 Captures authentication context **at time of issuance**:
 
-* Device trust
-* Location
-* Risk score
-* Auth methods used
-* Policies applied
+- Device trust
+- Location
+- Risk score
+- Auth methods used
+- Policies applied
 
 Why:
 
-* Auditability
-* Compliance
-* Forensic analysis
-* Future policy checks
+- Auditability
+- Compliance
+- Forensic analysis
+- Future policy checks
 
 Context is **immutable**.
 
@@ -1414,16 +1381,16 @@ Context is **immutable**.
 
 Expiration is:
 
-* Deterministic
-* Policy-driven
-* Evaluated by infrastructure
-* Reflected in domain state
+- Deterministic
+- Policy-driven
+- Evaluated by infrastructure
+- Reflected in domain state
 
 Domain does not:
 
-* Refresh sessions
-* Slide expiration
-* Issue refresh tokens
+- Refresh sessions
+- Slide expiration
+- Issue refresh tokens
 
 Those are adapters.
 
@@ -1433,17 +1400,17 @@ Those are adapters.
 
 Revocation triggers:
 
-* User logout
-* Admin action
-* Credential revocation
-* Risk detection
-* Policy violation
+- User logout
+- Admin action
+- Credential revocation
+- Risk detection
+- Policy violation
 
 Revocation:
 
-* Is explicit
-* Is immediate
-* Invalidates all representations
+- Is explicit
+- Is immediate
+- Invalidates all representations
 
 ---
 
@@ -1451,15 +1418,15 @@ Revocation:
 
 SSO is simply:
 
-* Multiple representations
-* One AuthenticationSession
+- Multiple representations
+- One AuthenticationSession
 
 This model supports:
 
-* Web SSO
-* Mobile SSO
-* API SSO
-* Cross-app SSO
+- Web SSO
+- Mobile SSO
+- API SSO
+- Cross-app SSO
 
 Without special logic.
 
@@ -1469,12 +1436,12 @@ Without special logic.
 
 Explicitly forbidden:
 
-* JWT claims
-* Cookies
-* Headers
-* OAuth tokens
-* HTTP
-* Storage engine
+- JWT claims
+- Cookies
+- Headers
+- OAuth tokens
+- HTTP
+- Storage engine
 
 It only knows **meaning**, not format.
 
@@ -1483,10 +1450,10 @@ It only knows **meaning**, not format.
 ## 12. Ports Related to Sessions
 
 ```ts
-AuthenticationSessionRepository
-SessionRevocationPublisher
-SessionExpirationScheduler
-SessionRepresentationFactory (infra)
+AuthenticationSessionRepository;
+SessionRevocationPublisher;
+SessionExpirationScheduler;
+SessionRepresentationFactory(infra);
 ```
 
 Domain defines contracts only.
@@ -1497,20 +1464,17 @@ Domain defines contracts only.
 
 With this model:
 
-* You can change token formats freely
-* You can support SSO without refactor
-* You can add step-up auth cleanly
-* You can audit auth decisions years later
+- You can change token formats freely
+- You can support SSO without refactor
+- You can add step-up auth cleanly
+- You can audit auth decisions years later
 
 ---
 
 ## 14. Step 6 Status
 
-✅ AuthenticationSession modeled
-✅ Trust levels explicit
-✅ Step-up safe
-✅ Authorization-ready
-✅ Enterprise-grade
+✅ AuthenticationSession modeled ✅ Trust levels explicit ✅ Step-up safe ✅
+Authorization-ready ✅ Enterprise-grade
 
 ---
 
@@ -1524,4 +1488,3 @@ You now have a **complete, extensible, production-grade Auth Domain**:
 4. Policy model
 5. Credential lifecycle
 6. AuthenticationSession & Trust
-
