@@ -10,8 +10,12 @@ const __dirname = path.dirname(__filename);
 const args = process.argv.slice(2);
 
 if (args.length < 1) {
-  console.error('Usage: node generate-package.mjs <package-name> [description]');
-  console.error('Example: node generate-package.mjs my-feature "Feature package"');
+  console.error(
+    'Usage: node generate-package.mjs <package-name> [description]',
+  );
+  console.error(
+    'Example: node generate-package.mjs my-feature "Feature package"',
+  );
   process.exit(1);
 }
 
@@ -20,7 +24,9 @@ const description = args[1] || `${packageName} package for Rineex core modules`;
 
 // Validate package name
 if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(packageName)) {
-  console.error('Invalid package name. Use lowercase letters, numbers, and hyphens only.');
+  console.error(
+    'Invalid package name. Use lowercase letters, numbers, and hyphens only.',
+  );
   process.exit(1);
 }
 
@@ -37,10 +43,7 @@ console.log(`📦 Creating package: @rineex/${packageName}`);
 console.log(`📁 Location: ${packageDir}\n`);
 
 // Create directory structure
-const dirs = [
-  packageDir,
-  path.join(packageDir, 'src'),
-];
+const dirs = [packageDir, path.join(packageDir, 'src')];
 
 dirs.forEach(dir => {
   if (!fs.existsSync(dir)) {
@@ -59,10 +62,10 @@ const packageJson = {
   module: './dist/index.mjs',
   types: './dist/index.d.ts',
   scripts: {
-    test: 'vitest run',
-    lint: "eslint 'src/**/*.ts'",
+    'test': 'vitest run',
+    'lint': "eslint 'src/**/*.ts'",
     'check-types': 'tsc --noEmit',
-    build: 'tsup',
+    'build': 'tsup',
   },
   files: ['dist/**'],
   sideEffects: false,
@@ -72,11 +75,11 @@ const packageJson = {
     '@rineex/typescript-config': 'workspace:*',
     '@types/node': '24.10.4',
     '@vitest/ui': '4.0.16',
-    tslib: '2.8.1',
-    tsup: '8.5.1',
-    typescript: '5.9.3',
+    'tslib': '2.8.1',
+    'tsup': '8.5.1',
+    'typescript': '5.9.3',
     'vite-tsconfig-paths': '6.0.2',
-    vitest: '4.0.16',
+    'vitest': '4.0.16',
   },
   keywords: ['rineex', packageName.replace(/-/g, '-')],
   license: 'Apache-2.0',
@@ -95,7 +98,7 @@ const packageJson = {
 // Write package.json
 fs.writeFileSync(
   path.join(packageDir, 'package.json'),
-  JSON.stringify(packageJson, null, 2) + '\n'
+  JSON.stringify(packageJson, null, 2) + '\n',
 );
 console.log('✓ Created package.json');
 
@@ -128,7 +131,7 @@ const tsconfig = {
 
 fs.writeFileSync(
   path.join(packageDir, 'tsconfig.json'),
-  JSON.stringify(tsconfig, null, 2) + '\n'
+  JSON.stringify(tsconfig, null, 2) + '\n',
 );
 console.log('✓ Created tsconfig.json');
 
@@ -141,7 +144,7 @@ const tsconfigBuild = {
 
 fs.writeFileSync(
   path.join(packageDir, 'tsconfig.build.json'),
-  JSON.stringify(tsconfigBuild, null, 2) + '\n'
+  JSON.stringify(tsconfigBuild, null, 2) + '\n',
 );
 console.log('✓ Created tsconfig.build.json');
 
