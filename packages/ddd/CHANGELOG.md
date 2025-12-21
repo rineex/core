@@ -1,5 +1,17 @@
 # @rineex/ddd
 
+## 1.3.0
+
+### Minor Changes
+
+- implement UUID and AggregateId value objects with validation and serialization
+  ([`283c3a9`](https://github.com/rineex/core/commit/283c3a9aa8210a780f90c1b69e2d0b8f2cbc090a))
+
+### Patch Changes
+
+- fix: update Node setup to use version from package.json
+  ([#6](https://github.com/rineex/core/pull/6))
+
 ## 1.2.0
 
 ### Minor Changes
