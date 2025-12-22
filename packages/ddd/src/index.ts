@@ -1,6 +1,7 @@
 export * from './application';
 export * from './domain/aggregates';
 export * from './domain/base/domain.error';
+export * from './domain/base/primitive-vo';
 export * from './domain/base/vo';
 export * from './domain/entities';
 export * from './domain/errors/entity-validation.error';
