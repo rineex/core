@@ -1,6 +1,5 @@
 import { ensureObject, UnwrapValueObject, unwrapValueObject } from '@/utils';
 
-import { EntityValidationError } from '../errors/entity-validation.error';
 import { AggregateId } from '../value-objects/aggregate-id.vo';
 
 export interface EntityBaseInterface {
@@ -81,19 +80,10 @@ export abstract class Entity<EntityProps> {
    * @param params - Entity creation parameters
    * @throws EntityValidationError if the ID is empty or validation fails
    */
-  protected constructor({
-    createdAt,
-    props,
-    id,
-  }: CreateEntityProps<EntityProps>) {
-    if (!id) {
-      throw new EntityValidationError('Entity ID cannot be empty');
-    }
-
-    this.#id = id ?? AggregateId.generate();
-    this.#props = Object.freeze(props);
-    const now = new Date();
-    this.#createdAt = createdAt ? new Date(createdAt) : now;
+  protected constructor(args: CreateEntityProps<EntityProps>) {
+    this.#id = args.id ?? AggregateId.generate();
+    this.#createdAt = args.createdAt ?? new Date();
+    this.#props = args.props;
   }
 
   /**
@@ -106,7 +96,8 @@ export abstract class Entity<EntityProps> {
       typeof entity === 'object' &&
       entity !== null &&
       'id' in entity &&
-      typeof (entity as any).equals === 'function'
+      'equals' in entity &&
+      typeof (entity as Record<string, unknown>).equals === 'function'
     );
   }
 
@@ -116,11 +107,8 @@ export abstract class Entity<EntityProps> {
    * @param other - The entity to compare with
    * @returns True if the entities have the same ID
    */
-  public equals(other?: Entity<EntityProps>): boolean {
-    if (!other || !Entity.isEntity(other)) {
-      return false;
-    }
-
+  public equals(other?: Entity<unknown>): boolean {
+    if (!other) return false;
     return this.#id.equals(other.#id);
   }
 
@@ -149,6 +137,14 @@ export abstract class Entity<EntityProps> {
     return this.toObject();
   }
 
+  /**
+   * Internal mutation hook.
+   * Must be followed by validation by caller.
+   */
+  protected updateProps(updater: (current: EntityProps) => EntityProps): void {
+    this.#props = updater(this.#props);
+  }
+
   public toObject(): Readonly<
     UnwrapValueObject<EntityProps> & { createdAt: string; id: string }
   > {
@@ -165,6 +161,7 @@ export abstract class Entity<EntityProps> {
   /**
    * Validates the entity's state to enforce domain invariants.
    * Must be implemented by subclasses to define specific validation rules.
+   * @implements Must be called by concrete factories and mutators.
    * @throws EntityValidationError if validation fails
    */
   public abstract validate(): void;
