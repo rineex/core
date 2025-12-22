@@ -1,5 +1,12 @@
 # @rineex/ddd
 
+## 1.5.0
+
+### Minor Changes
+
+- simplify constructor and enhance equals method + add updaterProps method
+  ([`5712749`](https://github.com/rineex/core/commit/57127499a69535417d07d38024df21d0a43ef36a))
+
 ## 1.4.0
 
 ### Minor Changes
