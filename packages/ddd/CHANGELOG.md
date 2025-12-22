@@ -1,5 +1,12 @@
 # @rineex/ddd
 
+## 1.4.0
+
+### Minor Changes
+
+- export primitive value object from domain base
+  ([`fd88fb5`](https://github.com/rineex/core/commit/fd88fb5ce50fb9198c6a00bb67a470da4c45fc5b))
+
 ## 1.3.0
 
 ### Minor Changes
