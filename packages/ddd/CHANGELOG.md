@@ -1,5 +1,12 @@
 # @rineex/ddd
 
+## 1.5.1
+
+### Patch Changes
+
+- export id value object from domain value-objects
+  ([`7f14ba6`](https://github.com/rineex/core/commit/7f14ba69676736a3b1fad984bdc7fcce3ead6640))
+
 ## 1.5.0
 
 ### Minor Changes
