@@ -1,6 +1,6 @@
 {
   "name": "@rineex/auth-core",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Authentication Core package for Rineex core modules",
   "author": "Rineex Team",
   "main": "./dist/index.js",
@@ -44,6 +44,6 @@
   "license": "Apache-2.0",
   "packageManager": "pnpm@10.22.0",
   "dependencies": {
-    "@rineex/ddd": "1.5.1"
+    "@rineex/ddd": "1.5.2"
   }
 }

@@ -1,5 +1,15 @@
 # @rineex/ddd
 
+## 1.5.2
+
+### Patch Changes
+
+- f
+  ([`b5b1094`](https://github.com/rineex/core/commit/b5b1094906ca43efcee3e9f769ddd5062ba390c9))
+
+- create domain violation errors with results
+  ([`b5b1094`](https://github.com/rineex/core/commit/b5b1094906ca43efcee3e9f769ddd5062ba390c9))
+
 ## 1.5.1
 
 ### Patch Changes
