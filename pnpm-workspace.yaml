@@ -1,4 +1,6 @@
 packages:
   - packages/authentication/*
+  - packages/authentication/methods/*
   - packages/*
   - '!packages/authentication'
+  - '!packages/authentication/methods'

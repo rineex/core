@@ -12,7 +12,7 @@
     "prettier": "prettier --experimental-cli --ignore-unknown '**/*'",
     "prettier:write": "pnpm run prettier --write",
     "changeset": "changeset",
-    "changeset:version": "changeset version && pnpm install --no-frozen-lockfile && pnpm prettier:write",
+    "changeset:version": "changeset version && pnpm prettier:write",
     "changeset:publish": "changeset publish",
     "generate:package": "node scripts/generate-package.mjs"
   },

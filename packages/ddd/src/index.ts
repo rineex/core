@@ -10,4 +10,5 @@ export * from './domain/events';
 export * from './domain/value-objects/aggregate-id.vo';
 export * from './domain/value-objects/id.vo';
 export * from './gateway/constants/http-code';
+export * from './shared/domain';
 export * from './utils';
