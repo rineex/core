@@ -17,3 +17,4 @@ svitejs
 topbar
 tsup
 unplugin
+vitest
