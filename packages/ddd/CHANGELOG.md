@@ -4,6 +4,13 @@
 
 ### Patch Changes
 
+- docs: add documentation for result class
+  ([`b1e8e3a`](https://github.com/rineex/core/commit/b1e8e3a4e02644118af82b8f068259d3e5bb2f24))
+
+## 1.5.2
+
+### Patch Changes
+
 - just for fixing
   ([`a347a2f`](https://github.com/rineex/core/commit/a347a2fbe9b1136c811f89a8ee4335bad13ca2ba))
 
