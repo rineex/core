@@ -10,6 +10,7 @@ export default [
       '@typescript-eslint/consistent-type-definitions': ['off'],
       '@typescript-eslint/consistent-type-imports': 'off',
       '@typescript-eslint/no-extraneous-class': 'off',
+      'max-params': ['error', 5],
     },
   },
   {
