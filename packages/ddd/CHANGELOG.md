@@ -1,5 +1,12 @@
 # @rineex/ddd
 
+## 1.5.2
+
+### Patch Changes
+
+- just for fixing
+  ([`a347a2f`](https://github.com/rineex/core/commit/a347a2fbe9b1136c811f89a8ee4335bad13ca2ba))
+
 ## 1.5.1
 
 ### Patch Changes
