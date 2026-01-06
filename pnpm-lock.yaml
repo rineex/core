@@ -48,7 +48,7 @@ importers:
   packages/authentication/core:
     dependencies:
       '@rineex/ddd':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../ddd
       lodash.isempty:
         specifier: 4.4.0
