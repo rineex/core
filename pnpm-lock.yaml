@@ -245,12 +245,6 @@ importers:
       '@nestjs/common':
         specifier: 11.1.11
         version: 11.1.11(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@rineex/ddd':
-        specifier: workspace:*
-        version: link:../ddd
-      '@types/pg':
-        specifier: ^8.11.10
-        version: 8.16.0
       rxjs:
         specifier: 7.8.2
         version: 7.8.2
