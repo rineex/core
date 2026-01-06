@@ -14,7 +14,7 @@
     "changeset": "changeset",
     "changeset:version": "changeset version && pnpm prettier:write",
     "changeset:publish": "changeset publish",
-    "generate:package": "node scripts/generate-package.mjs"
+    "g:pkg": "node scripts/generate-package.mjs"
   },
   "keywords": [
     "rineex",
