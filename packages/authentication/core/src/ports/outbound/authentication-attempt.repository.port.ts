@@ -6,6 +6,6 @@ import { AuthenticationAttempt } from '@/domain/aggregates/authentication-attemp
  * Implementation is infrastructure-specific.
  */
 export type AuthenticationAttemptRepositoryPort = {
-  save: (attempt: AuthenticationAttemptRepositoryPort) => Promise<void>;
+  save: (attempt: AuthenticationAttempt) => Promise<void>;
   findById: (id: string) => Promise<AuthenticationAttempt | null>;
 };

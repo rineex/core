@@ -1,168 +1,65 @@
-import { ensureObject, UnwrapValueObject, unwrapValueObject } from '@/utils';
+import { EntityId } from '../types';
 
-import { AggregateId } from '../value-objects/aggregate-id.vo';
+/**
+ * Configuration for the base Entity constructor.
+ * Forces a single-object argument pattern to avoid positional argument errors.
+ * @template ID - A type satisfying the EntityId interface.
+ */
+export interface EntityProps<ID extends EntityId, Props> {
+  /** The unique identity of the entity */
+  readonly id: ID;
+  /** Optional creation timestamp; defaults to 'now' if not provided */
+  readonly createdAt?: Date;
 
-export interface EntityBaseInterface {
-  id: AggregateId;
-  equals: (entity: unknown) => boolean;
+  readonly props: Props;
 }
 
 /**
- * Base properties common to all entities, including ID and timestamps.
+ * Abstract Base Entity for Domain-Driven Design (DDD).
+ * This class provides the standard contract for entity equality and identity.
+ * It intentionally avoids "magic" property bags to ensure V8 engine optimization
+ * and better IDE intellisense.
+ * @template ID - The specific Identity Value Object type.
  */
-export interface BaseEntityProps {
-  /** Unique identifier for the entity */
-  id?: AggregateId;
-  /** Date when the entity was created */
-  createdAt: Date;
-}
+export abstract class Entity<ID extends EntityId, Props> {
+  /** The immutable unique identifier for this entity */
+  public readonly id: ID;
+  /** The timestamp when this entity was first instantiated/created */
+  public readonly createdAt: Date;
 
-/**
- * Interface for constructing an entity with optional timestamps.
- * @template Props - The specific props type for the entity
- */
-export type CreateEntityProps<T> = BaseEntityProps & {
-  props: T;
-};
-
-/**
- * Abstract base class for domain entities in a Domain-Driven Design (DDD) context.
- * Provides common functionality for entity identification, equality comparison,
- * immutability, and validation. Entities extending this class must implement
- * the `validate` method to enforce domain invariants.
- * @template EntityProps - The specific props type for the entity
- */
-export abstract class Entity<EntityProps> {
   /**
-   * Returns the creation timestamp.
-   * A new Date instance is returned to preserve immutability.
-   *
-   * @returns {Date} The creation date of the entity.
+   * Protected constructor to be called by subclasses.
+   * @param props - Initial identity and metadata.
    */
-  get createdAt(): Date {
-    return new Date(this.#createdAt);
+  protected constructor(props: EntityProps<ID, Props>) {
+    this.id = props.id;
+    this.createdAt = props.createdAt ?? new Date();
   }
 
   /**
-   * Gets the entity's unique identifier.
-   * @returns The entity's ID
+   * Compares entities by identity.
+   * In DDD, two entities are considered equal if their IDs match,
+   * regardless of their other properties.
+   * @param other - The entity to compare against.
+   * @returns True if IDs are equal.
    */
-  get id(): AggregateId {
-    return this.#id;
-  }
-
-  public get metadata() {
-    return Object.freeze({
-      createdAt: this.#createdAt.toISOString(),
-      id: this.#id,
-    });
+  public equals(other?: Entity<ID, Props>): boolean {
+    if (other == null) return false;
+    if (this === other) return true;
+    return this.id.equals(other.id);
   }
 
   /**
-   * Returns an immutable shallow copy of the entity's properties.
-   *
-   * @returns {Readonly<EntityProps>} The entity domain properties.
-   */
-  get props(): Readonly<EntityProps> {
-    return this.#props;
-  }
-
-  /** Private creation timestamp */
-  #createdAt: Date;
-  /** Private unique identifier for the entity */
-  #id: AggregateId;
-  /** Private entity-specific properties */
-  #props: Readonly<EntityProps>;
-
-  /**
-   * Constructs an entity with the provided properties and timestamps.
-   * Ensures immutability by cloning props and validates the entity.
-   * @param params - Entity creation parameters
-   * @throws EntityValidationError if the ID is empty or validation fails
-   */
-  protected constructor(args: CreateEntityProps<EntityProps>) {
-    this.#id = args.id ?? AggregateId.generate();
-    this.#createdAt = args.createdAt ?? new Date();
-    this.#props = args.props;
-  }
-
-  /**
-   * Checks if the provided value is an instance of Entity.
-   * @param entity - The value to check
-   * @returns True if the value is an Entity instance
-   */
-  static isEntity(entity: unknown): entity is EntityBaseInterface {
-    return (
-      typeof entity === 'object' &&
-      entity !== null &&
-      'id' in entity &&
-      'equals' in entity &&
-      typeof (entity as Record<string, unknown>).equals === 'function'
-    );
-  }
-
-  /**
-   * Compares this entity with another to determine if they are the same.
-   * Equality is based on the entity ID.
-   * @param other - The entity to compare with
-   * @returns True if the entities have the same ID
-   */
-  public equals(other?: Entity<unknown>): boolean {
-    if (!other) return false;
-    return this.#id.equals(other.#id);
-  }
-
-  /**
-   * Returns a frozen copy of the entity's properties, including base properties.
-   * Ensures immutability by returning a new object.
-   * @returns A frozen copy of the entity's properties
-   */
-  public getPropsCopy(): Readonly<EntityProps> {
-    return Object.freeze(this.#props);
-  }
-
-  /**
-   * Determines if the entity is transient, i.e., it has not been persisted yet.
-   * By convention, an entity is considered transient if it lacks a valid identifier.
-   * This can be useful when performing logic that depends on persistence state,
-   * such as conditional inserts or validations that only apply to new entities.
-   *
-   * @returns True if the entity is transient (not persisted), otherwise false.
-   */
-  // public isPersisted(): boolean {
-  //   return this.#id.isEmpty();
-  // }
-
-  public toJSON(): Record<string, unknown> {
-    return this.toObject();
-  }
-
-  /**
-   * Internal mutation hook.
-   * Must be followed by validation by caller.
-   */
-  protected updateProps(updater: (current: EntityProps) => EntityProps): void {
-    this.#props = updater(this.#props);
-  }
-
-  public toObject(): Readonly<
-    UnwrapValueObject<EntityProps> & { createdAt: string; id: string }
-  > {
-    const props = unwrapValueObject(this.getPropsCopy());
-    const safeProps = ensureObject(props);
-    return Object.freeze({
-      ...this.metadata,
-      ...safeProps,
-    }) as Readonly<
-      UnwrapValueObject<EntityProps> & { createdAt: string; id: string }
-    >;
-  }
-
-  /**
-   * Validates the entity's state to enforce domain invariants.
-   * Must be implemented by subclasses to define specific validation rules.
-   * @implements Must be called by concrete factories and mutators.
-   * @throws EntityValidationError if validation fails
+   * Validates the current state of the entity against domain invariants.
+   * This method should be called after construction and any mutation.
+   * @throws {Error} Should throw a specific DomainError if validation fails.
    */
   public abstract validate(): void;
+
+  /**
+   * Converts the Entity into a plain Javascript object.
+   * Subclasses must implement this to explicitly control serialization,
+   * @returns A plain object representation of the entity.
+   */
+  public abstract toObject(): Record<string, unknown>;
 }

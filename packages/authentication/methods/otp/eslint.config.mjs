@@ -1,10 +1,16 @@
 import config from '@rineex/eslint-config/base';
 import db from '@rineex/eslint-config/db';
 
+/* import type { Linter } from 'eslint'; */
 export default [
   ...config,
   ...db,
-
+  {
+    rules: {
+      '@typescript-eslint/no-unsafe-call': 'off',
+    },
+    files: ['*.violation.ts'],
+  },
   {
     rules: {
       '@typescript-eslint/consistent-type-definitions': ['off'],

@@ -1,4 +1,4 @@
-import { AuthMethod } from '@/domain/value-objects/auth-method.vo';
+import { AuthMethod } from '@/domain/identity/value-objects';
 import { AuthContext } from '@/types/auth-context.type';
 
 /**

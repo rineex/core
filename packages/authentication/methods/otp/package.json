@@ -33,6 +33,10 @@
     "vite-tsconfig-paths": "6.0.2",
     "vitest": "4.0.16"
   },
+  "dependencies": {
+    "@rineex/auth-core": "workspace:*",
+    "@rineex/ddd": "workspace:*"
+  },
   "publishConfig": {
     "provenance": true,
     "access": "public",

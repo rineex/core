@@ -1,18 +1,12 @@
-import { AggregateId } from '../value-objects/aggregate-id.vo';
-import { Entity } from '../entities/entity';
+import { Entity, EntityProps } from '../entities/entity';
 import { DomainEvent } from '../events';
+import { EntityId } from '../types';
 
 /**
  * Interface for AggregateRoot to ensure type safety and extensibility.
  */
-export interface AggregateRootInterface {
-  readonly id: AggregateId;
+export interface Props<P> extends EntityProps<EntityId, P> {
   readonly domainEvents: readonly DomainEvent[];
-  /**
-   * Validates the aggregate's invariants.
-   * @throws {EntityValidationError} If validation fails.
-   */
-  validate: () => void;
   /**
    * Adds a domain event to the aggregate.
    * @param event The domain event to add.
@@ -41,10 +35,10 @@ export interface AggregateRootInterface {
  * Base class for aggregate roots in DDD, encapsulating domain events and validation.
  * @template EntityProps The type of the entity's properties.
  */
-export abstract class AggregateRoot<EntityProps>
-  extends Entity<EntityProps>
-  implements AggregateRootInterface
-{
+export abstract class AggregateRoot<ID extends EntityId, P> extends Entity<
+  ID,
+  P
+> {
   /**
    * Gets a read-only copy of the domain events.
    */
@@ -63,7 +57,6 @@ export abstract class AggregateRoot<EntityProps>
    * @throws {EntityValidationError} If invariants are not met.
    */
   addEvent(domainEvent: DomainEvent): void {
-    this.validate(); // Ensure invariants before adding events
     this._domainEvents.push(domainEvent);
   }
 
@@ -72,10 +65,4 @@ export abstract class AggregateRoot<EntityProps>
     this._domainEvents.length = 0;
     return events;
   }
-
-  /**
-   * Validates the entity's invariants.
-   * @throws {EntityValidationError} If validation fails.
-   */
-  abstract validate(): void;
 }

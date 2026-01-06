@@ -1,6 +1,7 @@
 import config from '@rineex/eslint-config/base';
 import db from '@rineex/eslint-config/db';
 
+/* import type { Linter } from 'eslint'; */
 export default [
   ...config,
   ...db,
@@ -11,6 +12,18 @@ export default [
       '@typescript-eslint/consistent-type-imports': 'off',
       '@typescript-eslint/no-extraneous-class': 'off',
     },
+  },
+  {
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          message: 'Use static factory methods instead of new.',
+          selector: 'NewExpression[callee.name=/^[A-Z].*/]',
+        },
+      ],
+    },
+    files: ['*.entity.ts', '*.vo.ts'],
   },
   {
     rules: {

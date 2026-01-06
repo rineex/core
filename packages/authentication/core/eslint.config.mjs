@@ -7,6 +7,7 @@ export default [
 
   {
     rules: {
+      '@typescript-eslint/class-literal-property-style': ['off'],
       '@typescript-eslint/consistent-type-definitions': ['off'],
       '@typescript-eslint/consistent-type-imports': 'off',
       '@typescript-eslint/no-extraneous-class': 'off',

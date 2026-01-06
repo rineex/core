@@ -7,7 +7,7 @@ export abstract class DomainViolation {
   public abstract readonly message: string;
   public readonly metadata: Readonly<Record<string, unknown>>;
 
-  constructor(metadata: Record<string, unknown> = {}) {
+  protected constructor(metadata: Record<string, unknown> = {}) {
     this.metadata = Object.freeze(metadata);
   }
 }

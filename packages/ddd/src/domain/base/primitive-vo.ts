@@ -1,3 +1,7 @@
+import { EntityId } from '../types';
+
+type Primitive = boolean | number | string;
+
 /**
  * Base class for primitive-based Value Objects.
  *
@@ -17,8 +21,8 @@
  * - Slug
  */
 export abstract class PrimitiveValueObject<
-  T extends boolean | number | string,
-> {
+  T extends Primitive,
+> implements EntityId {
   /**
    * The underlying primitive value.
    * Guaranteed to be valid after construction.
@@ -53,8 +57,8 @@ export abstract class PrimitiveValueObject<
    *
    * @param other - Another Value Object
    */
-  public equals(other?: PrimitiveValueObject<T>): boolean {
-    if (other === undefined) return false;
+  public equals(other?: PrimitiveValueObject<T> | null | undefined): boolean {
+    if (other === undefined || other === null) return false;
 
     if (Object.getPrototypeOf(this) !== Object.getPrototypeOf(other)) {
       return false;

@@ -1,3 +1,7 @@
+import { randomUUID } from 'node:crypto';
+
+import { EntityId } from '../types';
+
 type Primitive = boolean | number | string | null;
 
 type Serializable =
@@ -7,38 +11,48 @@ type Serializable =
 
 export type DomainEventPayload = Record<string, Serializable>;
 
-type DomainEventProps<T> = {
-  id: string;
-  aggregateId: string;
+export type UnixTimestampMillis = number;
+
+type DomainEventProps<AggregateId extends EntityId, Payload> = {
+  id?: string;
+  aggregateId: AggregateId;
   schemaVersion: number;
-  occurredAt: number;
-  payload: T;
+  occurredAt: UnixTimestampMillis;
+  payload: Payload;
 };
 
 // Abstract base class for domain events
 export abstract class DomainEvent<
+  AggregateId extends EntityId = EntityId,
   T extends DomainEventPayload = DomainEventPayload,
 > {
   public abstract readonly eventName: string;
 
   public readonly id: string;
-  public readonly aggregateId: string;
+  public readonly aggregateId: AggregateId;
   public readonly schemaVersion: number;
   public readonly occurredAt: number;
   public readonly payload: Readonly<T>;
 
-  protected constructor(props: DomainEventProps<T>) {
-    this.id = props.id;
+  protected constructor(props: DomainEventProps<AggregateId, T>) {
+    this.id = props.id ?? randomUUID();
     this.aggregateId = props.aggregateId;
     this.schemaVersion = props.schemaVersion;
     this.occurredAt = props.occurredAt;
     this.payload = Object.freeze(props.payload);
   }
 
-  public toPrimitives() {
+  public toPrimitives(): Readonly<{
+    id: string;
+    eventName: string;
+    aggregateId: string;
+    schemaVersion: number;
+    occurredAt: UnixTimestampMillis;
+    payload: T;
+  }> {
     return {
+      aggregateId: this.aggregateId.toString(),
       schemaVersion: this.schemaVersion,
-      aggregateId: this.aggregateId,
       occurredAt: this.occurredAt,
       eventName: this.eventName,
       payload: this.payload,
