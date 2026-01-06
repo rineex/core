@@ -31,6 +31,8 @@
     "@changesets/cli": "2.29.8",
     "@rineex/eslint-config": "workspace:*",
     "@rineex/typescript-config": "workspace:*",
+    "@types/lodash.isempty": "4.4.9",
+    "@types/lodash.isnil": "4.0.9",
     "@types/node": "24.10.4",
     "@vitest/ui": "4.0.16",
     "tslib": "2.8.1",
@@ -48,6 +50,8 @@
   "license": "Apache-2.0",
   "packageManager": "pnpm@10.22.0",
   "dependencies": {
-    "@rineex/ddd": "1.5.2"
+    "@rineex/ddd": "workspace:^",
+    "lodash.isempty": "4.4.0",
+    "lodash.isnil": "4.0.0"
   }
 }
