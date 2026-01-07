@@ -11,7 +11,7 @@
   },
   "types": "./eslint.config.d.ts",
   "devDependencies": {
-    "@fullstacksjs/eslint-config": "13.12.0",
+    "@fullstacksjs/eslint-config": "13.8.2",
     "eslint-plugin-react-hooks": "7.0.1",
     "eslint-plugin-sql": "3.2.2",
     "eslint-plugin-turbo": "2.6.3",

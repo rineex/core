@@ -6,6 +6,7 @@
   "scripts": {
     "build": "turbo run build",
     "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
     "test": "turbo run test",
     "test:ci": "turbo run test build",
     "prepublish": "pnpm run build",
@@ -27,7 +28,7 @@
   "devDependencies": {
     "@changesets/changelog-github": "0.5.2",
     "@changesets/cli": "2.29.8",
-    "@fullstacksjs/eslint-config": "13.11.2",
+    "@fullstacksjs/eslint-config": "13.8.2",
     "@svitejs/changesets-changelog-github-compact": "1.2.0",
     "@vitest/ui": "4.0.16",
     "cspell": "9.4.0",

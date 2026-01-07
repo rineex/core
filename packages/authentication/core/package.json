@@ -10,6 +10,7 @@
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest --watch --passWithNoTests",
     "lint": "eslint 'src/**/*.ts'",
+    "lint:fix": "eslint 'src/**/*.ts' --fix",
     "check-types": "tsc --noEmit",
     "build": "tsup"
   },

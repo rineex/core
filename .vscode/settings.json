@@ -3,6 +3,14 @@
     "source.fixAll.eslint": "explicit"
   },
 
+  "eslint.validate": [
+    "javascriptreact",
+    "typescriptreact",
+    "typescript",
+    "javascript",
+    "html"
+  ],
+
   "eslint.workingDirectories": [
     {
       "mode": "auto"

@@ -17,6 +17,10 @@
       "dependsOn": ["^lint"],
       "inputs": ["$TURBO_DEFAULT$"]
     },
+    "lint:fix": {
+      "dependsOn": ["^lint:fix"],
+      "inputs": ["$TURBO_DEFAULT$"]
+    },
     "check-types": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", "tsconfig.json", "tsconfig.*.json"]

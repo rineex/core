@@ -51,6 +51,7 @@ export function handleRetry(
           if (toRetry && !toRetry(error)) {
             return throwError(() => error);
           }
+
           const poolInfo =
             poolName === DEFAULT_POOL_NAME ? '' : ` (${poolName})`;
           const verboseMessage = verboseRetryLog

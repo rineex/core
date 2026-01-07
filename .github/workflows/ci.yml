@@ -33,6 +33,7 @@ jobs:
         uses: ./.github/setup
       - name: Run Linter
         run: pnpm run lint
+        # Note: We intentionally do NOT use --fix in CI to catch linting errors
 
   type-check:
     name: Type Check

@@ -8,11 +8,12 @@
  * @returns {string} The original value or the fallback.
  */
 export function defaultIfBlank<T extends string = string>(
-  value: T | undefined | null,
+  value: T | null | undefined,
   fallback: T,
 ): string {
   if (value === null || value === undefined || value.trim() === '') {
     return fallback;
   }
+
   return value;
 }
