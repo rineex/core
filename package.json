@@ -10,7 +10,7 @@
     "test": "turbo run test",
     "test:ci": "turbo run test build",
     "prepublish": "pnpm run build",
-    "prettier": "prettier --experimental-cli --ignore-unknown '**/*'",
+    "prettier": "prettier --ignore-unknown '**/*'",
     "prettier:write": "pnpm run prettier --write",
     "changeset": "changeset",
     "changeset:version": "changeset version && pnpm prettier:write",
