@@ -844,40 +844,154 @@ export abstract class ApplicationError extends Error {
 #### `Result<T, E>`
 
 Represents the outcome of an operation that can either succeed or fail, without
-relying on exceptions for control flow.
+relying on exceptions for control flow. This is a functional programming pattern
+that makes error handling explicit in the type system and is commonly used in
+Domain-Driven Design to represent domain operation outcomes.
+
+**Key Features:**
+
+- **Immutable**: Result instances are frozen to prevent accidental mutations
+- **Type-Safe**: Full TypeScript support with generic types
+- **Explicit Error Handling**: No hidden exceptions, all errors are explicit
+- **DomainError Integration**: Works seamlessly with `DomainError` by default
 
 ```typescript
-export class Result<T, E> {
+export class Result<T, E = DomainError> {
   readonly isSuccess: boolean;
   readonly isFailure: boolean;
 
-  public static ok<T, E>(value: T): Result<T, E>;
-  public static fail<T, E>(error: E): Result<T, E>;
-  public getValue(): T;
-  public getError(): E;
+  public static ok<T, E = never>(value: T): Result<T, E>;
+  public static fail<T = never, E = DomainError>(error: E): Result<T, E>;
+  public getValue(): T | undefined;
+  public getError(): E | undefined;
 }
 ```
 
-**Example:**
+**Basic Example:**
 
 ```typescript
-import { Result } from '@rineex/ddd';
+import { Result, DomainError } from '@rineex/ddd';
 
-function parseNumber(input: string): Result<number, string> {
+class InvalidValueError extends DomainError {
+  public get code() {
+    return 'DOMAIN.INVALID_VALUE' as const;
+  }
+
+  constructor(message: string) {
+    super({ message });
+  }
+}
+
+function parseNumber(input: string): Result<number, DomainError> {
   const value = Number(input);
   if (Number.isNaN(value)) {
-    return Result.fail('Invalid number');
+    return Result.fail(new InvalidValueError('Invalid number'));
   }
   return Result.ok(value);
 }
 
 const result = parseNumber('42');
 if (result.isSuccess) {
-  console.log(result.getValue()); // 42
+  const value = result.getValue(); // number | undefined
+  console.log(value); // 42
 } else {
-  console.error(result.getError());
+  const error = result.getError(); // DomainError | undefined
+  console.error(error?.message);
 }
 ```
+
+**Validation Pattern:**
+
+```typescript
+function validateAge(age: number): Result<number, DomainError> {
+  if (age < 0) {
+    return Result.fail(new InvalidValueError('Age cannot be negative'));
+  }
+  if (age > 150) {
+    return Result.fail(new InvalidValueError('Age seems unrealistic'));
+  }
+  return Result.ok(age);
+}
+
+const result = validateAge(25);
+if (result.isSuccess) {
+  console.log('Valid age:', result.getValue());
+}
+```
+
+**Chaining Pattern:**
+
+```typescript
+function validateEmail(email: string): Result<string, DomainError> {
+  if (!email.includes('@')) {
+    return Result.fail(new InvalidValueError('Invalid email format'));
+  }
+  return Result.ok(email);
+}
+
+function createAccount(email: string): Result<{ email: string }, DomainError> {
+  const emailResult = validateEmail(email);
+  if (emailResult.isFailure) {
+    return emailResult; // Forward the error
+  }
+
+  const validatedEmail = emailResult.getValue()!;
+  return Result.ok({ email: validatedEmail });
+}
+```
+
+**Working with Domain Errors:**
+
+```typescript
+class InvalidStateError extends DomainError {
+  public get code() {
+    return 'DOMAIN.INVALID_STATE' as const;
+  }
+
+  constructor(
+    message: string,
+    metadata?: Record<string, boolean | number | string>,
+  ) {
+    super({ message, metadata });
+  }
+}
+
+function processOrder(orderId: string): Result<Order, DomainError> {
+  const order = orderRepository.findById(orderId);
+  if (!order) {
+    return Result.fail(new InvalidValueError('Order not found', { orderId }));
+  }
+  if (order.status !== 'PENDING') {
+    return Result.fail(
+      new InvalidStateError('Order cannot be processed', {
+        orderId,
+        currentStatus: order.status,
+      }),
+    );
+  }
+  return Result.ok(order);
+}
+```
+
+**Void Operations:**
+
+```typescript
+function deleteUser(id: number): Result<void, DomainError> {
+  if (id <= 0) {
+    return Result.fail(new InvalidValueError('Invalid user ID'));
+  }
+  // ... deletion logic ...
+  return Result.ok(undefined);
+}
+```
+
+**Best Practices:**
+
+1. Always check `isSuccess` or `isFailure` before calling `getValue()` or
+   `getError()`
+2. Use `DomainError` for domain-specific errors to maintain consistency
+3. Forward errors in chaining operations rather than creating new ones
+4. Leverage TypeScript's type narrowing for safe value extraction
 
 ### Domain Violations
 
@@ -1453,8 +1567,23 @@ try {
   }
 }
 
-// Using Result type (functional approach)
-function createUser(email: string): Result<User, string> {
+// Using Result type (functional approach with DomainError)
+class InvalidEmailError extends DomainError {
+  public get code() {
+    return 'DOMAIN.INVALID_VALUE' as const;
+  }
+
+  constructor(message: string) {
+    super({ message });
+  }
+}
+
+function createUser(email: string): Result<User, DomainError> {
+  // Validate email format
+  if (!email.includes('@')) {
+    return Result.fail(new InvalidEmailError('Invalid email format'));
+  }
+
   try {
     const emailVO = Email.create(email);
     const user = new User({
@@ -1464,8 +1593,13 @@ function createUser(email: string): Result<User, string> {
     });
     return Result.ok(user);
   } catch (error) {
+    if (error instanceof InvalidValueObjectError) {
+      return Result.fail(new InvalidEmailError(error.message));
+    }
     return Result.fail(
-      error instanceof Error ? error.message : 'Unknown error',
+      new InvalidEmailError(
+        error instanceof Error ? error.message : 'Unknown error',
+      ),
     );
   }
 }
@@ -1473,10 +1607,18 @@ function createUser(email: string): Result<User, string> {
 const result = createUser('user@example.com');
 if (result.isSuccess) {
   const user = result.getValue();
-  // Use user
+  if (user) {
+    // Use user safely
+    console.log('User created:', user.id.toString());
+  }
 } else {
   const error = result.getError();
-  // Handle error
+  if (error) {
+    // Handle error with full context
+    console.error('Error code:', error.code);
+    console.error('Error message:', error.message);
+    console.error('Metadata:', error.metadata);
+  }
 }
 ```
 
