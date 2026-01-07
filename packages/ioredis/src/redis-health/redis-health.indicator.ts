@@ -1,8 +1,8 @@
-import type { HealthIndicatorResult } from '@nestjs/terminus';
 import type Redis from 'ioredis';
 
-import { Inject, Injectable } from '@nestjs/common';
+import type { HealthIndicatorResult } from '@nestjs/terminus';
 import { HealthIndicatorService } from '@nestjs/terminus';
+import { Inject, Injectable } from '@nestjs/common';
 
 import { REDIS_HEALTH_INDICATOR } from '../redis.constants';
 

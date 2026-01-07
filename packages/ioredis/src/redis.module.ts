@@ -1,16 +1,16 @@
+import type { Cluster } from 'ioredis';
+import type Redis from 'ioredis';
+
 import type {
   OnApplicationBootstrap,
   OnApplicationShutdown,
 } from '@nestjs/common';
-import type { Cluster } from 'ioredis';
-import type Redis from 'ioredis';
-
 import { Global, Logger, Module } from '@nestjs/common';
 
 import { RedisModuleClass } from './redis.module-definition';
 
-@Global()
 @Module({})
+@Global()
 export class RedisModule
   extends RedisModuleClass
   implements OnApplicationShutdown, OnApplicationBootstrap
