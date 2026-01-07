@@ -87,6 +87,7 @@ import {
   DomainEvent,
   ApplicationServicePort,
   AggregateId,
+  type EntityProps,
 } from '@rineex/ddd';
 
 // Define a Value Object
@@ -108,7 +109,7 @@ interface UserProps {
   isActive: boolean;
 }
 
-class User extends AggregateRoot<UserProps> {
+class User extends AggregateRoot<AggregateId, UserProps> {
   get email(): Email {
     return this.props.email;
   }
@@ -122,10 +123,24 @@ class User extends AggregateRoot<UserProps> {
       throw new Error('Email is required');
     }
   }
+
+  public toObject(): Record<string, unknown> {
+    return {
+      id: this.id.toString(),
+      createdAt: this.createdAt.toISOString(),
+      email: this.email.value,
+      isActive: this.isActive,
+    };
+  }
+}
+
+// Define a Domain Event
+class UserCreatedEvent extends DomainEvent<AggregateId> {
+  public readonly eventName = 'UserCreated';
 }
 
 // Create and use
-const userId = AggregateId.create();
+const userId = AggregateId.generate();
 const user = new User({
   id: userId,
   createdAt: new Date(),
@@ -134,8 +149,7 @@ const user = new User({
 
 user.addEvent(
   new UserCreatedEvent({
-    id: 'evt-1',
-    aggregateId: userId.uuid,
+    aggregateId: userId,
     schemaVersion: 1,
     occurredAt: Date.now(),
     payload: { email: user.email.value },
@@ -219,13 +233,38 @@ const address = Address.create({
 // address.props.street = 'foo'; // Error: Cannot assign to read only property
 ```
 
+#### Primitive Value Objects
+
+For value objects that wrap a single primitive (string, number, or boolean), use
+`PrimitiveValueObject` for better performance:
+
+```typescript
+import { PrimitiveValueObject } from '@rineex/ddd';
+
+class Email extends PrimitiveValueObject<string> {
+  public static create(value: string): Email {
+    return new Email(value);
+  }
+
+  protected validate(value: string): void {
+    if (!value.includes('@')) {
+      throw new Error('Invalid email');
+    }
+  }
+}
+
+// Usage
+const email = Email.create('user@example.com');
+console.log(email.getValue()); // 'user@example.com'
+```
+
 #### Type Safety with `unwrapValueObject`
 
 When working with collections of value objects, use the `unwrapValueObject`
 utility:
 
 ```typescript
-import { unwrapValueObject, UnwrapValueObject } from '@rineex/ddd';
+import { unwrapValueObject, type UnwrapValueObject } from '@rineex/ddd';
 
 interface UserProps {
   tags: Tag[]; // where Tag extends ValueObject<string>
@@ -251,8 +290,7 @@ value objects, they can be mutable and have a lifecycle.
 #### Implementation
 
 ```typescript
-import { Entity, AggregateId } from '@rineex/ddd';
-import type { CreateEntityProps } from '@rineex/ddd';
+import { Entity, AggregateId, type EntityProps } from '@rineex/ddd';
 
 interface OrderItemProps {
   productId: string;
@@ -260,7 +298,7 @@ interface OrderItemProps {
   unitPrice: number;
 }
 
-class OrderItem extends Entity<OrderItemProps> {
+class OrderItem extends Entity<AggregateId, OrderItemProps> {
   get productId(): string {
     return this.props.productId;
   }
@@ -285,11 +323,22 @@ class OrderItem extends Entity<OrderItemProps> {
       throw new Error('Unit price cannot be negative');
     }
   }
+
+  public toObject(): Record<string, unknown> {
+    return {
+      id: this.id.toString(),
+      createdAt: this.createdAt.toISOString(),
+      productId: this.productId,
+      quantity: this.quantity,
+      unitPrice: this.unitPrice,
+      total: this.total,
+    };
+  }
 }
 
 // Creating an entity
 const item = new OrderItem({
-  id: AggregateId.create(),
+  id: AggregateId.generate(),
   createdAt: new Date(),
   props: {
     productId: 'prod-123',
@@ -326,19 +375,23 @@ import {
 } from '@rineex/ddd';
 
 // Define domain events
-class UserCreatedEvent extends DomainEvent {
-  public readonly eventName = 'UserCreated';
-
-  constructor(
-    props: Parameters<DomainEvent['constructor']>[0] & {
-      payload: { email: string };
-    },
-  ) {
-    super(props);
-  }
+interface UserCreatedPayload extends DomainEventPayload {
+  email: string;
 }
 
-class UserEmailChangedEvent extends DomainEvent {
+class UserCreatedEvent extends DomainEvent<AggregateId, UserCreatedPayload> {
+  public readonly eventName = 'UserCreated';
+}
+
+interface UserEmailChangedPayload extends DomainEventPayload {
+  oldEmail: string;
+  newEmail: string;
+}
+
+class UserEmailChangedEvent extends DomainEvent<
+  AggregateId,
+  UserEmailChangedPayload
+> {
   public readonly eventName = 'UserEmailChanged';
 }
 
@@ -348,7 +401,7 @@ interface UserProps {
   isActive: boolean;
 }
 
-class User extends AggregateRoot<UserProps> {
+class User extends AggregateRoot<AggregateId, UserProps> {
   get email(): string {
     return this.props.email;
   }
@@ -358,16 +411,16 @@ class User extends AggregateRoot<UserProps> {
   }
 
   public static create(email: string, id?: AggregateId): User {
+    const userId = id || AggregateId.generate();
     const user = new User({
-      id: id || AggregateId.create(),
+      id: userId,
       createdAt: new Date(),
       props: { email, isActive: true },
     });
 
     user.addEvent(
       new UserCreatedEvent({
-        id: crypto.randomUUID(),
-        aggregateId: user.id.uuid,
+        aggregateId: userId,
         schemaVersion: 1,
         occurredAt: Date.now(),
         payload: { email },
@@ -383,15 +436,15 @@ class User extends AggregateRoot<UserProps> {
       throw new Error('Invalid email format');
     }
 
+    const oldEmail = this.props.email;
     this.props = { ...this.props, email: newEmail };
 
     this.addEvent(
       new UserEmailChangedEvent({
-        id: crypto.randomUUID(),
-        aggregateId: this.id.uuid,
+        aggregateId: this.id,
         schemaVersion: 1,
         occurredAt: Date.now(),
-        payload: { oldEmail: this.props.email, newEmail },
+        payload: { oldEmail, newEmail },
       }),
     );
   }
@@ -400,6 +453,15 @@ class User extends AggregateRoot<UserProps> {
     if (!this.props.email || !this.props.email.includes('@')) {
       throw new Error('User must have a valid email');
     }
+  }
+
+  public toObject(): Record<string, unknown> {
+    return {
+      id: this.id.toString(),
+      createdAt: this.createdAt.toISOString(),
+      email: this.email,
+      isActive: this.isActive,
+    };
   }
 }
 
@@ -435,7 +497,7 @@ immutable records of past events and enable event-driven architectures.
 #### Implementation
 
 ```typescript
-import { DomainEvent, type DomainEventPayload } from '@rineex/ddd';
+import { DomainEvent, type DomainEventPayload, AggregateId } from '@rineex/ddd';
 
 // Define event payloads (only primitives allowed)
 interface OrderPlacedPayload extends DomainEventPayload {
@@ -446,30 +508,19 @@ interface OrderPlacedPayload extends DomainEventPayload {
 }
 
 // Create event class
-class OrderPlacedEvent extends DomainEvent<OrderPlacedPayload> {
+class OrderPlacedEvent extends DomainEvent<AggregateId, OrderPlacedPayload> {
   public readonly eventName = 'OrderPlaced';
-
-  constructor(
-    props: Omit<
-      Parameters<DomainEvent<OrderPlacedPayload>['constructor']>[0],
-      'payload'
-    > & {
-      payload: OrderPlacedPayload;
-    },
-  ) {
-    super(props);
-  }
 }
 
 // Using events
+const orderId = AggregateId.generate();
 const event = new OrderPlacedEvent({
-  id: crypto.randomUUID(),
-  aggregateId: 'order-123',
+  aggregateId: orderId,
   schemaVersion: 1,
   occurredAt: Date.now(),
   payload: {
     customerId: 'cust-456',
-    orderId: 'order-123',
+    orderId: orderId.toString(),
     totalAmount: 99.99,
     itemCount: 3,
   },
@@ -479,7 +530,7 @@ const event = new OrderPlacedEvent({
 const primitives = event.toPrimitives();
 // {
 //   id: '...',
-//   aggregateId: 'order-123',
+//   aggregateId: '...',
 //   schemaVersion: 1,
 //   occurredAt: 1234567890,
 //   eventName: 'OrderPlaced',
@@ -590,17 +641,17 @@ export abstract class ValueObject<T> {
 
 ### Entities
 
-#### `Entity<EntityProps>`
+#### `Entity<ID extends EntityId, Props>`
 
 Abstract base class for domain entities.
 
 ```typescript
-export abstract class Entity<EntityProps> {
-  readonly id: AggregateId;
+export abstract class Entity<ID extends EntityId, Props> {
+  readonly id: ID;
   readonly createdAt: Date;
-  readonly metadata: { createdAt: string; id: string };
   abstract validate(): void;
-  equals(entity: unknown): boolean;
+  abstract toObject(): Record<string, unknown>;
+  equals(other?: Entity<ID, Props>): boolean;
 }
 ```
 
@@ -608,22 +659,26 @@ export abstract class Entity<EntityProps> {
 
 ```typescript
 new Entity({
-  id?: AggregateId;        // Generated if not provided
-  createdAt: Date;         // Required
-  props: EntityProps;      // Domain-specific properties
+  id: ID;                  // Required - must be an EntityId type
+  createdAt?: Date;        // Optional - defaults to new Date()
+  props: Props;            // Domain-specific properties
 })
 ```
 
 ### Aggregate Roots
 
-#### `AggregateRoot<EntityProps>`
+#### `AggregateRoot<ID extends EntityId, P>`
 
 Extends `Entity` with domain event support.
 
 ```typescript
-export abstract class AggregateRoot<EntityProps> extends Entity<EntityProps> {
+export abstract class AggregateRoot<ID extends EntityId, P> extends Entity<
+  ID,
+  P
+> {
   readonly domainEvents: readonly DomainEvent[];
   abstract validate(): void;
+  abstract toObject(): Record<string, unknown>;
   addEvent(event: DomainEvent): void;
   pullDomainEvents(): readonly DomainEvent[];
 }
@@ -637,15 +692,18 @@ export abstract class AggregateRoot<EntityProps> extends Entity<EntityProps> {
 
 ### Domain Events
 
-#### `DomainEvent<T extends DomainEventPayload>`
+#### `DomainEvent<AggregateId extends EntityId, T extends DomainEventPayload>`
 
 Abstract base class for domain events.
 
 ```typescript
-export abstract class DomainEvent<T extends DomainEventPayload> {
+export abstract class DomainEvent<
+  AggregateId extends EntityId = EntityId,
+  T extends DomainEventPayload = DomainEventPayload,
+> {
   abstract readonly eventName: string;
   readonly id: string;
-  readonly aggregateId: string;
+  readonly aggregateId: AggregateId;
   readonly schemaVersion: number;
   readonly occurredAt: number;
   readonly payload: Readonly<T>;
@@ -677,12 +735,28 @@ export interface ApplicationServicePort<I, O> {
 
 #### `AggregateId`
 
-Represents the unique identifier for an aggregate.
+Represents the unique identifier for an aggregate. Extends `UUID` which extends
+`PrimitiveValueObject<string>`.
 
 ```typescript
-class AggregateId extends ValueObject<{ uuid: string }> {
-  get uuid(): string;
-  public static create(id?: string): AggregateId;
+class AggregateId extends UUID {
+  public static generate(): AggregateId;
+  public static fromString(value: string): AggregateId;
+  public getValue(): string;
+  public toString(): string;
+}
+```
+
+#### `UUID`
+
+Base class for UUID-based value objects.
+
+```typescript
+class UUID extends PrimitiveValueObject<string> {
+  public static generate<T extends typeof UUID>(this: T): InstanceType<T>;
+  public static fromString(value: string): UUID;
+  public getValue(): string;
+  public toString(): string;
 }
 ```
 
@@ -693,16 +767,19 @@ Validates IPv4 and IPv6 addresses.
 ```typescript
 class IPAddress extends ValueObject<string> {
   public static create(value: string): IPAddress;
+  public get value(): string;
 }
 ```
 
-#### `URL`
+#### `Url`
 
 Validates web URLs.
 
 ```typescript
-class URL extends ValueObject<string> {
-  public static create(value: string): URL;
+class Url extends ValueObject<string> {
+  public static create(value: string): Url;
+  public get value(): string;
+  public get href(): string;
 }
 ```
 
@@ -713,6 +790,10 @@ Parses and validates user agent strings.
 ```typescript
 class UserAgent extends ValueObject<string> {
   public static create(value: string): UserAgent;
+  public get value(): string;
+  public get isMobile(): boolean;
+  public get isBot(): boolean;
+  public getProps(): string;
 }
 ```
 
@@ -746,10 +827,157 @@ export class InvalidValueObjectError extends DomainError {}
 
 #### `ApplicationError`
 
-Thrown for application-level errors.
+Thrown for application-level errors with HTTP status codes.
 
 ```typescript
-export class ApplicationError extends DomainError {}
+export abstract class ApplicationError extends Error {
+  readonly code: HttpStatusMessage;
+  readonly status: HttpStatusCode;
+  readonly isOperational: boolean;
+  readonly metadata?: Record<string, unknown>;
+  readonly cause?: Error;
+}
+```
+
+### Result Type
+
+#### `Result<T, E>`
+
+Represents the outcome of an operation that can either succeed or fail, without
+relying on exceptions for control flow.
+
+```typescript
+export class Result<T, E> {
+  readonly isSuccess: boolean;
+  readonly isFailure: boolean;
+
+  public static ok<T, E>(value: T): Result<T, E>;
+  public static fail<T, E>(error: E): Result<T, E>;
+  public getValue(): T;
+  public getError(): E;
+}
+```
+
+**Example:**
+
+```typescript
+import { Result } from '@rineex/ddd';
+
+function parseNumber(input: string): Result<number, string> {
+  const value = Number(input);
+  if (Number.isNaN(value)) {
+    return Result.fail('Invalid number');
+  }
+  return Result.ok(value);
+}
+
+const result = parseNumber('42');
+if (result.isSuccess) {
+  console.log(result.getValue()); // 42
+} else {
+  console.error(result.getError());
+}
+```
+
+### Domain Violations
+
+#### `DomainViolation`
+
+Base class for domain violations. Purposely does NOT extend native Error to
+avoid stack trace overhead in the domain.
+
+```typescript
+export abstract class DomainViolation {
+  abstract readonly code: string;
+  abstract readonly message: string;
+  readonly metadata: Readonly<Record<string, unknown>>;
+}
+```
+
+### HTTP Status Codes
+
+#### `HttpStatus` and `HttpStatusMessage`
+
+Typed HTTP status code constants and messages.
+
+```typescript
+export const HttpStatus = {
+  OK: 200,
+  CREATED: 201,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  INTERNAL_SERVER_ERROR: 500,
+  // ... and many more
+} as const;
+
+export const HttpStatusMessage = {
+  200: 'OK',
+  201: 'Created',
+  400: 'Bad Request',
+  // ... and many more
+} as const;
+
+export type HttpStatusCode = keyof typeof HttpStatusMessage;
+export type HttpStatusMessage =
+  (typeof HttpStatusMessage)[keyof typeof HttpStatusMessage];
+```
+
+### Utilities
+
+#### `unwrapValueObject<T>`
+
+Recursively unwraps value objects from nested structures.
+
+```typescript
+export function unwrapValueObject<T>(
+  input: T,
+  seen?: WeakSet<object>
+): UnwrapValueObject<T>;
+
+export type UnwrapValueObject<T> = /* recursive type utility */;
+```
+
+#### `deepFreeze<T>`
+
+Deeply freezes objects to ensure immutability.
+
+```typescript
+export function deepFreeze<T>(obj: T, seen?: WeakSet<object>): Readonly<T>;
+```
+
+### Types
+
+#### `EntityId<T>`
+
+Interface for identity value objects.
+
+```typescript
+export interface EntityId<T = string> {
+  equals(other?: EntityId<T> | null | undefined): boolean;
+  toString(): string;
+}
+```
+
+#### `EntityProps<ID extends EntityId, Props>`
+
+Configuration for the base Entity constructor.
+
+```typescript
+export interface EntityProps<ID extends EntityId, Props> {
+  readonly id: ID;
+  readonly createdAt?: Date;
+  readonly props: Props;
+}
+```
+
+#### `DomainEventPayload`
+
+Type for domain event payloads (only primitives and serializable structures).
+
+```typescript
+export type DomainEventPayload = Record<string, Serializable>;
 ```
 
 ## Examples
@@ -767,6 +995,7 @@ import {
   DomainEvent,
   Entity,
   ApplicationServicePort,
+  type DomainEventPayload,
 } from '@rineex/ddd';
 
 // ============ Value Objects ============
@@ -807,7 +1036,7 @@ interface OrderLineProps {
   price: Money;
 }
 
-class OrderLine extends Entity<OrderLineProps> {
+class OrderLine extends Entity<AggregateId, OrderLineProps> {
   get productId(): string {
     return this.props.productId;
   }
@@ -829,19 +1058,48 @@ class OrderLine extends Entity<OrderLineProps> {
       throw new Error('Quantity must be positive');
     }
   }
+
+  public toObject(): Record<string, unknown> {
+    return {
+      id: this.id.toString(),
+      createdAt: this.createdAt.toISOString(),
+      productId: this.productId,
+      quantity: this.quantity,
+      price: this.price.value,
+    };
+  }
 }
 
 // ============ Domain Events ============
 
-class OrderCreatedEvent extends DomainEvent {
+interface OrderCreatedPayload extends DomainEventPayload {
+  customerId: string;
+}
+
+class OrderCreatedEvent extends DomainEvent<AggregateId, OrderCreatedPayload> {
   public readonly eventName = 'OrderCreated';
 }
 
-class OrderLineAddedEvent extends DomainEvent {
+interface OrderLineAddedPayload extends DomainEventPayload {
+  productId: string;
+  quantity: number;
+}
+
+class OrderLineAddedEvent extends DomainEvent<
+  AggregateId,
+  OrderLineAddedPayload
+> {
   public readonly eventName = 'OrderLineAdded';
 }
 
-class OrderCompletedEvent extends DomainEvent {
+interface OrderCompletedPayload extends DomainEventPayload {
+  total: number;
+}
+
+class OrderCompletedEvent extends DomainEvent<
+  AggregateId,
+  OrderCompletedPayload
+> {
   public readonly eventName = 'OrderCompleted';
 }
 
@@ -854,7 +1112,7 @@ interface OrderProps {
   total: Money;
 }
 
-class Order extends AggregateRoot<OrderProps> {
+class Order extends AggregateRoot<AggregateId, OrderProps> {
   get customerId(): string {
     return this.props.customerId;
   }
@@ -872,8 +1130,9 @@ class Order extends AggregateRoot<OrderProps> {
   }
 
   public static create(customerId: string, id?: AggregateId): Order {
+    const orderId = id || AggregateId.generate();
     const order = new Order({
-      id: id || AggregateId.create(),
+      id: orderId,
       createdAt: new Date(),
       props: {
         customerId,
@@ -885,8 +1144,7 @@ class Order extends AggregateRoot<OrderProps> {
 
     order.addEvent(
       new OrderCreatedEvent({
-        id: crypto.randomUUID(),
-        aggregateId: order.id.uuid,
+        aggregateId: orderId,
         schemaVersion: 1,
         occurredAt: Date.now(),
         payload: { customerId },
@@ -898,7 +1156,7 @@ class Order extends AggregateRoot<OrderProps> {
 
   public addLine(productId: string, quantity: number, price: Money): void {
     const line = new OrderLine({
-      id: AggregateId.create(),
+      id: AggregateId.generate(),
       createdAt: new Date(),
       props: { productId, quantity, price },
     });
@@ -908,8 +1166,7 @@ class Order extends AggregateRoot<OrderProps> {
 
     this.addEvent(
       new OrderLineAddedEvent({
-        id: crypto.randomUUID(),
-        aggregateId: this.id.uuid,
+        aggregateId: this.id,
         schemaVersion: 1,
         occurredAt: Date.now(),
         payload: { productId, quantity },
@@ -926,8 +1183,7 @@ class Order extends AggregateRoot<OrderProps> {
 
     this.addEvent(
       new OrderCompletedEvent({
-        id: crypto.randomUUID(),
-        aggregateId: this.id.uuid,
+        aggregateId: this.id,
         schemaVersion: 1,
         occurredAt: Date.now(),
         payload: { total: this.total.amount },
@@ -947,6 +1203,17 @@ class Order extends AggregateRoot<OrderProps> {
     if (this.lines.length === 0) {
       throw new Error('Order must have at least one line');
     }
+  }
+
+  public toObject(): Record<string, unknown> {
+    return {
+      id: this.id.toString(),
+      createdAt: this.createdAt.toISOString(),
+      customerId: this.customerId,
+      lines: this.lines.map(line => line.toObject()),
+      status: this.status,
+      total: this.total.value,
+    };
   }
 }
 
@@ -981,7 +1248,7 @@ class CreateOrderService implements ApplicationServicePort<
     await this.orderRepository.save(order);
 
     return {
-      id: order.id.uuid,
+      id: order.id.toString(),
       customerId: order.customerId,
       total: order.total.amount,
       lineCount: order.lines.length,
@@ -1144,8 +1411,10 @@ import {
   EntityValidationError,
   InvalidValueObjectError,
   ApplicationError,
+  Result,
 } from '@rineex/ddd';
 
+// Using exceptions (traditional approach)
 try {
   const email = Email.create('invalid-email');
 } catch (error) {
@@ -1157,7 +1426,7 @@ try {
 
 try {
   const user = new User({
-    id: AggregateId.create(),
+    id: AggregateId.generate(),
     createdAt: new Date(),
     props: { email: Email.create('user@example.com') },
   });
@@ -1175,10 +1444,39 @@ try {
   if (error instanceof ApplicationError) {
     // Handle application-level errors
     console.error('Service failed:', error.message);
+    console.error('HTTP Status:', error.status);
+    console.error('Error Code:', error.code);
   } else if (error instanceof DomainError) {
     // Catch-all for domain errors
     console.error('Domain error:', error.message);
+    console.error('Error Code:', error.code);
   }
+}
+
+// Using Result type (functional approach)
+function createUser(email: string): Result<User, string> {
+  try {
+    const emailVO = Email.create(email);
+    const user = new User({
+      id: AggregateId.generate(),
+      createdAt: new Date(),
+      props: { email: emailVO, isActive: true },
+    });
+    return Result.ok(user);
+  } catch (error) {
+    return Result.fail(
+      error instanceof Error ? error.message : 'Unknown error',
+    );
+  }
+}
+
+const result = createUser('user@example.com');
+if (result.isSuccess) {
+  const user = result.getValue();
+  // Use user
+} else {
+  const error = result.getError();
+  // Handle error
 }
 ```
 

@@ -9,6 +9,14 @@ export interface UserAgentProps {
   readonly isBot: boolean;
 }
 export class UserAgent extends ValueObject<string> {
+  get isBot(): boolean {
+    return this.metadata.isBot;
+  }
+
+  get isMobile(): boolean {
+    return this.metadata.device.type === 'mobile';
+  }
+
   // Store metadata as a private field, not part of the ValueObject identity (props)
   // This keeps .equals() fast (only compares the UA string)
   private readonly metadata: UserAgentProps;
@@ -19,19 +27,11 @@ export class UserAgent extends ValueObject<string> {
     this.metadata = metadata;
   }
 
-  protected validate(value: string): void {
-    if (value.length < 5) throw new InvalidValueObjectError('UA too short');
-  }
-
-  get isMobile(): boolean {
-    return this.metadata.device.type === 'mobile';
-  }
-
-  get isBot(): boolean {
-    return this.metadata.isBot;
-  }
-
   getProps(): string {
     return this.props;
+  }
+
+  protected validate(value: string): void {
+    if (value.length < 5) throw new InvalidValueObjectError('UA too short');
   }
 }

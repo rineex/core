@@ -26,13 +26,13 @@ export abstract class DomainEvent<
   AggregateId extends EntityId = EntityId,
   T extends DomainEventPayload = DomainEventPayload,
 > {
-  public abstract readonly eventName: string;
-
-  public readonly id: string;
   public readonly aggregateId: AggregateId;
-  public readonly schemaVersion: number;
+
+  public abstract readonly eventName: string;
+  public readonly id: string;
   public readonly occurredAt: number;
   public readonly payload: Readonly<T>;
+  public readonly schemaVersion: number;
 
   protected constructor(props: DomainEventProps<AggregateId, T>) {
     this.id = props.id ?? randomUUID();

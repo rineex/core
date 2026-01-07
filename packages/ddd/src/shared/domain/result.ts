@@ -38,17 +38,17 @@
  */
 export class Result<T, E> {
   /**
-   * Indicates whether the result represents a successful outcome.
-   *
-   * This flag is mutually exclusive with {@link isFailure}.
-   */
-  public readonly isSuccess: boolean;
-  /**
    * Indicates whether the result represents a failed outcome.
    *
    * This flag is mutually exclusive with {@link isSuccess}.
    */
   public readonly isFailure: boolean;
+  /**
+   * Indicates whether the result represents a successful outcome.
+   *
+   * This flag is mutually exclusive with {@link isFailure}.
+   */
+  public readonly isSuccess: boolean;
 
   /**
    * Creates a new {@link Result} instance.
@@ -70,21 +70,6 @@ export class Result<T, E> {
   }
 
   /**
-   * Creates a successful {@link Result}.
-   *
-   * @param value - Value representing a successful outcome
-   * @returns A success {@link Result} containing the provided value
-   *
-   * @example
-   * ```ts
-   * return Result.ok(user);
-   * ```
-   */
-  public static ok<T, E>(value: T): Result<T, E> {
-    return new Result<T, E>(value);
-  }
-
-  /**
    * Creates a failed {@link Result}.
    *
    * @param error - Error describing the failure
@@ -100,27 +85,18 @@ export class Result<T, E> {
   }
 
   /**
-   * Returns the success value.
+   * Creates a successful {@link Result}.
    *
-   * @returns The value associated with a successful result
-   *
-   * @throws {Error}
-   * Thrown if this result represents a failure.
-   * This is a fail-fast guard against incorrect usage.
+   * @param value - Value representing a successful outcome
+   * @returns A success {@link Result} containing the provided value
    *
    * @example
    * ```ts
-   * if (result.isSuccess) {
-   *   const value = result.getValue();
-   * }
+   * return Result.ok(user);
    * ```
    */
-  public getValue(): T {
-    if (this.isFailure) {
-      throw new Error('Result: Cannot get value of a failure.');
-    }
-
-    return this._value as T;
+  public static ok<T, E>(value: T): Result<T, E> {
+    return new Result<T, E>(value);
   }
 
   /**
@@ -145,5 +121,29 @@ export class Result<T, E> {
     }
 
     return this._error as E;
+  }
+
+  /**
+   * Returns the success value.
+   *
+   * @returns The value associated with a successful result
+   *
+   * @throws {Error}
+   * Thrown if this result represents a failure.
+   * This is a fail-fast guard against incorrect usage.
+   *
+   * @example
+   * ```ts
+   * if (result.isSuccess) {
+   *   const value = result.getValue();
+   * }
+   * ```
+   */
+  public getValue(): T {
+    if (this.isFailure) {
+      throw new Error('Result: Cannot get value of a failure.');
+    }
+
+    return this._value as T;
   }
 }

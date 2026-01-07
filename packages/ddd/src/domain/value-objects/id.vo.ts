@@ -30,13 +30,6 @@ export class UUID extends PrimitiveValueObject<string> {
   }
 
   /**
-   * Generates a new AggregateId.
-   */
-  public static generate<T extends typeof UUID>(this: T): InstanceType<T> {
-    return new this(v4()) as InstanceType<T>;
-  }
-
-  /**
    * Creates an UUID from an external string.
    * Use only for untrusted input.
    *
@@ -44,6 +37,13 @@ export class UUID extends PrimitiveValueObject<string> {
    */
   public static fromString(value: string): UUID {
     return new this(value);
+  }
+
+  /**
+   * Generates a new AggregateId.
+   */
+  public static generate<T extends typeof UUID>(this: T): InstanceType<T> {
+    return new this(v4()) as InstanceType<T>;
   }
 
   protected validate(value: string): void {

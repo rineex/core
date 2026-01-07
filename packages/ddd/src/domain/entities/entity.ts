@@ -22,10 +22,10 @@ export interface EntityProps<ID extends EntityId, Props> {
  * @template ID - The specific Identity Value Object type.
  */
 export abstract class Entity<ID extends EntityId, Props> {
-  /** The immutable unique identifier for this entity */
-  public readonly id: ID;
   /** The timestamp when this entity was first instantiated/created */
   public readonly createdAt: Date;
+  /** The immutable unique identifier for this entity */
+  public readonly id: ID;
 
   /**
    * Protected constructor to be called by subclasses.
@@ -50,16 +50,16 @@ export abstract class Entity<ID extends EntityId, Props> {
   }
 
   /**
-   * Validates the current state of the entity against domain invariants.
-   * This method should be called after construction and any mutation.
-   * @throws {Error} Should throw a specific DomainError if validation fails.
-   */
-  public abstract validate(): void;
-
-  /**
    * Converts the Entity into a plain Javascript object.
    * Subclasses must implement this to explicitly control serialization,
    * @returns A plain object representation of the entity.
    */
   public abstract toObject(): Record<string, unknown>;
+
+  /**
+   * Validates the current state of the entity against domain invariants.
+   * This method should be called after construction and any mutation.
+   * @throws {Error} Should throw a specific DomainError if validation fails.
+   */
+  public abstract validate(): void;
 }

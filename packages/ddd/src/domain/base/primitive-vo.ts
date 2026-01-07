@@ -41,14 +41,6 @@ export abstract class PrimitiveValueObject<
   }
 
   /**
-   * Returns the primitive value.
-   * Prefer explicit access over implicit coercion.
-   */
-  public getValue(): T {
-    return this.value;
-  }
-
-  /**
    * Compares two Value Objects for equality.
    *
    * Equality rules:
@@ -65,6 +57,14 @@ export abstract class PrimitiveValueObject<
     }
 
     return this.value === other.value;
+  }
+
+  /**
+   * Returns the primitive value.
+   * Prefer explicit access over implicit coercion.
+   */
+  public getValue(): T {
+    return this.value;
   }
 
   /**
