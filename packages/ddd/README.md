@@ -864,6 +864,8 @@ export class Result<T, E = DomainError> {
   public static fail<T = never, E = DomainError>(error: E): Result<T, E>;
   public getValue(): T | undefined;
   public getError(): E | undefined;
+  public isSuccessResult(): this is Result<T, never>;
+  public isFailureResult(): this is Result<never, E>;
 }
 ```
 
@@ -931,12 +933,38 @@ function validateEmail(email: string): Result<string, DomainError> {
 
 function createAccount(email: string): Result<{ email: string }, DomainError> {
   const emailResult = validateEmail(email);
-  if (emailResult.isFailure) {
+  if (emailResult.isFailureResult()) {
     return emailResult; // Forward the error
   }
 
   const validatedEmail = emailResult.getValue()!;
   return Result.ok({ email: validatedEmail });
+}
+```
+
+**Using Type Guards:**
+
+The `isSuccessResult()` and `isFailureResult()` methods provide type-safe
+narrowing:
+
+```typescript
+function processResult<T>(result: Result<T, DomainError>): void {
+  if (result.isSuccessResult()) {
+    // TypeScript narrows result to Result<T, never>
+    const value = result.getValue();
+    if (value) {
+      // Process the value with full type safety
+      console.log('Success:', value);
+    }
+  } else if (result.isFailureResult()) {
+    // TypeScript narrows result to Result<never, DomainError>
+    const error = result.getError();
+    if (error) {
+      // Access error properties with full type safety
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+    }
+  }
 }
 ```
 
@@ -989,9 +1017,11 @@ function deleteUser(id: number): Result<void, DomainError> {
 
 1. Always check `isSuccess` or `isFailure` before calling `getValue()` or
    `getError()`
-2. Use `DomainError` for domain-specific errors to maintain consistency
-3. Forward errors in chaining operations rather than creating new ones
-4. Leverage TypeScript's type narrowing for safe value extraction
+2. Use `isSuccessResult()` and `isFailureResult()` type guards for better type
+   narrowing when you need TypeScript to narrow the result type
+3. Use `DomainError` for domain-specific errors to maintain consistency
+4. Forward errors in chaining operations rather than creating new ones
+5. Leverage TypeScript's type narrowing for safe value extraction
 
 ### Domain Violations
 
@@ -1605,16 +1635,16 @@ function createUser(email: string): Result<User, DomainError> {
 }
 
 const result = createUser('user@example.com');
-if (result.isSuccess) {
+if (result.isSuccessResult()) {
   const user = result.getValue();
   if (user) {
-    // Use user safely
+    // Use user safely with full type safety
     console.log('User created:', user.id.toString());
   }
-} else {
+} else if (result.isFailureResult()) {
   const error = result.getError();
   if (error) {
-    // Handle error with full context
+    // Handle error with full context and type safety
     console.error('Error code:', error.code);
     console.error('Error message:', error.message);
     console.error('Metadata:', error.metadata);

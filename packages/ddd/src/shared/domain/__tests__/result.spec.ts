@@ -13,7 +13,7 @@ class InvalidValueError extends DomainError {
     message: string,
     metadata?: Record<string, boolean | number | string>,
   ) {
-    super({ message, metadata });
+    super({ metadata, message });
   }
 }
 
@@ -26,7 +26,7 @@ class InvalidStateError extends DomainError {
     message: string,
     metadata?: Record<string, boolean | number | string>,
   ) {
-    super({ message, metadata });
+    super({ metadata, message });
   }
 }
 
@@ -36,8 +36,8 @@ interface ValidationError {
   message: string;
 }
 
-describe('Result', () => {
-  describe('Result.ok()', () => {
+describe('result', () => {
+  describe('result.ok()', () => {
     it('should create a successful result with a primitive value', () => {
       const result = Result.ok(42);
 
@@ -66,7 +66,7 @@ describe('Result', () => {
     });
 
     it('should create a successful result with an object', () => {
-      const user = { id: 1, name: 'John', email: 'john@example.com' };
+      const user = { email: 'john@example.com', name: 'John', id: 1 };
       const result = Result.ok(user);
 
       expect(result.isSuccess).toBe(true);
@@ -95,7 +95,7 @@ describe('Result', () => {
     });
 
     it('should create a successful result with undefined', () => {
-      const result = Result.ok<void>(undefined);
+      const result = Result.ok(undefined);
 
       expect(result.isSuccess).toBe(true);
       expect(result.isFailure).toBe(false);
@@ -128,7 +128,7 @@ describe('Result', () => {
     });
   });
 
-  describe('Result.fail()', () => {
+  describe('result.fail()', () => {
     it('should create a failed result with DomainError', () => {
       const error = new InvalidValueError('Value must be positive');
       const result = Result.fail(error);
@@ -141,8 +141,8 @@ describe('Result', () => {
 
     it('should create a failed result with custom error type', () => {
       const error: ValidationError = {
-        field: 'email',
         message: 'Invalid email format',
+        field: 'email',
       };
       const result = Result.fail<never, ValidationError>(error);
 
@@ -155,19 +155,22 @@ describe('Result', () => {
     it('should create a failed result with error containing metadata', () => {
       const error = new InvalidValueError('Validation failed', {
         field: 'age',
-        min: 18,
         max: 100,
+        min: 18,
       });
       const result = Result.fail(error);
 
       expect(result.isFailure).toBe(true);
+
       const returnedError = result.getError();
+
       expect(returnedError).toBe(error);
+
       if (returnedError instanceof InvalidValueError) {
         expect(returnedError.metadata).toEqual({
           field: 'age',
-          min: 18,
           max: 100,
+          min: 18,
         });
       }
     });
@@ -207,7 +210,7 @@ describe('Result', () => {
 
   describe('getValue()', () => {
     it('should return the value for successful results', () => {
-      const value = { id: 1, name: 'John' };
+      const value = { name: 'John', id: 1 };
       const result = Result.ok(value);
 
       expect(result.getValue()).toBe(value);
@@ -221,7 +224,7 @@ describe('Result', () => {
     });
 
     it('should return undefined for successful results with undefined value', () => {
-      const result = Result.ok<void>(undefined);
+      const result = Result.ok(undefined);
 
       expect(result.isSuccess).toBe(true);
       expect(result.getValue()).toBeUndefined();
@@ -262,7 +265,63 @@ describe('Result', () => {
     });
   });
 
-  describe('Immutability', () => {
+  describe('isSuccessResult()', () => {
+    it('should return true for successful results', () => {
+      const result = Result.ok(42);
+
+      expect(result.isSuccessResult()).toBe(true);
+    });
+
+    it('should return false for failed results', () => {
+      const error = new InvalidValueError('Error');
+      const result = Result.fail(error);
+
+      expect(result.isSuccessResult()).toBe(false);
+    });
+
+    it('should act as a type guard narrowing the type', () => {
+      const result = Result.ok({ name: 'John', id: 1 });
+
+      if (result.isSuccessResult()) {
+        // TypeScript should narrow the type here
+        const value = result.getValue();
+
+        expect(value).toBeDefined();
+        expect(value?.id).toBe(1);
+        expect(value?.name).toBe('John');
+      }
+    });
+  });
+
+  describe('isFailureResult()', () => {
+    it('should return true for failed results', () => {
+      const error = new InvalidValueError('Error');
+      const result = Result.fail(error);
+
+      expect(result.isFailureResult()).toBe(true);
+    });
+
+    it('should return false for successful results', () => {
+      const result = Result.ok(42);
+
+      expect(result.isFailureResult()).toBe(false);
+    });
+
+    it('should act as a type guard narrowing the type', () => {
+      const error = new InvalidValueError('Validation failed');
+      const result = Result.fail(error);
+
+      if (result.isFailureResult()) {
+        // TypeScript should narrow the type here
+        const errorValue = result.getError();
+
+        expect(errorValue).toBeDefined();
+        expect(errorValue).toBe(error);
+      }
+    });
+  });
+
+  describe('immutability', () => {
     it('should freeze the Result instance', () => {
       const result = Result.ok(42);
 
@@ -277,14 +336,14 @@ describe('Result', () => {
     });
   });
 
-  describe('Type safety', () => {
+  describe('type safety', () => {
     it('should maintain type information for success values', () => {
       interface User {
         id: number;
         name: string;
       }
 
-      const user: User = { id: 1, name: 'John' };
+      const user: User = { name: 'John', id: 1 };
       const result = Result.ok(user);
 
       const value = result.getValue();
@@ -308,7 +367,7 @@ describe('Result', () => {
     });
   });
 
-  describe('Edge cases', () => {
+  describe('edge cases', () => {
     it('should handle empty string as success value', () => {
       const result = Result.ok('');
 
@@ -361,12 +420,13 @@ describe('Result', () => {
     it('should handle complex error with nested metadata', () => {
       const error = new InvalidValueError('Complex error', {
         nested: JSON.stringify({ key: 'value' }),
-        count: 42,
         active: true,
+        count: 42,
       });
       const result = Result.fail(error);
 
       expect(result.isFailure).toBe(true);
+
       const returnedError = result.getError();
       if (returnedError instanceof InvalidValueError) {
         expect(returnedError.metadata.nested).toBe('{"key":"value"}');
@@ -376,7 +436,7 @@ describe('Result', () => {
     });
   });
 
-  describe('Usage patterns', () => {
+  describe('usage patterns', () => {
     it('should work with validation pattern', () => {
       function validateAge(age: number): Result<number, DomainError> {
         if (age < 0) {
@@ -389,14 +449,17 @@ describe('Result', () => {
       }
 
       const validResult = validateAge(25);
+
       expect(validResult.isSuccess).toBe(true);
       expect(validResult.getValue()).toBe(25);
 
       const negativeResult = validateAge(-5);
+
       expect(negativeResult.isFailure).toBe(true);
       expect(negativeResult.getError()?.message).toBe('Age cannot be negative');
 
       const tooOldResult = validateAge(200);
+
       expect(tooOldResult.isFailure).toBe(true);
       expect(tooOldResult.getError()?.message).toBe('Age seems unrealistic');
     });
@@ -413,7 +476,7 @@ describe('Result', () => {
         email: string,
       ): Result<{ email: string }, DomainError> {
         const emailResult = validateEmail(email);
-        if (emailResult.isFailure) {
+        if (emailResult.isFailureResult()) {
           return emailResult;
         }
 
@@ -422,12 +485,14 @@ describe('Result', () => {
       }
 
       const validResult = createAccount('test@example.com');
+
       expect(validResult.isSuccess).toBe(true);
-      expect(validResult.getValue()?.email).toBe('test@example.com');
+      expect(validResult.getValue().email).toBe('test@example.com');
 
       const invalidResult = createAccount('invalid-email');
+
       expect(invalidResult.isFailure).toBe(true);
-      expect(invalidResult.getError()?.message).toBe('Invalid email format');
+      expect(invalidResult.getError().message).toBe('Invalid email format');
     });
 
     it('should work with void operations', () => {
@@ -440,10 +505,12 @@ describe('Result', () => {
       }
 
       const successResult = deleteUser(123);
+
       expect(successResult.isSuccess).toBe(true);
       expect(successResult.getValue()).toBeUndefined();
 
       const failureResult = deleteUser(-1);
+
       expect(failureResult.isFailure).toBe(true);
       expect(failureResult.getError()?.message).toBe('Invalid user ID');
     });

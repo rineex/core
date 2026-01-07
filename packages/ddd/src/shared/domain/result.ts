@@ -355,4 +355,18 @@ export class Result<T, E> {
   public getValue(): T | undefined {
     return this._value;
   }
+
+  /**
+   * Type guard for failure.
+   */
+  public isFailureResult(): this is Result<never, E> {
+    return this.isFailure;
+  }
+
+  /**
+   * Type guard for success.
+   */
+  public isSuccessResult(): this is Result<T, never> {
+    return this.isSuccess;
+  }
 }
