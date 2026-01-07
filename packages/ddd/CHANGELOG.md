@@ -1,5 +1,31 @@
 # @rineex/ddd
 
+## 2.0.0
+
+### Major Changes
+
+- Added type guard methods `isSuccessResult()` and `isFailureResult()` to Result
+  ([`54d43d0`](https://github.com/rineex/core/commit/54d43d0bda3d9ce13146eaaaf1b1aa21314823de))
+  class for improved TypeScript type narrowing. Updated Result class
+  documentation, comprehensive unit tests, and README with usage examples and
+  best practices.
+
+  **New Methods:**
+  - `Result.isSuccessResult(): this is Result<T, never>` - Type guard for
+    success results
+  - `Result.isFailureResult(): this is Result<never, E>` - Type guard for
+    failure results
+
+  **Breaking Changes:** None - these are additive changes that enhance type
+  safety without breaking existing code.
+
+### Patch Changes
+
+- Enhanced Result class with comprehensive JSDoc documentation, added unit
+  tests,
+  ([`200f30a`](https://github.com/rineex/core/commit/200f30aa61b341774f93c8ce0910be0c53f5e7f2))
+  and updated README with usage examples and best practices.
+
 ## 1.6.1
 
 ### Patch Changes
