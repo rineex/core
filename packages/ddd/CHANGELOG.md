@@ -1,5 +1,12 @@
 # @rineex/ddd
 
+## 1.6.1
+
+### Patch Changes
+
+- Update README to reflect actual code structure and API
+  ([`94c732f`](https://github.com/rineex/core/commit/94c732fc529d269886216e63ac9d47605036fae4))
+
 ## 1.6.0
 
 ### Minor Changes
