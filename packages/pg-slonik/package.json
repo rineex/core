@@ -1,6 +1,6 @@
 {
   "name": "@rineex/pg-slonik",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "PostgreSQL adapter using Slonik for Rineex core modules",
   "author": "Rineex Team",
   "main": "./dist/index.js",
