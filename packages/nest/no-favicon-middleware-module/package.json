@@ -1,6 +1,6 @@
 {
   "name": "@rineex/favicon-ignore-mw-module",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Nest - a Favicon Ignore middleware module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

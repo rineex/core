@@ -1,6 +1,6 @@
 {
   "name": "@rineex/cookie-parser-mw-module",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Nest - a Cookie Parser Middleware module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
