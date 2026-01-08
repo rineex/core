@@ -21,7 +21,7 @@
     "cookie-parser"
   ],
   "files": [
-    "dist/**/*"
+    "dist/**"
   ],
   "author": "Rineex Team",
   "license": "Apache-2.0",

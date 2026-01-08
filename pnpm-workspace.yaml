@@ -6,3 +6,5 @@ packages:
   - '!packages/authentication'
   - '!packages/authentication/methods'
   - '!packages/nest'
+
+updateNotifier: false
