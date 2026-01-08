@@ -20,6 +20,7 @@
   "author": "Rineex Team",
   "license": "Apache-2.0",
   "publishConfig": {
+    "provenance": true,
     "access": "public",
     "registry": "https://registry.npmjs.org"
   },
