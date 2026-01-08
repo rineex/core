@@ -21,6 +21,9 @@
     "security",
     "http-headers"
   ],
+  "files": [
+    "dist/**"
+  ],
   "author": "Rineex Team",
   "license": "Apache-2.0",
   "publishConfig": {

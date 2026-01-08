@@ -23,6 +23,9 @@
     "passwordless",
     "sso"
   ],
+  "files": [
+    "dist/**"
+  ],
   "publishConfig": {
     "provenance": true,
     "access": "public",
