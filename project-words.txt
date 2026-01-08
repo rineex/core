@@ -22,3 +22,5 @@ topbar
 tsup
 unplugin
 vitest
+hsts
+frameguard
