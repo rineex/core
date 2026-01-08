@@ -52,5 +52,6 @@
     "url": "https://github.com/rineex/core.git",
     "directory": "packages/pg-slonik"
   },
+  "homepage": "https://github.com/rineex/core/tree/main/packages/pg-slonik",
   "packageManager": "pnpm@10.22.0"
 }

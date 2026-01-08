@@ -10,6 +10,20 @@
     "./db": "./db.js"
   },
   "types": "./eslint.config.d.ts",
+  "keywords": [
+    "rineex",
+    "eslint",
+    "eslint-config",
+    "linting",
+    "typescript"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rineex/core.git",
+    "directory": "packages/eslint-config"
+  },
+  "homepage": "https://github.com/rineex/core/tree/main/packages/eslint-config",
   "devDependencies": {
     "@fullstacksjs/eslint-config": "13.8.2",
     "eslint-plugin-react-hooks": "7.0.1",

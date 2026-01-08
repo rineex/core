@@ -6,5 +6,17 @@
   "publishConfig": {
     "access": "public"
   },
+  "keywords": [
+    "rineex",
+    "typescript",
+    "typescript-config",
+    "tsconfig"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rineex/core.git",
+    "directory": "packages/typescript-config"
+  },
+  "homepage": "https://github.com/rineex/core/tree/main/packages/typescript-config",
   "packageManager": "pnpm@10.22.0"
 }

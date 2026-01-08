@@ -9,6 +9,7 @@
     "lint:fix": "turbo run lint:fix",
     "test": "turbo run test",
     "test:ci": "turbo run test build",
+    "check-types": "turbo run check-types",
     "prepublish": "pnpm run build",
     "prettier": "prettier --ignore-unknown '**/*'",
     "prettier:write": "pnpm run prettier --write",

@@ -9,6 +9,7 @@
     "prebuild": "shx rm -rf dist",
     "build": "tsup src/index.ts --format cjs,esm --dts",
     "format": "prettier **/**/*.ts --ignore-path ./.prettierignore --write",
+    "check-types": "tsc --noEmit",
     "test": "jest",
     "release": "standard-version",
     "patch": "npm run release -- --release-as patch",
@@ -16,7 +17,14 @@
     "major": "npm run release -- --release-as major",
     "deploy": "sh ./publish.sh"
   },
-  "keywords": [],
+  "keywords": [
+    "rineex",
+    "nestjs",
+    "nest",
+    "middleware",
+    "cors",
+    "cross-origin"
+  ],
   "author": "Rineex Team",
   "license": "Apache-2.0",
   "publishConfig": {
@@ -29,6 +37,7 @@
     "url": "https://github.com/rineex/core.git",
     "directory": "packages/nest/cors-middleware-module"
   },
+  "homepage": "https://github.com/rineex/core/tree/main/packages/nest/cors-middleware-module",
   "packageManager": "pnpm@10.11.0",
   "devDependencies": {
     "@nestjs/common": "11.0.1",

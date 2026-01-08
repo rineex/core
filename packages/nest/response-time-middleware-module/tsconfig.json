@@ -11,6 +11,8 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "target": "es6",
+    "moduleResolution": "node",
+    "skipLibCheck": true,
     "sourceMap": false,
     "outDir": "./dist",
     "rootDir": "./",

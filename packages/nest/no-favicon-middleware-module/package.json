@@ -9,9 +9,17 @@
     "prebuild": "shx rm -rf dist",
     "build": "tsup src/index.ts --format cjs,esm --dts",
     "format": "prettier **/**/*.ts --ignore-path ./.prettierignore --write",
+    "check-types": "tsc --noEmit",
     "test": "jest"
   },
-  "keywords": [],
+  "keywords": [
+    "rineex",
+    "nestjs",
+    "nest",
+    "middleware",
+    "favicon",
+    "no-favicon"
+  ],
   "author": "Rineex Team",
   "license": "Apache-2.0",
   "publishConfig": {
@@ -24,6 +32,7 @@
     "url": "https://github.com/rineex/core.git",
     "directory": "packages/nest/no-favicon-middleware-module"
   },
+  "homepage": "https://github.com/rineex/core/tree/main/packages/nest/no-favicon-middleware-module",
   "packageManager": "pnpm@10.22.0",
   "devDependencies": {
     "@nestjs/common": "11.0.1",

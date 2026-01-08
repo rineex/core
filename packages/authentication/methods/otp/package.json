@@ -48,6 +48,7 @@
     "url": "https://github.com/rineex/core.git",
     "directory": "packages/authentication/methods/otp"
   },
+  "homepage": "https://github.com/rineex/core/tree/main/packages/authentication/methods/otp",
   "author": "Rineex Team",
   "license": "Apache-2.0",
   "packageManager": "pnpm@10.22.0"

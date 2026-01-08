@@ -12,6 +12,8 @@
     "experimentalDecorators": true,
     "noImplicitThis": true,
     "target": "es6",
+    "moduleResolution": "node",
+    "skipLibCheck": true,
     "sourceMap": false,
     "outDir": "./dist",
     "noImplicitAny": true,

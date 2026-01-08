@@ -44,5 +44,6 @@
     "url": "https://github.com/rineex/core.git",
     "directory": "packages/libs"
   },
+  "homepage": "https://github.com/rineex/core/tree/main/packages/libs",
   "packageManager": "pnpm@10.22.0"
 }

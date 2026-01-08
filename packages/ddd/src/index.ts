@@ -11,4 +11,5 @@ export * from './domain/types';
 export * from './domain/value-objects/aggregate-id.vo';
 export * from './domain/value-objects/id.vo';
 export * from './gateway/constants/http-code';
+export { Result } from './shared/domain/result';
 export * from './utils';

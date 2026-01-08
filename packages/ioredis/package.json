@@ -46,6 +46,7 @@
     "url": "https://github.com/rineex/core.git",
     "directory": "packages/ioredis"
   },
+  "homepage": "https://github.com/rineex/core/tree/main/packages/ioredis",
   "dependencies": {
     "@nestjs/common": "11.1.11",
     "@nestjs/terminus": "11.0.0",

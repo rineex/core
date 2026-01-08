@@ -48,6 +48,7 @@
     "url": "https://github.com/rineex/core.git",
     "directory": "packages/authentication/core"
   },
+  "homepage": "https://github.com/rineex/core/tree/main/packages/authentication/core",
   "license": "Apache-2.0",
   "packageManager": "pnpm@10.22.0",
   "dependencies": {
