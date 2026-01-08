@@ -1,5 +1,12 @@
 # @rineex/response-time-mw-module
 
+## 1.2.2
+
+### Patch Changes
+
+- Update package configuration
+  ([`d223819`](https://github.com/rineex/core/commit/d223819ecca4fb308ee366549077758dae635c0c))
+
 ## 1.2.1
 
 ### Patch Changes

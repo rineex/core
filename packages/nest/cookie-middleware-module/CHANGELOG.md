@@ -1,5 +1,11 @@
 # @rineex/cookie-parser-mw-module
 
+## 1.2.2
+
+### Patch Changes
+
+- Update package configuration ([#23](https://github.com/rineex/core/pull/23))
+
 ## 1.2.1
 
 ### Patch Changes
