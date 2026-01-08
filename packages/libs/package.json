@@ -1,6 +1,6 @@
 {
   "name": "@rineex/libs",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "libs package for Rineex core modules",
   "author": "Rineex Team",
   "main": "./dist/index.js",
