@@ -2,5 +2,7 @@ packages:
   - packages/authentication/*
   - packages/authentication/methods/*
   - packages/*
+  - packages/nest/*
   - '!packages/authentication'
   - '!packages/authentication/methods'
+  - '!packages/nest'
