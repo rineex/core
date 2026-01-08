@@ -1,5 +1,19 @@
 # @rineex/authentication-method-otp
 
+## 0.1.0
+
+### Minor Changes
+
+- fuc
+  ([`5f08435`](https://github.com/rineex/core/commit/5f08435b20b7f9bc0448b345df64de1f436413f0))
+
+### Patch Changes
+
+- Updated dependencies
+  [[`5f08435`](https://github.com/rineex/core/commit/5f08435b20b7f9bc0448b345df64de1f436413f0)]:
+  - @rineex/auth-core@0.1.0
+  - @rineex/ddd@2.1.0
+
 ## 0.0.3
 
 ### Patch Changes
