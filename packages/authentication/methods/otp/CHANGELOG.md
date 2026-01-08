@@ -1,5 +1,17 @@
 # @rineex/authentication-method-otp
 
+## 0.1.1
+
+### Patch Changes
+
+- fuck
+  ([`ec6ad7a`](https://github.com/rineex/core/commit/ec6ad7a70910ebb31d067eaaf3584cc2926acfc5))
+
+- Updated dependencies
+  [[`ec6ad7a`](https://github.com/rineex/core/commit/ec6ad7a70910ebb31d067eaaf3584cc2926acfc5)]:
+  - @rineex/auth-core@0.1.1
+  - @rineex/ddd@2.1.0
+
 ## 0.1.0
 
 ### Minor Changes

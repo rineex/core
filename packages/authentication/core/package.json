@@ -1,6 +1,6 @@
 {
   "name": "@rineex/auth-core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Authentication Core package for Rineex core modules",
   "author": "Rineex Team",
   "main": "./dist/index.js",
