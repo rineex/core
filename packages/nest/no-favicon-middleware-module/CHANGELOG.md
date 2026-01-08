@@ -1,5 +1,12 @@
 # @rineex/favicon-ignore-mw-module
 
+## 1.2.2
+
+### Patch Changes
+
+- fix issue in terbal file of packed module (dist was ignored by .gitignore)
+  ([`405f98a`](https://github.com/rineex/core/commit/405f98a14b7c04b248d5368e04fe78c3e42df7bf))
+
 ## 1.2.1
 
 ### Patch Changes
