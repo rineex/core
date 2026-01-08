@@ -1,6 +1,6 @@
 {
   "name": "@rineex/cors-mw-module",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Nest - a CORS Middleware module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

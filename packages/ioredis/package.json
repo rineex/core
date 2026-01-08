@@ -1,6 +1,6 @@
 {
   "name": "@rineex/ioredis",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Redis adapter for Rineex core modules",
   "author": "Rineex Team",
   "main": "./dist/index.js",
