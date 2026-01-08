@@ -8,6 +8,7 @@
   "scripts": {
     "prebuild": "shx rm -rf dist",
     "build": "tsup src/index.ts --format cjs,esm --dts",
+    "prepublishOnly": "pnpm run build",
     "format": "prettier **/**/*.ts --ignore-path ./.prettierignore --write",
     "check-types": "tsc --noEmit",
     "test": "jest",
