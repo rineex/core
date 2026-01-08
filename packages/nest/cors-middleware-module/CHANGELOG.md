@@ -1,5 +1,13 @@
 # @rineex/cors-mw-module
 
+## 1.2.3
+
+### Patch Changes
+
+- fix: add prepublishOnly script to nest modules to ensure dist directory is
+  ([`7ec9114`](https://github.com/rineex/core/commit/7ec9114944a9b5c6b01519383f8e652506981a21))
+  included in published packages
+
 ## 1.2.2
 
 ### Patch Changes
