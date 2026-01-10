@@ -1,4 +1,4 @@
-import { CreateEntityProps, Entity } from '@rineex/ddd';
+import { Entity, EntityProps } from '@rineex/ddd';
 
 import { IdentityId } from '../value-objects/identity-id.vo';
 
@@ -15,9 +15,9 @@ import { IdentityId } from '../value-objects/identity-id.vo';
  * - External IdP subject
  * - Service or machine identity
  */
-export interface IdentityCreateProps extends CreateEntityProps<IdentityId> {
+type IdentityProps = {
   readonly isActive: boolean;
-}
+};
 
 /**
  * Identity entity.
@@ -28,55 +28,51 @@ export interface IdentityCreateProps extends CreateEntityProps<IdentityId> {
  * Any additional concerns (profile, roles, permissions)
  * MUST live in other bounded contexts.
  */
-export class Identity extends Entity<IdentityId> {
-  // We keep the state private to the class
-  private _isActive: boolean;
-
+export class Identity extends Entity<IdentityId, IdentityProps> {
   /**
    * Private constructor forces usage of factory methods.
    */
-  private constructor({ isActive, ...props }: IdentityCreateProps) {
-    super(props);
-    this._isActive = isActive;
+  private constructor(params: EntityProps<IdentityId, IdentityProps>) {
+    super(params);
   }
 
   /**
    * Factory method to create a new identity.
    */
   static create(id: IdentityId, isActive: boolean = true): Identity {
-    return new Identity({
-      isActive,
-      id,
-    });
-  }
+    const identity = new Identity({ props: { isActive }, id });
+    identity.validate();
 
-  /**
-   * Getter for the active state
-   */
-  public get isActive(): boolean {
-    return this._isActive;
+    return identity;
   }
 
   /**
    * Disables this identity.
    */
   public disable(): void {
-    if (!this._isActive) return;
+    if (!this.props.isActive) return;
 
-    this.mutate(draft => {
-      draft._isActive = false;
-    });
+    this.mutate(current => ({ ...current, isActive: false }));
   }
 
   /**
    * Enables this identity.
    */
   public enable(): void {
-    if (this._isActive) return;
+    if (this.props.isActive) return;
 
-    this.mutate(draft => {
-      draft._isActive = true;
-    });
+    this.mutate(current => ({ ...current, isActive: true }));
+  }
+
+  /**
+   * Serialization to plain object.
+   */
+  public toObject(): Record<string, unknown> {
+    return {
+      createdAt: this.createdAt.toISOString(),
+      isActive: this.props.isActive,
+      id: this.id.toString(),
+    };
   }
 
   /**
@@ -86,41 +82,8 @@ export class Identity extends Entity<IdentityId> {
     if (this.id == null) {
       throw new Error('Identity must have a valid IdentityId');
     }
-    if (typeof this._isActive !== 'boolean') {
+    if (typeof this.props.isActive !== 'boolean') {
       throw new Error('Identity.isActive must be a boolean');
     }
-  }
-
-  /**
-   * Serialization to plain object.
-   */
-  public toObject(): Record<string, unknown> {
-    return {
-      createdAt: this.createdAt.toISOString(),
-      isActive: this._isActive,
-      id: this.id.toString(),
-    };
-  }
-
-  /**
-   * Creates a snapshot of mutable state.
-   * Identity fields MUST NOT be included.
-   *
-   * Used internally for rollback.
-   */
-  protected snapshot(): Record<string, unknown> {
-    return {
-      isActive: this._isActive,
-    };
-  }
-
-  /**
-   * Restores mutable state from a snapshot.
-   * Identity fields MUST NOT be modified.
-   *
-   * @param snapshot - Previously captured state.
-   */
-  protected restore(snapshot: Record<string, unknown>): void {
-    this._isActive = snapshot.isActive as boolean;
   }
 }

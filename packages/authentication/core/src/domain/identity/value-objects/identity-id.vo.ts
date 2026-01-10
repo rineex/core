@@ -14,13 +14,13 @@ import { PrimitiveValueObject } from '@rineex/ddd';
  * - service identities
  */
 export class IdentityId extends PrimitiveValueObject<string> {
+  public static create(value: string): IdentityId {
+    return new IdentityId(value);
+  }
+
   protected validate(value: string): void {
     if (!value || value.length < 8) {
       throw new Error('IdentityId must be a valid identifier');
     }
-  }
-
-  public static create(value: string): IdentityId {
-    return new IdentityId(value);
   }
 }

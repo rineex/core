@@ -49,7 +49,7 @@ export class IssueMfaChallengeApplicationService implements ApplicationServicePo
 
       this.events.emit(
         new ChallengeIssueObservabilityEvent({
-          challengeType: challenge.props.challengeType,
+          challengeType: challenge.challengeType,
           sessionId: sessionId.toString(),
           success: true,
         }),
@@ -59,7 +59,7 @@ export class IssueMfaChallengeApplicationService implements ApplicationServicePo
     } catch (error) {
       this.events.emit(
         new ChallengeIssueObservabilityEvent({
-          challengeType: challenge.props.challengeType,
+          challengeType: challenge.challengeType,
           sessionId: sessionId.toString(),
           success: false,
         }),

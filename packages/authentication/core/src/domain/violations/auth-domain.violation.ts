@@ -1,4 +1,4 @@
-import { DomainViolation } from '@rineex/ddd';
+import { DomainError } from '@rineex/ddd';
 
 /**
  * Base class for all authentication domain violations.
@@ -6,4 +6,4 @@ import { DomainViolation } from '@rineex/ddd';
  * Auth domain MUST only throw DomainViolation objects.
  * Mapping to native Error happens at application or adapter layer.
  */
-export abstract class AuthDomainViolation extends DomainViolation {}
+export abstract class AuthDomainViolation extends DomainError {}

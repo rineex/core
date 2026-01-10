@@ -8,10 +8,8 @@ type AuthStatusType = 'FAILED' | 'PENDING' | 'SUCCEEDED';
  * This is intentionally restrictive to avoid invalid transitions.
  */
 export class AuthStatus extends PrimitiveValueObject<AuthStatusType> {
-  protected validate(value: AuthStatusType): void {
-    if (!['FAILED', 'PENDING', 'SUCCEEDED'].includes(value)) {
-      throw new Error(`Invalid AuthStatus: ${value}`);
-    }
+  static create(value: AuthStatusType): AuthStatus {
+    return new AuthStatus(value);
   }
 
   /**
@@ -32,7 +30,9 @@ export class AuthStatus extends PrimitiveValueObject<AuthStatusType> {
     return this.value !== value;
   }
 
-  static create(value: AuthStatusType): AuthStatus {
-    return new AuthStatus(value);
+  protected validate(value: AuthStatusType): void {
+    if (!['FAILED', 'PENDING', 'SUCCEEDED'].includes(value)) {
+      throw new Error(`Invalid AuthStatus: ${value}`);
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { AggregateRoot, CreateEntityProps } from '@rineex/ddd';
+import { AggregateRoot, EntityProps } from '@rineex/ddd';
 
 import { AuthenticationSucceededEvent } from '../events/authentication-succeeded.event';
 import { AuthenticationStartedEvent } from '../events/authentication-started.event';
@@ -8,9 +8,18 @@ import { AuthStatus } from '../value-objects/auth-status.vo';
 import { AuthMethod } from '../value-objects/auth-method.vo';
 import { IdentityId } from '../value-objects/identity-id.vo';
 
-interface AuthenticationAttemptProps extends CreateEntityProps<AuthAttemptId> {
+interface AuthenticationAttemptProps {
+  /**
+   * Current status of the authentication attempt.
+   */
   status: AuthStatus;
+  /**
+   * Method used for authentication.
+   */
   method: AuthMethod;
+  /**
+   * Optional identity being authenticated.
+   */
   identityId?: IdentityId;
 }
 
@@ -27,38 +36,14 @@ interface AuthenticationAttemptProps extends CreateEntityProps<AuthAttemptId> {
  * - Talk to infrastructure
  * - Know about HTTP or sessions
  */
-export class AuthenticationAttempt extends AggregateRoot<AuthAttemptId> {
-  /**
-   * Current status of the authentication attempt.
-   */
-  private _status: AuthStatus;
-  /**
-   * Method used for authentication.
-   */
-  private _method: AuthMethod;
-  /**
-   * Optional identity being authenticated.
-   */
-  private _identityId?: IdentityId;
-
-  private constructor({ createdAt, id, ...props }: AuthenticationAttemptProps) {
-    super({
-      createdAt,
-      id,
-    });
-    this._status = props.status;
-    this._method = props.method;
-    this._identityId = props.identityId;
-  }
-
-  toObject(): Record<string, unknown> {
-    return {
-      identityId: this._identityId.getValue(),
-      createdAt: this.createdAt,
-      id: this.id.getValue(),
-      status: this._status,
-      method: this._method,
-    };
+export class AuthenticationAttempt extends AggregateRoot<
+  AuthAttemptId,
+  AuthenticationAttemptProps
+> {
+  private constructor(
+    params: EntityProps<AuthAttemptId, AuthenticationAttemptProps>,
+  ) {
+    super({ ...params });
   }
 
   /**
@@ -70,9 +55,11 @@ export class AuthenticationAttempt extends AggregateRoot<AuthAttemptId> {
     identityId?: IdentityId,
   ): AuthenticationAttempt {
     const attempt = new AuthenticationAttempt({
-      status: AuthStatus.create('PENDING'),
-      identityId,
-      method,
+      props: {
+        ...identityId,
+        status: AuthStatus.create('PENDING'),
+        method,
+      },
       id,
     });
 
@@ -82,29 +69,12 @@ export class AuthenticationAttempt extends AggregateRoot<AuthAttemptId> {
   }
 
   /**
-   * Marks the authentication attempt as successful.
-   *
-   * @throws Error if already completed
-   */
-  succeed(): void {
-    if (this._status.isNot('PENDING')) {
-      throw new Error('Authentication attempt already completed');
-    }
-
-    this.mutate(draft => {
-      draft._status = AuthStatus.create('SUCCEEDED');
-    });
-
-    this.addEvent(new AuthenticationSucceededEvent(this.id));
-  }
-
-  /**
    * Marks the authentication attempt as failed.
    *
    * @throws Error if already completed
    */
   fail(reason: string): void {
-    if (this._status.isNot('PENDING')) {
+    if (this.props.status.isNot('PENDING')) {
       throw new Error('Authentication attempt already completed');
     }
 
@@ -112,11 +82,45 @@ export class AuthenticationAttempt extends AggregateRoot<AuthAttemptId> {
       throw new Error('Failure reason must be provided');
     }
 
-    this.mutate(draft => {
-      draft._status = AuthStatus.create('FAILED');
-    });
+    this.mutate(current => ({
+      ...current,
+      status: AuthStatus.create('FAILED'),
+    }));
 
     this.addEvent(new AuthenticationFailedEvent(this.id));
+  }
+
+  /**
+   * Marks the authentication attempt as successful.
+   *
+   * @throws Error if already completed
+   */
+  succeed(): void {
+    if (this.props.status.isNot('PENDING')) {
+      throw new Error('Authentication attempt already completed');
+    }
+
+    this.props = {
+      ...this.props,
+      status: AuthStatus.create('SUCCEEDED'),
+    };
+
+    this.mutate(current => ({
+      ...current,
+      status: AuthStatus.create('SUCCEEDED'),
+    }));
+
+    this.addEvent(new AuthenticationSucceededEvent(this.id));
+  }
+
+  toObject(): Record<string, unknown> {
+    return {
+      identityId: this.props.identityId?.getValue(),
+      createdAt: this.createdAt,
+      status: this.props.status,
+      method: this.props.method,
+      id: this.id.getValue(),
+    };
   }
 
   /**
@@ -125,11 +129,11 @@ export class AuthenticationAttempt extends AggregateRoot<AuthAttemptId> {
    * Called automatically before domain events are added.
    */
   validate(): void {
-    if (!this._method) {
+    if (!this.props.method) {
       throw new Error('AuthenticationAttempt must have a method');
     }
 
-    if (!this._status) {
+    if (!this.props.status) {
       throw new Error('AuthenticationAttempt must have a status');
     }
   }

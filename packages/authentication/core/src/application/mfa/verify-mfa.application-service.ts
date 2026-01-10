@@ -50,7 +50,7 @@ export class VerifyMfaApplicationService implements ApplicationServicePort<
       this.events.emit(
         new VerificationFailedObservabilityEvent(
           sessionId.toString(),
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+
           (error as any).code ?? 'UNKNOWN',
         ),
       );

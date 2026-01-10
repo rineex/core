@@ -1,11 +1,11 @@
 import { AuthDomainViolation } from '@/domain/violations/auth-domain.violation';
-import { CreateEntityProps, Entity } from '@rineex/ddd';
+import { DomainErrorType, Entity, EntityProps } from '@rineex/ddd';
 import { IdentityId } from '@/index';
 
 import { MfaChallengeId } from '../value-objects/mfa-challenge-id.vo';
 import { MfaChallengeType } from '../types/mfa-challenge-registry';
 
-export interface Props extends CreateEntityProps<MfaChallengeId> {
+export interface Props {
   /**
    * Authentication identity this challenge is bound to.
    * This is NOT an application user.
@@ -28,18 +28,32 @@ export interface Props extends CreateEntityProps<MfaChallengeId> {
 class MfaChallengeExpiredViolation extends AuthDomainViolation {
   readonly code = 'MFA_CHALLENGE_EXPIRED';
   readonly message = 'MFA challenge has expired';
+  readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
 
-  static create(reason: string) {
-    return new MfaChallengeExpiredViolation({ reason });
+  static create() {
+    return new MfaChallengeExpiredViolation();
   }
 }
 
-export class MFAChallenge extends Entity<MfaChallengeId> {
-  constructor(public readonly props: Props) {
-    super(props);
+export class MFAChallenge extends Entity<MfaChallengeId, Props> {
+  get challengeType() {
+    return this.props.challengeType;
   }
 
-  toObject(): Record<string, unknown> {
+  public static create(
+    props: EntityProps<MfaChallengeId, Props>,
+  ): MFAChallenge {
+    return new MFAChallenge(props);
+  }
+
+  /**
+   * Checks whether the challenge is expired.
+   */
+  isExpired(now: Date): boolean {
+    return now > this.props.expiresAt;
+  }
+
+  toObject() {
     return {
       identityId: this.props.identityId.toString(),
       challengeType: this.props.challengeType,
@@ -51,20 +65,7 @@ export class MFAChallenge extends Entity<MfaChallengeId> {
 
   validate(): void {
     if (this.props.expiresAt <= this.props.issuedAt) {
-      throw MfaChallengeExpiredViolation.create(
-        'MFA challenge expiration must be after issue time',
-      );
+      throw MfaChallengeExpiredViolation.create();
     }
-  }
-
-  public static create(props: Props): MFAChallenge {
-    return new MFAChallenge(props);
-  }
-
-  /**
-   * Checks whether the challenge is expired.
-   */
-  isExpired(now: Date): boolean {
-    return now > this.props.expiresAt;
   }
 }

@@ -9,7 +9,7 @@ import isNil from 'lodash.isnil';
  * @returns The input string if non-empty, otherwise the default value.
  */
 export function defaultIfBlank<T extends string = string>(
-  value: T,
+  value: T | null | undefined,
   defaultValue: T,
 ): T {
   if (isNil(value) || isEmpty(value)) {

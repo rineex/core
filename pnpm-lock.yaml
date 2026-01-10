@@ -16,7 +16,7 @@ importers:
         version: 2.29.8(@types/node@24.10.4)
       '@fullstacksjs/eslint-config':
         specifier: 13.8.2
-        version: 13.8.2(@typescript-eslint/eslint-plugin@8.48.0(@typescript-eslint/parser@8.48.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/utils@8.52.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(jest@29.7.0(@types/node@24.10.4))(prettier@3.7.4)(react@19.2.3)(tailwindcss@4.1.18)(typescript@5.9.3)(vitest@4.0.16)
+        version: 13.8.2(@typescript-eslint/eslint-plugin@8.48.0(@typescript-eslint/parser@8.44.1(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/utils@8.52.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(jest@29.7.0(@types/node@24.10.4))(prettier@3.7.4)(react@19.2.3)(tailwindcss@4.1.18)(typescript@5.9.3)(vitest@4.0.16)
       '@svitejs/changesets-changelog-github-compact':
         specifier: 1.2.0
         version: 1.2.0
@@ -148,6 +148,9 @@ importers:
       rxjs:
         specifier: 7.8.2
         version: 7.8.2
+      type-fest:
+        specifier: 5.3.1
+        version: 5.3.1
       ua-parser-js:
         specifier: 2.0.7
         version: 2.0.7
@@ -193,7 +196,7 @@ importers:
     devDependencies:
       '@fullstacksjs/eslint-config':
         specifier: 13.8.2
-        version: 13.8.2(@typescript-eslint/eslint-plugin@8.48.0(@typescript-eslint/parser@8.44.1(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/utils@8.52.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(jest@29.7.0(@types/node@24.10.4))(prettier@3.7.4)(react@19.2.3)(tailwindcss@4.1.18)(typescript@5.9.3)(vitest@4.0.16)
+        version: 13.8.2(@typescript-eslint/eslint-plugin@8.48.0(@typescript-eslint/parser@8.48.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/utils@8.52.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(jest@29.7.0(@types/node@24.10.4))(prettier@3.7.4)(react@19.2.3)(tailwindcss@4.1.18)(typescript@5.9.3)(vitest@4.0.16)
       eslint-plugin-react-hooks:
         specifier: 7.0.1
         version: 7.0.1(eslint@9.39.2(jiti@2.6.1))
@@ -402,6 +405,9 @@ importers:
         specifier: 8.1.0
         version: 8.1.0
     devDependencies:
+      '@golevelup/ts-vitest':
+        specifier: 0.5.0
+        version: 0.5.0
       '@nestjs/common':
         specifier: 11.0.1
         version: 11.0.1(reflect-metadata@0.2.2)(rxjs@7.8.2)
@@ -420,21 +426,21 @@ importers:
       '@types/express':
         specifier: 5.0.3
         version: 5.0.3
-      '@types/jest':
-        specifier: 29.5.14
-        version: 29.5.14
+      '@vitest/ui':
+        specifier: 4.0.16
+        version: 4.0.16(vitest@4.0.16)
       eslint:
         specifier: 9.28.0
         version: 9.28.0(jiti@2.6.1)
       express:
         specifier: 5.1.0
         version: 5.1.0
-      jest:
-        specifier: 29.7.0
-        version: 29.7.0(@types/node@24.10.4)
       prettier:
         specifier: 3.5.3
         version: 3.5.3
+      reflect-metadata:
+        specifier: 0.2.2
+        version: 0.2.2
       shx:
         specifier: 0.4.0
         version: 0.4.0
@@ -447,6 +453,12 @@ importers:
       typescript:
         specifier: 5.8.3
         version: 5.8.3
+      vite-tsconfig-paths:
+        specifier: 6.0.2
+        version: 6.0.2(typescript@5.8.3)(vite@7.3.0(@types/node@24.10.4)(jiti@2.6.1)(yaml@2.8.2))
+      vitest:
+        specifier: 4.0.16
+        version: 4.0.16(@types/node@24.10.4)(@vitest/ui@4.0.16)(jiti@2.6.1)(yaml@2.8.2)
 
   packages/nest/no-favicon-middleware-module:
     dependencies:
@@ -1497,6 +1509,9 @@ packages:
         optional: true
       typescript:
         optional: true
+
+  '@golevelup/ts-vitest@0.5.0':
+    resolution: {integrity: sha512-NACuIUg9l0kudI0E04pohy5oL5q0sxXSMlQxrZDHP/fabXpwIPVY/At51FRufPT+JvIU/fnGqlGreD+ywk02Rw==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -6531,6 +6546,8 @@ snapshots:
       - tailwindcss
       - vitest
 
+  '@golevelup/ts-vitest@0.5.0': {}
+
   '@humanfs/core@0.19.1': {}
 
   '@humanfs/node@0.16.7':
@@ -10759,6 +10776,10 @@ snapshots:
 
   ts-pattern@5.9.0: {}
 
+  tsconfck@3.1.6(typescript@5.8.3):
+    optionalDependencies:
+      typescript: 5.8.3
+
   tsconfck@3.1.6(typescript@5.9.3):
     optionalDependencies:
       typescript: 5.9.3
@@ -11005,6 +11026,17 @@ snapshots:
       convert-source-map: 2.0.0
 
   vary@1.1.2: {}
+
+  vite-tsconfig-paths@6.0.2(typescript@5.8.3)(vite@7.3.0(@types/node@24.10.4)(jiti@2.6.1)(yaml@2.8.2)):
+    dependencies:
+      debug: 4.4.3
+      globrex: 0.1.2
+      tsconfck: 3.1.6(typescript@5.8.3)
+    optionalDependencies:
+      vite: 7.3.0(@types/node@24.10.4)(jiti@2.6.1)(yaml@2.8.2)
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
 
   vite-tsconfig-paths@6.0.2(typescript@5.9.3)(vite@7.3.0(@types/node@24.10.4)(jiti@2.6.1)(yaml@2.8.2)):
     dependencies:

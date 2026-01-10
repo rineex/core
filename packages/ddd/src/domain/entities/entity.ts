@@ -11,7 +11,11 @@ export interface EntityProps<ID extends EntityId, Props> {
   /** Optional creation timestamp; defaults to 'now' if not provided */
   readonly createdAt?: Date;
 
-  readonly props: Props;
+  /**
+   * TODO: this props can be assigned like this.props = {...}, should be fixed
+   *
+   */
+  props: Props;
 }
 
 /**
@@ -27,13 +31,16 @@ export abstract class Entity<ID extends EntityId, Props> {
   /** The immutable unique identifier for this entity */
   public readonly id: ID;
 
+  protected props: Props;
+
   /**
    * Protected constructor to be called by subclasses.
-   * @param props - Initial identity and metadata.
+   * @param params - Initial identity and metadata.
    */
-  protected constructor(props: EntityProps<ID, Props>) {
-    this.id = props.id;
-    this.createdAt = props.createdAt ?? new Date();
+  protected constructor(params: EntityProps<ID, Props>) {
+    this.id = params.id;
+    this.createdAt = params.createdAt ?? new Date();
+    this.props = params.props;
   }
 
   /**
@@ -62,4 +69,9 @@ export abstract class Entity<ID extends EntityId, Props> {
    * @throws {Error} Should throw a specific DomainError if validation fails.
    */
   public abstract validate(): void;
+
+  protected mutate(updater: (current: Props) => Props): void {
+    this.props = updater(this.props);
+    this.validate();
+  }
 }

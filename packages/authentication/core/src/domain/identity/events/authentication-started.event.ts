@@ -20,8 +20,8 @@ export class AuthenticationStartedEvent extends DomainEvent {
         attemptId: attemptId.toString(),
         method: method.toString(),
       },
-      aggregateId: attemptId.toString(),
       id: crypto.randomUUID(),
+      aggregateId: attemptId,
       occurredAt: Date.now(),
       schemaVersion: 1,
     });

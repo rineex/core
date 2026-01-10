@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { DomainError, DomainErrorCode } from '../domain.error';
+import { DomainError, DomainErrorType } from '../domain.error';
 import { Result } from '../result';
 
 // Test error classes
 class InvalidValueError extends DomainError {
-  public get code(): DomainErrorCode {
+  public get type(): DomainErrorType {
     return 'DOMAIN.INVALID_VALUE';
   }
 
@@ -18,7 +18,7 @@ class InvalidValueError extends DomainError {
 }
 
 class InvalidStateError extends DomainError {
-  public get code(): DomainErrorCode {
+  public get type(): DomainErrorType {
     return 'DOMAIN.INVALID_STATE';
   }
 
@@ -361,8 +361,8 @@ describe('result', () => {
       const errorValue = result.getError();
       if (errorValue) {
         // TypeScript should know errorValue is DomainError here
-        expect(errorValue.message).toBe('Error');
-        expect(errorValue.code).toBe('DOMAIN.INVALID_VALUE');
+        expect(errorValue.description).toBe('Error');
+        expect(errorValue.type).toBe('DOMAIN.INVALID_VALUE');
       }
     });
   });
@@ -456,12 +456,12 @@ describe('result', () => {
       const negativeResult = validateAge(-5);
 
       expect(negativeResult.isFailure).toBe(true);
-      expect(negativeResult.getError()?.message).toBe('Age cannot be negative');
+      expect(negativeResult.getError()?.description).toBe('Age cannot be negative');
 
       const tooOldResult = validateAge(200);
 
       expect(tooOldResult.isFailure).toBe(true);
-      expect(tooOldResult.getError()?.message).toBe('Age seems unrealistic');
+      expect(tooOldResult.getError()?.description).toBe('Age seems unrealistic');
     });
 
     it('should work with chaining pattern', () => {
@@ -492,7 +492,7 @@ describe('result', () => {
       const invalidResult = createAccount('invalid-email');
 
       expect(invalidResult.isFailure).toBe(true);
-      expect(invalidResult.getError().message).toBe('Invalid email format');
+      expect(invalidResult.getError().description).toBe('Invalid email format');
     });
 
     it('should work with void operations', () => {
@@ -512,7 +512,7 @@ describe('result', () => {
       const failureResult = deleteUser(-1);
 
       expect(failureResult.isFailure).toBe(true);
-      expect(failureResult.getError()?.message).toBe('Invalid user ID');
+      expect(failureResult.getError()?.description).toBe('Invalid user ID');
     });
   });
 });

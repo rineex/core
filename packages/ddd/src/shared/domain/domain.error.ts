@@ -1,20 +1,17 @@
+export type DomainErrorType = 'DOMAIN.INVALID_STATE' | 'DOMAIN.INVALID_VALUE';
 /**
  * Strongly-typed domain error used in Result failures.
  * Does NOT extend native Error on purpose — infrastructure maps to transport later.
  */
 export abstract class DomainError {
-  public abstract readonly code: DomainErrorCode;
-  public readonly message: string;
+  /** Stable, machine-readable error code */
+  public abstract readonly code: string;
+  public abstract message: string;
   public readonly metadata: Readonly<Record<string, boolean | number | string>>;
+  public abstract readonly type: DomainErrorType;
 
-  protected constructor(params: {
-    message: string;
-    metadata?: Record<string, boolean | number | string>;
-  }) {
-    this.message = params.message;
-    this.metadata = Object.freeze(params.metadata ?? {});
+  protected constructor(payload?: Record<string, boolean | number | string>) {
+    this.metadata = Object.freeze(payload ?? {});
     Object.freeze(this);
   }
 }
-
-export type DomainErrorCode = 'DOMAIN.INVALID_STATE' | 'DOMAIN.INVALID_VALUE';

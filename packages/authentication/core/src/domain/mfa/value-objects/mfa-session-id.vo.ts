@@ -1,9 +1,10 @@
 import { AuthDomainViolation } from '@/domain/violations/auth-domain.violation';
-import { PrimitiveValueObject } from '@rineex/ddd';
+import { DomainErrorType, PrimitiveValueObject } from '@rineex/ddd';
 
 class InvalidMfaSessionIdViolation extends AuthDomainViolation {
   readonly code = 'MFA_SESSION_ID_INVALID';
   readonly message = 'MFA session ID is invalid';
+  readonly type: DomainErrorType = 'DOMAIN.INVALID_VALUE';
 
   static create(props: { value: string }) {
     return new InvalidMfaSessionIdViolation(props);

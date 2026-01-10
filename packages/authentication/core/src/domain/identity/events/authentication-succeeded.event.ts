@@ -15,8 +15,8 @@ export class AuthenticationSucceededEvent extends DomainEvent {
       payload: {
         attemptId: attemptId.toString(),
       },
-      aggregateId: attemptId.toString(),
       id: crypto.randomUUID(),
+      aggregateId: attemptId,
       occurredAt: Date.now(),
       schemaVersion: 1,
     });

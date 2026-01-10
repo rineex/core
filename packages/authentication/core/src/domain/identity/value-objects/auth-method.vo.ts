@@ -14,12 +14,6 @@ import { PrimitiveValueObject } from '@rineex/ddd';
  * This is a value object, NOT a strategy.
  */
 export class AuthMethod extends PrimitiveValueObject<AuthMethodName> {
-  protected validate(value: AuthMethodName): void {
-    if (!value) {
-      throw new Error('AuthMethod cannot be empty');
-    }
-  }
-
   public static create(value: AuthMethodName): AuthMethod {
     return new AuthMethod(value);
   }
@@ -30,5 +24,11 @@ export class AuthMethod extends PrimitiveValueObject<AuthMethodName> {
 
   public isNot(method: AuthMethodName): boolean {
     return this.value !== method;
+  }
+
+  protected validate(value: AuthMethodName): void {
+    if (!value) {
+      throw new Error('AuthMethod cannot be empty');
+    }
   }
 }
