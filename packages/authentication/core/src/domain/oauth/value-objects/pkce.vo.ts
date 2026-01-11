@@ -9,12 +9,6 @@ export type PkceProps = {
 };
 
 export class Pkce extends ValueObject<PkceProps> {
-  protected validate(props: PkceProps): void {
-    if (!props.codeVerifier || !props.codeChallenge) {
-      throw InvalidPkceViolation.create(props);
-    }
-  }
-
   public static create(props: PkceProps): Pkce {
     return new Pkce(props);
   }
@@ -25,5 +19,11 @@ export class Pkce extends ValueObject<PkceProps> {
       codeVerifier: json.codeVerifier as string,
       method: json.method as 'plain' | 'S256',
     });
+  }
+
+  protected validate(props: PkceProps): void {
+    if (!props.codeVerifier || !props.codeChallenge) {
+      throw InvalidPkceViolation.create(props);
+    }
   }
 }

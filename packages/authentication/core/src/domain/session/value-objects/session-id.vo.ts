@@ -2,6 +2,10 @@ import { InvalidSessionViolation } from '@/domain/violations/invalid-session.vio
 import { PrimitiveValueObject } from '@rineex/ddd';
 
 export class SessionId extends PrimitiveValueObject<string> {
+  public static create(v: string): SessionId {
+    return new SessionId(v);
+  }
+
   protected validate(value: string): void {
     if (!value || value.length < 16) {
       throw InvalidSessionViolation.create();

@@ -1,20 +1,25 @@
-import { CreateEntityProps, Entity } from '@rineex/ddd';
+import { Entity, EntityProps } from '@rineex/ddd';
 
 import { InvalidRedirectUriViolation } from '../violations/invalid-redirect-uri.violation';
 import { OAuthAuthorizationId } from '../value-objects/oauth-authorization-id.vo';
 import { OAuthProvider } from '../value-objects/oauth-provider.vo';
 import { Pkce } from '../value-objects/pkce.vo';
 
-export interface OAuthAuthorizationProps extends CreateEntityProps<OAuthAuthorizationId> {
+export interface OAuthAuthorizationProps {
   provider: OAuthProvider;
   redirectUri: string;
   scope: readonly string[];
   pkce?: Pkce;
 }
 
-export class OAuthAuthorization extends Entity<OAuthAuthorizationId> {
-  constructor(public props: OAuthAuthorizationProps) {
-    super(props);
+export class OAuthAuthorization extends Entity<
+  OAuthAuthorizationId,
+  OAuthAuthorizationProps
+> {
+  constructor(
+    props: EntityProps<OAuthAuthorizationId, OAuthAuthorizationProps>,
+  ) {
+    super({ ...props });
   }
 
   toObject(): Record<string, unknown> {
@@ -27,8 +32,12 @@ export class OAuthAuthorization extends Entity<OAuthAuthorizationId> {
     };
   }
 
-  protected snapshot(): Record<string, unknown> {
-    return this.toObject();
+  validate(): void {
+    if (!this.props.redirectUri.startsWith('https://')) {
+      throw InvalidRedirectUriViolation.create({
+        redirectUri: this.props.redirectUri,
+      });
+    }
   }
 
   protected restore(snapshot: Record<string, unknown>): void {
@@ -40,11 +49,7 @@ export class OAuthAuthorization extends Entity<OAuthAuthorizationId> {
     this.props.scope = snapshot.scope as string[];
   }
 
-  validate(): void {
-    if (!this.props.redirectUri.startsWith('https://')) {
-      throw InvalidRedirectUriViolation.create({
-        redirectUri: this.props.redirectUri,
-      });
-    }
+  protected snapshot(): Record<string, unknown> {
+    return this.toObject();
   }
 }

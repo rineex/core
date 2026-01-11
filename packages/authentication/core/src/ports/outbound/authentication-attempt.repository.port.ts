@@ -1,4 +1,4 @@
-import { AuthenticationAttempt } from '@/domain/aggregates/authentication-attempt.aggregate';
+import { AuthenticationAttempt } from '@/domain';
 
 /**
  * Persistence port for authentication attempts.

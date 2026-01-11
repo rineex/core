@@ -1,81 +1,52 @@
 import { SessionToken } from '@/domain/token/value-objects/session-token.vo';
-import { defaultIfNilOrEmpty } from '@/utils/default-if-blank.util';
-import { CreateEntityProps, Entity } from '@rineex/ddd';
+import { Entity, EntityProps } from '@rineex/ddd';
 import { IdentityId } from '@/domain/identity';
 
 import { SessionId } from '../value-objects/session-id.vo';
 
-interface CreateSessionProps extends CreateEntityProps<SessionId> {
+interface SessionProps {
   readonly identityId: IdentityId;
   readonly token: SessionToken;
   readonly expiresAt: Date;
   readonly revokedAt?: Date;
 }
 
-export class Session extends Entity<SessionId> {
-  private _identityId: IdentityId;
-  private _token: SessionToken;
-  private _expiresAt: Date;
-  private _revokedAt?: Date;
+type CreateSessionProps = EntityProps<SessionId, SessionProps>;
 
-  protected constructor({ createdAt, id, ...props }: CreateSessionProps) {
-    super({ createdAt, id });
-
-    this._expiresAt = props.expiresAt;
-    this._revokedAt = props.revokedAt;
-    this._identityId = props.identityId;
-    this._token = props.token;
+export class Session extends Entity<SessionId, SessionProps> {
+  protected constructor(props: CreateSessionProps) {
+    super(props);
   }
 
   public static create(props: CreateSessionProps): Session {
     return new Session(props);
   }
 
-  toObject(): Record<string, unknown> {
-    return {
-      identityId: this._identityId.getValue(),
-      revokedAt: this._revokedAt?.toString(),
-      expiresAt: this._expiresAt.toString(),
-      revoked: !!this._revokedAt,
-      id: this.id.getValue(),
-      token: this._token,
-    };
+  public isActive(now = new Date()): boolean {
+    if (!this.props.expiresAt) return false;
+
+    return now < this.props.expiresAt;
   }
 
   revoke(at: Date): void {
-    if (this._revokedAt) return;
+    if (this.props.revokedAt) return;
 
-    this.mutate(draft => {
-      draft._revokedAt = at;
-    });
+    this.mutate(current => ({ ...current, revokedAt: at }));
   }
 
-  public isActive(now = new Date()): boolean {
-    if (this._revokedAt) return false;
-
-    return now < this._expiresAt;
-  }
-
-  protected snapshot() {
+  toObject(): Record<string, unknown> {
     return {
-      revokedAt: defaultIfNilOrEmpty(this._revokedAt?.toISOString()),
-      expiresAt: this._expiresAt.toISOString(),
-      identityId: this._identityId.toJSON(),
-      token: this._token.toJSON(),
+      identityId: this.props.identityId.getValue(),
+      revokedAt: this.props.revokedAt?.toString(),
+      expiresAt: this.props.expiresAt.toString(),
+      revoked: !!this.props.revokedAt,
+      token: this.props.token,
+      id: this.id.getValue(),
     };
   }
 
-  protected restore(snapshot: Record<string, unknown>): void {
-    this._revokedAt = snapshot?.revokedAt
-      ? new Date(snapshot.revokedAt as string)
-      : undefined;
-    this._expiresAt = new Date(snapshot.expiresAt as string);
-    this._identityId = IdentityId.create(snapshot.identityId as string);
-    this._token = SessionToken.create(snapshot.token as string);
-  }
-
   validate(): void {
-    if (this._expiresAt <= new Date(0)) {
+    if (this.props.expiresAt <= new Date(0)) {
       throw new Error('Session expiration must be valid');
     }
   }
