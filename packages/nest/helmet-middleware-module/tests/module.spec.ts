@@ -10,7 +10,7 @@ import { HelmetMiddleware } from '../src/middleware';
 // Mock helmet
 vi.mock('helmet', () => {
   return {
-    default: vi.fn((options) => {
+    default: vi.fn(options => {
       return vi.fn((req, res, next) => {
         next();
       });
@@ -142,7 +142,8 @@ describe('HelmetModule', () => {
       }).compile();
 
       // Verify that the options token is available with the correct value
-      const providedOptions = moduleRef.get<HelmetOptions>(MODULE_OPTIONS_TOKEN);
+      const providedOptions =
+        moduleRef.get<HelmetOptions>(MODULE_OPTIONS_TOKEN);
       expect(providedOptions).toEqual(options);
 
       // Create middleware manually with the provided options to verify it works
@@ -180,7 +181,8 @@ describe('HelmetModule', () => {
       }).compile();
 
       // Verify that the options token is available with the correct value
-      const providedOptions = moduleRef.get<HelmetOptions>(MODULE_OPTIONS_TOKEN);
+      const providedOptions =
+        moduleRef.get<HelmetOptions>(MODULE_OPTIONS_TOKEN);
       expect(providedOptions).toEqual(options);
 
       // Create middleware manually with the provided options to verify it works

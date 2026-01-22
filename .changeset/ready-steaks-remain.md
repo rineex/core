@@ -1,5 +1,0 @@
----
-'@rineex/ddd': minor
----
-
-improvements

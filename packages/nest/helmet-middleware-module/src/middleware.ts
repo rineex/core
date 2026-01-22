@@ -10,7 +10,7 @@ import { MODULE_OPTIONS_TOKEN } from './module';
 @Injectable()
 export class HelmetMiddleware implements NestMiddleware {
   constructor(@Inject(MODULE_OPTIONS_TOKEN) private options: HelmetOptions) {
-    console.log(this.options)
+    console.log(this.options);
   }
   use(req: Request, res: Response, next: NextFunction): void {
     helmet(this.options)(req, res, next);
