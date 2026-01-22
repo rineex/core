@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
+import { deepFreeze } from '@/utils';
+
 import { EntityId } from '../types';
 
 type Primitive = boolean | number | string | null;
@@ -13,13 +15,18 @@ export type DomainEventPayload = Record<string, Serializable>;
 
 export type UnixTimestampMillis = number;
 
-type DomainEventProps<AggregateId extends EntityId, Payload> = {
+type DomainEventProps<Payload, AggregateId extends EntityId> = {
   id?: string;
   aggregateId: AggregateId;
   schemaVersion: number;
   occurredAt: UnixTimestampMillis;
   payload: Payload;
 };
+
+export type CreateEventProps<
+  EventProps,
+  ID extends EntityId,
+> = DomainEventProps<EventProps, ID>;
 
 // Abstract base class for domain events
 export abstract class DomainEvent<
@@ -34,12 +41,12 @@ export abstract class DomainEvent<
   public readonly payload: Readonly<T>;
   public readonly schemaVersion: number;
 
-  protected constructor(props: DomainEventProps<AggregateId, T>) {
+  protected constructor(props: DomainEventProps<T, AggregateId>) {
     this.id = props.id ?? randomUUID();
     this.aggregateId = props.aggregateId;
     this.schemaVersion = props.schemaVersion;
     this.occurredAt = props.occurredAt;
-    this.payload = Object.freeze(props.payload);
+    this.payload = deepFreeze(props.payload);
   }
 
   public toPrimitives(): Readonly<{

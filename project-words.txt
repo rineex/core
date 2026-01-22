@@ -23,6 +23,7 @@ softprops
 svitejs
 terbal
 topbar
+treeify
 tsup
 unplugin
 vitest

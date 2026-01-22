@@ -29,7 +29,7 @@ export abstract class ValueObject<T> {
    * Deep equality comparison of ValueObjects
    */
   public equals(other?: ValueObject<T>): boolean {
-    if (other === null || other === undefined) return false;
+    if (other == null) return false;
 
     // Check if they share the same constructor (Type check)
     if (Object.getPrototypeOf(this) !== Object.getPrototypeOf(other)) {

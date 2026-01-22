@@ -1,4 +1,22 @@
+import { deepFreeze } from '@/utils';
+
 import { EntityId } from '../types';
+
+// export type Immutable<T> = {
+//   readonly [K in keyof T]: Immutable<T[K]>;
+// };
+
+export type Immutable<T> = T extends (...args: any[]) => any
+  ? T
+  : T extends Date
+    ? T
+    : T extends Map<infer K, infer V>
+      ? ReadonlyMap<Immutable<K>, Immutable<V>>
+      : T extends Set<infer U>
+        ? ReadonlySet<Immutable<U>>
+        : T extends object
+          ? { readonly [K in keyof T]: Immutable<T[K]> }
+          : T;
 
 /**
  * Configuration for the base Entity constructor.
@@ -11,10 +29,6 @@ export interface EntityProps<ID extends EntityId, Props> {
   /** Optional creation timestamp; defaults to 'now' if not provided */
   readonly createdAt?: Date;
 
-  /**
-   * TODO: this props can be assigned like this.props = {...}, should be fixed
-   *
-   */
   props: Props;
 }
 
@@ -31,7 +45,16 @@ export abstract class Entity<ID extends EntityId, Props> {
   /** The immutable unique identifier for this entity */
   public readonly id: ID;
 
-  protected props: Props;
+  /**
+   * Read-only view of entity state.
+   * External code can never mutate internal state.
+   */
+  protected get props(): Immutable<Props> {
+    return this.#props as Immutable<Props>;
+  }
+
+  // protected props: Props;
+  #props: Props;
 
   /**
    * Protected constructor to be called by subclasses.
@@ -40,7 +63,9 @@ export abstract class Entity<ID extends EntityId, Props> {
   protected constructor(params: EntityProps<ID, Props>) {
     this.id = params.id;
     this.createdAt = params.createdAt ?? new Date();
-    this.props = params.props;
+    this.#props = deepFreeze(params.props);
+
+    this.validate();
   }
 
   /**
@@ -71,7 +96,9 @@ export abstract class Entity<ID extends EntityId, Props> {
   public abstract validate(): void;
 
   protected mutate(updater: (current: Props) => Props): void {
-    this.props = updater(this.props);
+    const next = updater(this.#props);
+
+    this.#props = deepFreeze(next);
     this.validate();
   }
 }

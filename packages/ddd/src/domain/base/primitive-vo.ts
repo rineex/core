@@ -1,6 +1,6 @@
-import { EntityId } from '../types';
+import { Primitive } from 'type-fest';
 
-type Primitive = boolean | number | string;
+import { EntityId } from '../types';
 
 /**
  * Base class for primitive-based Value Objects.
@@ -27,7 +27,11 @@ export abstract class PrimitiveValueObject<
    * The underlying primitive value.
    * Guaranteed to be valid after construction.
    */
-  protected readonly value: T;
+  get value(): T {
+    return this.#value;
+  }
+
+  readonly #value: Readonly<T>;
 
   /**
    * Constructs a new PrimitiveValueObject.
@@ -37,7 +41,7 @@ export abstract class PrimitiveValueObject<
    */
   protected constructor(value: T) {
     this.validate(value);
-    this.value = value;
+    this.#value = value;
   }
 
   /**
@@ -49,30 +53,25 @@ export abstract class PrimitiveValueObject<
    *
    * @param other - Another Value Object
    */
-  public equals(other?: PrimitiveValueObject<T> | null | undefined): boolean {
-    if (other === undefined || other === null) return false;
+  public equals(other: any): boolean {
+    if (other == null) return false;
 
     if (Object.getPrototypeOf(this) !== Object.getPrototypeOf(other)) {
       return false;
     }
 
-    return this.value === other.value;
+    if (!(other instanceof PrimitiveValueObject)) return false;
+
+    return this.#value === other.#value;
   }
 
   /**
    * Returns the primitive value.
    * Prefer explicit access over implicit coercion.
+   * @deprecated - instead use instance.value
    */
   public getValue(): T {
-    return this.value;
-  }
-
-  /**
-   * JSON serialization hook.
-   * Produces the raw primitive value.
-   */
-  public toJSON(): T {
-    return this.value;
+    return this.#value;
   }
 
   /**
@@ -80,7 +79,7 @@ export abstract class PrimitiveValueObject<
    * Useful for logging and debugging.
    */
   public toString(): string {
-    return String(this.value);
+    return String(this.#value);
   }
 
   /**

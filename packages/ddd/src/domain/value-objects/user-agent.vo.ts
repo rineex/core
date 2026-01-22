@@ -32,6 +32,7 @@ export class UserAgent extends ValueObject<string> {
   }
 
   protected validate(value: string): void {
-    if (value.length < 5) throw new InvalidValueObjectError('UA too short');
+    if (value.length < 5)
+      throw InvalidValueObjectError.create('UA too short', { value });
   }
 }

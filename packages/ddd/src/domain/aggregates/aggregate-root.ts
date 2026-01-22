@@ -3,37 +3,27 @@ import { DomainEvent } from '../events';
 import { EntityId } from '../types';
 
 /**
- * Interface for AggregateRoot to ensure type safety and extensibility.
- */
-export interface Props<P> extends EntityProps<EntityId, P> {
-  readonly domainEvents: readonly DomainEvent[];
-  /**
-   * Adds a domain event to the aggregate.
-   * @param event The domain event to add.
-   */
-  addEvent: (event: DomainEvent) => void;
-
-  /**
-   * Retrieves and clears all domain events recorded by this aggregate.
-   *
-   * Domain events represent facts that occurred as a result of state changes
-   * within the aggregate. This method transfers ownership of those events
-   * to the application layer for further processing (e.g. publishing).
-   *
-   * Calling this method has the side effect of clearing the aggregate's
-   * internal event collection to prevent duplicate handling.
-   *
-   * This method is intended to be invoked by application services
-   * after the aggregate has been successfully persisted.
-   *
-   * @returns A read-only list of domain events raised by this aggregate.
-   */
-  pullDomainEvents: () => readonly DomainEvent[];
-}
-
-/**
  * Base class for aggregate roots in DDD, encapsulating domain events and validation.
- * @template EntityProps The type of the entity's properties.
+ *
+ * Aggregate roots are entities that serve as entry points to aggregates. They:
+ * - Enforce invariants across the aggregate
+ * - Manage domain events
+ * - Define transaction boundaries
+ *
+ * @template ID - The type of the aggregate's identity (must extend EntityId)
+ * @template P - The type of the aggregate's properties
+ *
+ * @example
+ * ```typescript
+ * interface UserProps {
+ *   email: string;
+ *   isActive: boolean;
+ * }
+ *
+ * class User extends AggregateRoot<AggregateId, UserProps> {
+ *   // Implementation...
+ * }
+ * ```
  */
 export abstract class AggregateRoot<ID extends EntityId, P> extends Entity<
   ID,

@@ -10,7 +10,7 @@ import { PrimitiveValueObject } from '../base/primitive-vo';
  * This class extends PrimitiveValueObject to provide type-safe UUID handling
  * with validation using Zod schema. UUIDs are immutable and can be generated
  * randomly or created from string values.
- *
+ * @deprecated
  * @example
  * // Generate a new random UUID
  * const id = UUID.generate();
@@ -50,8 +50,11 @@ export class UUID extends PrimitiveValueObject<string> {
     const result = UUID.schema.safeParse(value);
 
     if (!result.success) {
-      throw new InvalidValueObjectError(
-        `Invalid UUID: ${result.error.message}`,
+      throw InvalidValueObjectError.create(
+        `Invalid ${this.constructor.name}: ${value}`,
+        {
+          value,
+        },
       );
     }
   }

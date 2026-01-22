@@ -19,11 +19,15 @@ describe('iPAddress Value Object', () => {
 
   it('should throw for invalid IP addresses', () => {
     expect(() => IPAddress.create('999.999.999.999')).toThrowError(
+      // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
       InvalidValueObjectError,
     );
     expect(() => IPAddress.create('not.an.ip.address')).toThrowError(
+      // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
       InvalidValueObjectError,
     );
+
+    // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
     expect(() => IPAddress.create('')).toThrowError(InvalidValueObjectError);
   });
 

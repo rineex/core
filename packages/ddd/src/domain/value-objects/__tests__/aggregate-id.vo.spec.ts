@@ -8,7 +8,7 @@ describe('aggregateId', () => {
     const id = AggregateId.generate();
 
     expect(id).toBeInstanceOf(AggregateId);
-    expect(id.getValue()).toMatch(
+    expect(id.value).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
     );
   });
@@ -18,23 +18,26 @@ describe('aggregateId', () => {
     const id = AggregateId.fromString(validUuid);
 
     expect(id).toBeInstanceOf(AggregateId);
-    expect(id.getValue()).toBe(validUuid);
+    expect(id.value).toBe(validUuid);
   });
 
   it('should throw InvalidValueObjectError for invalid UUID string', () => {
     const invalidUuid = 'not-a-uuid';
 
     expect(() => AggregateId.fromString(invalidUuid)).toThrow(
+      // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
       InvalidValueObjectError,
     );
   });
 
   it('should throw InvalidValueObjectError for empty string', () => {
+    // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
     expect(() => AggregateId.fromString('')).toThrow(InvalidValueObjectError);
   });
 
   it('should throw InvalidValueObjectError for malformed UUID', () => {
     expect(() => AggregateId.fromString('550e8400-e29b-41d4-a716')).toThrow(
+      // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
       InvalidValueObjectError,
     );
   });
@@ -43,6 +46,6 @@ describe('aggregateId', () => {
     const id1 = AggregateId.generate();
     const id2 = AggregateId.generate();
 
-    expect(id1.getValue()).not.toBe(id2.getValue());
+    expect(id1.value).not.toBe(id2.value);
   });
 });

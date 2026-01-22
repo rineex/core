@@ -1,42 +1,47 @@
 /**
- * Utility to deeply freeze objects to ensure immutability - handles nested objects and arrays.
+ * Deeply freezes an object graph to enforce runtime immutability.
+ * - Handles arrays
+ * - Handles circular references
+ * - Skips functions
+ * - Skips already frozen objects
  *
- * @param obj - The object to be deeply frozen.
- * @param seen - A WeakSet to track already processed objects (for circular references).
- * @returns A deeply frozen version of the input object.
+ * Intended for aggregate and value object state only.
  */
 export function deepFreeze<T>(
-  obj: T,
+  value: T,
   seen = new WeakSet<object>(),
 ): Readonly<T> {
-  // Handle null, undefined, or non-object types
-  if (obj == null || (typeof obj !== 'object' && !Array.isArray(obj))) {
-    return obj;
+  // Primitives, null, undefined
+  if (value === null || typeof value !== 'object') {
+    return value;
   }
 
-  // Skip if already frozen
-  if (Object.isFrozen(obj)) {
-    return obj as Readonly<T>;
+  // Functions should never be frozen
+  if (typeof value === 'function') {
+    return value;
+  }
+
+  // Avoid re-processing
+  if (Object.isFrozen(value)) {
+    return value as Readonly<T>;
   }
 
   // Handle circular references
-  if (seen.has(obj as object)) {
-    return obj as Readonly<T>;
+  if (seen.has(value)) {
+    return value as Readonly<T>;
   }
 
-  seen.add(obj as object);
+  seen.add(value);
 
-  // Handle arrays explicitly
-  if (Array.isArray(obj)) {
-    obj.forEach(item => deepFreeze(item, seen));
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      deepFreeze(item, seen);
+    }
   } else {
-    // Handle plain objects
-    for (const key in obj) {
-      if (Object.hasOwn(obj, key)) {
-        deepFreeze((obj as Record<string, unknown>)[key], seen);
-      }
+    for (const key of Object.keys(value)) {
+      deepFreeze((value as Record<string, unknown>)[key], seen);
     }
   }
 
-  return Object.freeze(obj) as Readonly<T>;
+  return Object.freeze(value) as Readonly<T>;
 }

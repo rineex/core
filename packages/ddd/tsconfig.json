@@ -19,8 +19,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "lib": ["es7", "ES2021.WeakRef", "ES2022"],
-    "types": ["node"]
+    "lib": ["es7", "ES2021.WeakRef", "ES2022"]
   },
   "include": ["src/**/*", "tsup.config.ts", "vitest.config.ts"],
   "exclude": ["node_modules"]

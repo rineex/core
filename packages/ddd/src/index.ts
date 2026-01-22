@@ -1,6 +1,5 @@
 export * from './application';
 export * from './domain/aggregates';
-// export * from './domain/base/domain.error';
 export * from './domain/base/primitive-vo';
 export * from './domain/base/vo';
 export * from './domain/entities';
@@ -9,6 +8,9 @@ export * from './domain/errors/invalid-vo.error';
 export * from './domain/events';
 export * from './domain/types';
 export * from './domain/value-objects/aggregate-id.vo';
+export * from './domain/value-objects/domain-id.vo';
+
+export * from './domain/value-objects/email.vo';
 export * from './domain/value-objects/id.vo';
 export * from './gateway/constants/http-code';
 export * from './shared';

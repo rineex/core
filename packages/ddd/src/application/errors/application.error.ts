@@ -7,9 +7,9 @@ interface ErrorParams {
   message: string;
   code: HttpStatusMessage;
   status?: HttpStatusCode;
-  metadata?: Record<string, unknown> | undefined;
+  metadata?: Record<string, unknown>;
   isOperational?: boolean;
-  cause?: Error | undefined;
+  cause?: Error;
 }
 
 /**

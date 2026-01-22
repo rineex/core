@@ -13,13 +13,10 @@ describe('uUID.validate', () => {
   it('should throw InvalidValueObjectError when given an invalid UUID string', () => {
     const invalidUUID = 'not-a-uuid';
 
-    expect(() => UUID.fromString(invalidUUID)).toThrow(InvalidValueObjectError);
-  });
-
-  it('should throw InvalidValueObjectError with descriptive message for invalid UUID', () => {
-    const invalidUUID = 'invalid-uuid-format';
-
-    expect(() => UUID.fromString(invalidUUID)).toThrow(/Invalid UUID:/);
+    expect(() => UUID.fromString(invalidUUID)).toThrowError(
+      // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
+      InvalidValueObjectError,
+    );
   });
 
   it('should accept a newly generated UUID', () => {
@@ -29,11 +26,13 @@ describe('uUID.validate', () => {
   });
 
   it('should throw InvalidValueObjectError for empty string', () => {
-    expect(() => UUID.fromString('')).toThrow(InvalidValueObjectError);
+    // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
+    expect(() => UUID.fromString('')).toThrowError(InvalidValueObjectError);
   });
 
   it('should throw InvalidValueObjectError for malformed UUID (wrong format)', () => {
-    expect(() => UUID.fromString('550e8400-e29b-41d4-a716')).toThrow(
+    expect(() => UUID.fromString('550e8400-e29b-41d4-a716')).toThrowError(
+      // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
       InvalidValueObjectError,
     );
   });

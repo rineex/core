@@ -1,10 +1,13 @@
-import { DomainError } from '../base/domain.error';
+import { DomainError, DomainErrorCode, DomainErrorType } from '@/shared';
 
 /**
  * Custom error class for entity validation failures.
  */
 export class EntityValidationError extends DomainError {
-  constructor(message: string, cause?: Error) {
-    super(message, 'ENTITY_VALIDATION_ERROR', { cause });
+  public code: DomainErrorCode = 'CORE.VALIDATION_FAILED';
+  public type: DomainErrorType = 'DOMAIN.INVALID_STATE';
+
+  public static create(msg: string) {
+    return new EntityValidationError(msg);
   }
 }
