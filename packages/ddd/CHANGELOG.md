@@ -1,5 +1,12 @@
 # @rineex/ddd
 
+## 2.2.0
+
+### Minor Changes
+
+- improvements
+  ([`5c8b81d`](https://github.com/rineex/core/commit/5c8b81d0d19f3bf1c8eae63c4a8594eb24b19bc1))
+
 ## 2.1.0
 
 ### Minor Changes

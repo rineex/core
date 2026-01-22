@@ -9,7 +9,7 @@ import { MODULE_OPTIONS_TOKEN } from '../src/module';
 // Mock helmet
 vi.mock('helmet', () => {
   return {
-    default: vi.fn((options) => {
+    default: vi.fn(options => {
       return vi.fn((req, res, next) => {
         next();
       });
