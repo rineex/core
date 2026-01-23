@@ -2,6 +2,7 @@ checkperiod
 cust
 dtos
 elif
+FAANG
 frameguard
 fullstacksjs
 golevelup
@@ -24,6 +25,7 @@ svitejs
 terbal
 topbar
 treeify
+Turborepo
 tsup
 unplugin
 vitest

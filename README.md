@@ -3,6 +3,9 @@
 > A monorepo containing essential, production-grade packages for building
 > scalable and maintainable TypeScript/Node.js applications.
 
+> ⚠️ **Note**: This package is currently under heavy development. APIs may
+> change without notice.
+
 [![monorepo](https://img.shields.io/badge/monorepo-turbo-blue.svg)](https://turbo.build/)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-blue.svg)](https://www.typescriptlang.org/)
