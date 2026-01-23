@@ -9,4 +9,8 @@ declare module '@rineex/auth-core' {
   }
 }
 
-declare module '@rineex/ddd' {}
+declare module '@rineex/ddd' {
+  interface DomainErrorNamespaces {
+    AUTH_OTP: ['AUTHENTICATION_FAILED'];
+  }
+}
