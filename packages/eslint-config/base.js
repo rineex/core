@@ -24,6 +24,7 @@ export default defineConfig(
     rules: {
       'n/no-unpublished-import': 'off',
       'prefer-exponentiation-operator': 'error',
+      "@typescript-eslint/class-literal-property-style": "off",
     },
   },
 );
