@@ -1,5 +1,17 @@
 # @rineex/authentication-method-otp
 
+## 0.1.3
+
+### Patch Changes
+
+- fix: update OTP error namespace from OTP to AUTH_OTP
+  ([#30](https://github.com/rineex/core/pull/30))
+  - Update DomainErrorNamespaces to use AUTH_OTP namespace instead of OTP
+  - Update error code from OTP.AUTHENTICATION_FAILED to
+    AUTH_OTP.AUTHENTICATION_FAILED
+  - Aligns with AUTH*CORE*\* naming convention used throughout the
+    authentication core package
+
 ## 0.1.2
 
 ### Patch Changes
