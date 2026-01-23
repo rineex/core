@@ -4,7 +4,9 @@ import { InvalidValueObjectError } from '../../errors/invalid-vo.error';
 import { ValueObject } from '../vo';
 
 // Test implementation of ValueObject
+
 class TestValueObject extends ValueObject<{ name: string; age: number }> {
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(props: { name: string; age: number }) {
     super(props);
   }
@@ -20,6 +22,7 @@ class TestValueObject extends ValueObject<{ name: string; age: number }> {
 }
 
 class SimpleValueObject extends ValueObject<string> {
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(value: string) {
     super(value);
   }
@@ -31,7 +34,7 @@ class SimpleValueObject extends ValueObject<string> {
   }
 }
 
-describe('ValueObject', () => {
+describe('valueObject', () => {
   describe('constructor', () => {
     it('should create a valid value object', () => {
       const vo = new TestValueObject({ name: 'John', age: 30 });
@@ -44,21 +47,24 @@ describe('ValueObject', () => {
 
       expect(() => {
         (vo.value as any).name = 'Jane';
-      }).toThrow();
+      }).toThrow('Cannot assign to read only property');
     });
 
     it('should throw error if validation fails', () => {
       expect(() => {
+        // eslint-disable-next-line no-new
         new TestValueObject({ name: '', age: 30 });
       }).toThrow('Name is required');
     });
 
     it('should throw error for invalid age', () => {
       expect(() => {
+        // eslint-disable-next-line no-new
         new TestValueObject({ name: 'John', age: -1 });
       }).toThrow('Age must be between 0 and 150');
 
       expect(() => {
+        // eslint-disable-next-line no-new
         new TestValueObject({ name: 'John', age: 200 });
       }).toThrow('Age must be between 0 and 150');
     });
@@ -156,7 +162,7 @@ describe('ValueObject', () => {
 
       expect(() => {
         (value as any).name = 'Jane';
-      }).toThrow();
+      }).toThrow('Cannot assign to read only property');
     });
   });
 });

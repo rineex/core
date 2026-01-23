@@ -1,21 +1,22 @@
 import { describe, expect, it } from 'vitest';
 
-import { ApplicationError } from '../application.error';
 import { HttpStatusMessage } from '@/gateway/constants/http-code';
+
+import { ApplicationError } from '../application.error';
 
 // Test implementation
 class TestApplicationError extends ApplicationError {
   constructor(message: string) {
     super({
-      message,
       code: HttpStatusMessage['400'],
-      status: 400,
       isOperational: true,
+      status: 400,
+      message,
     });
   }
 }
 
-describe('ApplicationError', () => {
+describe('applicationError', () => {
   describe('constructor', () => {
     it('should create an application error with all properties', () => {
       const error = new TestApplicationError('Test error message');
@@ -31,8 +32,8 @@ describe('ApplicationError', () => {
       class DefaultError extends ApplicationError {
         constructor(message: string) {
           super({
-            message,
             code: HttpStatusMessage['500'],
+            message,
           });
         }
       }
@@ -50,9 +51,9 @@ describe('ApplicationError', () => {
       class MetadataError extends ApplicationError {
         constructor(message: string) {
           super({
-            message,
             code: HttpStatusMessage['500'],
             metadata,
+            message,
           });
         }
       }
@@ -67,8 +68,8 @@ describe('ApplicationError', () => {
       class CauseError extends ApplicationError {
         constructor(message: string) {
           super({
-            message,
             code: HttpStatusMessage['500'],
+            message,
             cause,
           });
         }

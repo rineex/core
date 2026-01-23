@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { InvalidStateError } from '../invalid-state.error';
 import { DomainError } from '../../domain.error';
 
-describe('InvalidStateError', () => {
+describe('invalidStateError', () => {
   describe('constructor', () => {
     it('should create an invalid state error with default message', () => {
       const error = new InvalidStateError();
@@ -34,8 +34,8 @@ describe('InvalidStateError', () => {
 
       expect(obj).toEqual({
         code: 'DOMAIN.INVALID_STATE',
-        message: 'Test error',
         type: 'DOMAIN.INVALID_STATE',
+        message: 'Test error',
         metadata: {},
       });
     });

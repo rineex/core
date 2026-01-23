@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { InvalidValueObjectError } from '../../errors/invalid-vo.error';
 import { Email } from '../email.vo';
 
-describe('Email', () => {
+describe('email', () => {
   describe('constructor', () => {
     it('should create a valid email', () => {
       const email = new Email('test@example.com');
@@ -22,6 +21,7 @@ describe('Email', () => {
 
       validEmails.forEach(emailStr => {
         expect(() => {
+          // eslint-disable-next-line no-new
           new Email(emailStr);
         }).not.toThrow();
       });
@@ -39,7 +39,9 @@ describe('Email', () => {
 
       invalidEmails.forEach(emailStr => {
         expect(() => {
+          // eslint-disable-next-line no-new
           new Email(emailStr);
+          // eslint-disable-next-line vitest/require-to-throw-message
         }).toThrow();
       });
     });
@@ -56,6 +58,7 @@ describe('Email', () => {
     it('should throw error for invalid email', () => {
       expect(() => {
         Email.fromString('invalid-email');
+        // eslint-disable-next-line vitest/require-to-throw-message
       }).toThrow();
     });
   });

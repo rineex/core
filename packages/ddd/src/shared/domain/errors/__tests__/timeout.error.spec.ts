@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { TimeoutError } from '../timeout.error';
 import { DomainError } from '../../domain.error';
+import { TimeoutError } from '../timeout.error';
 
-describe('TimeoutError', () => {
+describe('timeoutError', () => {
   describe('constructor', () => {
     it('should create a timeout error', () => {
       const error = new TimeoutError('Operation timed out');
@@ -34,10 +34,10 @@ describe('TimeoutError', () => {
       const obj = error.toObject();
 
       expect(obj).toEqual({
-        code: 'SYSTEM.TIMEOUT',
-        message: 'Test timeout',
-        type: 'DOMAIN.INVALID_STATE',
         metadata: { url: 'test.com' },
+        type: 'DOMAIN.INVALID_STATE',
+        message: 'Test timeout',
+        code: 'SYSTEM.TIMEOUT',
       });
     });
   });

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import { EntityValidationError } from '../../errors/entity-validation.error';
-import { Entity, EntityProps } from '../entity';
 import { UUID } from '../../value-objects/id.vo';
+import { Entity, EntityProps } from '../entity';
 
 // Test implementations
 interface UserProps {
@@ -11,8 +11,30 @@ interface UserProps {
 }
 
 class User extends Entity<UUID, UserProps> {
+  get email(): string {
+    return this.props.email;
+  }
+
+  get name(): string {
+    return this.props.name;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(params: EntityProps<UUID, UserProps>) {
     super(params);
+  }
+
+  public toObject(): Record<string, unknown> {
+    return {
+      createdAt: this.createdAt.toISOString(),
+      email: this.props.email,
+      id: this.id.toString(),
+      name: this.props.name,
+    };
+  }
+
+  public updateName(name: string): void {
+    this.mutate(props => ({ ...props, name }));
   }
 
   public validate(): void {
@@ -23,36 +45,15 @@ class User extends Entity<UUID, UserProps> {
       throw EntityValidationError.create('Valid email is required');
     }
   }
-
-  public toObject(): Record<string, unknown> {
-    return {
-      id: this.id.toString(),
-      createdAt: this.createdAt.toISOString(),
-      name: this.props.name,
-      email: this.props.email,
-    };
-  }
-
-  get name(): string {
-    return this.props.name;
-  }
-
-  get email(): string {
-    return this.props.email;
-  }
-
-  public updateName(name: string): void {
-    this.mutate(props => ({ ...props, name }));
-  }
 }
 
-describe('Entity', () => {
+describe('entity', () => {
   describe('constructor', () => {
     it('should create a valid entity', () => {
       const id = UUID.generate();
       const user = new User({
+        props: { email: 'john@example.com', name: 'John Doe' },
         id,
-        props: { name: 'John Doe', email: 'john@example.com' },
       });
 
       expect(user.id).toBe(id);
@@ -64,8 +65,8 @@ describe('Entity', () => {
       const id = UUID.generate();
       const before = new Date();
       const user = new User({
+        props: { email: 'john@example.com', name: 'John Doe' },
         id,
-        props: { name: 'John Doe', email: 'john@example.com' },
       });
       const after = new Date();
 
@@ -77,9 +78,9 @@ describe('Entity', () => {
       const id = UUID.generate();
       const createdAt = new Date('2023-01-01');
       const user = new User({
-        id,
+        props: { email: 'john@example.com', name: 'John Doe' },
         createdAt,
-        props: { name: 'John Doe', email: 'john@example.com' },
+        id,
       });
 
       expect(user.createdAt).toEqual(createdAt);
@@ -88,29 +89,31 @@ describe('Entity', () => {
     it('should freeze props', () => {
       const id = UUID.generate();
       const user = new User({
+        props: { email: 'john@example.com', name: 'John Doe' },
         id,
-        props: { name: 'John Doe', email: 'john@example.com' },
       });
 
       expect(() => {
         (user as any).props.name = 'Jane';
-      }).toThrow();
+      }).toThrow('Cannot assign to read only property');
     });
 
     it('should throw error if validation fails', () => {
       const id = UUID.generate();
 
       expect(() => {
+        // eslint-disable-next-line no-new
         new User({
+          props: { email: 'john@example.com', name: '' },
           id,
-          props: { name: '', email: 'john@example.com' },
         });
       }).toThrow(EntityValidationError);
 
       expect(() => {
+        // eslint-disable-next-line no-new
         new User({
+          props: { email: 'invalid-email', name: 'John Doe' },
           id,
-          props: { name: 'John Doe', email: 'invalid-email' },
         });
       }).toThrow(EntityValidationError);
     });
@@ -120,12 +123,12 @@ describe('Entity', () => {
     it('should return true for entities with same ID', () => {
       const id = UUID.generate();
       const user1 = new User({
+        props: { email: 'john@example.com', name: 'John Doe' },
         id,
-        props: { name: 'John Doe', email: 'john@example.com' },
       });
       const user2 = new User({
+        props: { email: 'jane@example.com', name: 'Jane Doe' },
         id,
-        props: { name: 'Jane Doe', email: 'jane@example.com' },
       });
 
       expect(user1.equals(user2)).toBe(true);
@@ -133,12 +136,12 @@ describe('Entity', () => {
 
     it('should return false for entities with different IDs', () => {
       const user1 = new User({
+        props: { email: 'john@example.com', name: 'John Doe' },
         id: UUID.generate(),
-        props: { name: 'John Doe', email: 'john@example.com' },
       });
       const user2 = new User({
+        props: { email: 'john@example.com', name: 'John Doe' },
         id: UUID.generate(),
-        props: { name: 'John Doe', email: 'john@example.com' },
       });
 
       expect(user1.equals(user2)).toBe(false);
@@ -146,8 +149,8 @@ describe('Entity', () => {
 
     it('should return true for same instance', () => {
       const user = new User({
+        props: { email: 'john@example.com', name: 'John Doe' },
         id: UUID.generate(),
-        props: { name: 'John Doe', email: 'john@example.com' },
       });
 
       expect(user.equals(user)).toBe(true);
@@ -155,8 +158,8 @@ describe('Entity', () => {
 
     it('should return false for null or undefined', () => {
       const user = new User({
+        props: { email: 'john@example.com', name: 'John Doe' },
         id: UUID.generate(),
-        props: { name: 'John Doe', email: 'john@example.com' },
       });
 
       expect(user.equals(null)).toBe(false);
@@ -169,18 +172,18 @@ describe('Entity', () => {
       const id = UUID.generate();
       const createdAt = new Date('2023-01-01');
       const user = new User({
-        id,
+        props: { email: 'john@example.com', name: 'John Doe' },
         createdAt,
-        props: { name: 'John Doe', email: 'john@example.com' },
+        id,
       });
 
       const obj = user.toObject();
 
       expect(obj).toEqual({
-        id: id.toString(),
         createdAt: createdAt.toISOString(),
-        name: 'John Doe',
         email: 'john@example.com',
+        id: id.toString(),
+        name: 'John Doe',
       });
     });
   });
@@ -189,8 +192,8 @@ describe('Entity', () => {
     it('should update props and revalidate', () => {
       const id = UUID.generate();
       const user = new User({
+        props: { email: 'john@example.com', name: 'John Doe' },
         id,
-        props: { name: 'John Doe', email: 'john@example.com' },
       });
 
       user.updateName('Jane Doe');
@@ -202,22 +205,22 @@ describe('Entity', () => {
     it('should freeze updated props', () => {
       const id = UUID.generate();
       const user = new User({
+        props: { email: 'john@example.com', name: 'John Doe' },
         id,
-        props: { name: 'John Doe', email: 'john@example.com' },
       });
 
       user.updateName('Jane Doe');
 
       expect(() => {
         (user as any).props.name = 'Bob';
-      }).toThrow();
+      }).toThrow('Cannot assign to read only property');
     });
 
     it('should throw error if validation fails after mutation', () => {
       const id = UUID.generate();
       const user = new User({
+        props: { email: 'john@example.com', name: 'John Doe' },
         id,
-        props: { name: 'John Doe', email: 'john@example.com' },
       });
 
       // Test through updateName with invalid name
@@ -231,15 +234,15 @@ describe('Entity', () => {
     it('should return readonly props', () => {
       const id = UUID.generate();
       const user = new User({
+        props: { email: 'john@example.com', name: 'John Doe' },
         id,
-        props: { name: 'John Doe', email: 'john@example.com' },
       });
 
       const props = user['props'];
 
       expect(() => {
         (props as any).name = 'Jane';
-      }).toThrow();
+      }).toThrow('Cannot assign to read only property');
     });
   });
 });

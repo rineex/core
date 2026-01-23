@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { InternalError } from '../internal.error';
 import { DomainError } from '../../domain.error';
 
-describe('InternalError', () => {
+describe('internalError', () => {
   describe('constructor', () => {
     it('should create an internal error with default message', () => {
       const error = new InternalError();
@@ -21,7 +21,7 @@ describe('InternalError', () => {
     });
 
     it('should create an internal error with metadata', () => {
-      const metadata = { userId: 'user-1', timestamp: Date.now() };
+      const metadata = { timestamp: Date.now(), userId: 'user-1' };
       const error = new InternalError('Error occurred', metadata);
 
       expect(error.message).toBe('Error occurred');
@@ -41,10 +41,10 @@ describe('InternalError', () => {
       const obj = error.toObject();
 
       expect(obj).toEqual({
+        metadata: { userId: 'user-1' },
+        type: 'DOMAIN.INVALID_STATE',
         code: 'CORE.INTERNAL_ERROR',
         message: 'Test error',
-        type: 'DOMAIN.INVALID_STATE',
-        metadata: { userId: 'user-1' },
       });
     });
   });

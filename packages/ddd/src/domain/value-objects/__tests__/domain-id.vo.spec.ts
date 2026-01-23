@@ -1,12 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { InvalidValueObjectError } from '../../errors/invalid-vo.error';
 import { DomainID } from '../domain-id.vo';
 
 // Test implementation
 class TestDomainID extends DomainID {}
 
-describe('DomainID', () => {
+describe('domainID', () => {
   describe('constructor', () => {
     it('should create a valid DomainID', () => {
       const validUuid = '550e8400-e29b-41d4-a716-446655440000';
@@ -20,8 +19,9 @@ describe('DomainID', () => {
 
       invalidUuids.forEach(uuid => {
         expect(() => {
+          // eslint-disable-next-line no-new
           new TestDomainID(uuid);
-        }).toThrow();
+        }).toThrow('Invalid UUID');
       });
     });
   });
@@ -38,7 +38,7 @@ describe('DomainID', () => {
     it('should throw error for invalid UUID', () => {
       expect(() => {
         TestDomainID.fromString('invalid-uuid');
-      }).toThrow();
+      }).toThrow('Invalid UUID');
     });
   });
 

@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { InvalidValueObjectError } from '../invalid-vo.error';
 import { DomainError } from '../../../shared/domain/domain.error';
+import { InvalidValueObjectError } from '../invalid-vo.error';
 
-describe('InvalidValueObjectError', () => {
+describe('invalidValueObjectError', () => {
   describe('constructor', () => {
     it('should create an invalid value object error', () => {
       const error = InvalidValueObjectError.create('Invalid value', {
@@ -51,9 +51,9 @@ describe('InvalidValueObjectError', () => {
 
       expect(obj).toEqual({
         code: 'DOMAIN.INVALID_VALUE',
-        message: 'Invalid value',
         type: 'DOMAIN.INVALID_VALUE',
         metadata: { value: 'test' },
+        message: 'Invalid value',
       });
     });
   });

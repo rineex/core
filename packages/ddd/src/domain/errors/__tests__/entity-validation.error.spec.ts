@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { EntityValidationError } from '../entity-validation.error';
 import { DomainError } from '../../../shared/domain/domain.error';
 
-describe('EntityValidationError', () => {
+describe('entityValidationError', () => {
   describe('constructor', () => {
     it('should create an entity validation error', () => {
       const error = new EntityValidationError('Validation failed');

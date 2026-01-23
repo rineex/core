@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { InvalidValueError } from '../invalid-value.error';
 import { DomainError } from '../../domain.error';
 
-describe('InvalidValueError', () => {
+describe('invalidValueError', () => {
   describe('constructor', () => {
     it('should create an invalid value error with default message', () => {
       const error = new InvalidValueError();
@@ -21,7 +21,7 @@ describe('InvalidValueError', () => {
     });
 
     it('should create an invalid value error with metadata', () => {
-      const metadata = { field: 'email', value: 'invalid' };
+      const metadata = { value: 'invalid', field: 'email' };
       const error = new InvalidValueError('Invalid email', metadata);
 
       expect(error.message).toBe('Invalid email');
@@ -42,9 +42,9 @@ describe('InvalidValueError', () => {
 
       expect(obj).toEqual({
         code: 'DOMAIN.INVALID_VALUE',
-        message: 'Test error',
         type: 'DOMAIN.INVALID_VALUE',
         metadata: { field: 'email' },
+        message: 'Test error',
       });
     });
   });

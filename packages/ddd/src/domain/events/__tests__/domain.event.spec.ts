@@ -9,6 +9,7 @@ interface TestPayload extends DomainEventPayload {
   action: string;
 }
 
+/* eslint-disable @typescript-eslint/class-literal-property-style */
 class TestDomainEvent extends DomainEvent<UUID, TestPayload> {
   public readonly eventName = 'TestEvent';
 
@@ -24,7 +25,7 @@ class TestDomainEvent extends DomainEvent<UUID, TestPayload> {
   }
 }
 
-describe('DomainEvent', () => {
+describe('domainEvent', () => {
   describe('constructor', () => {
     it('should create a domain event with all properties', () => {
       const aggregateId = UUID.generate();
@@ -32,8 +33,8 @@ describe('DomainEvent', () => {
       const payload: TestPayload = { userId: 'user-1', action: 'login' };
 
       const event = TestDomainEvent.create({
-        aggregateId,
         schemaVersion: 1,
+        aggregateId,
         occurredAt,
         payload,
       });
@@ -49,16 +50,16 @@ describe('DomainEvent', () => {
     it('should generate UUID if id not provided', () => {
       const aggregateId = UUID.generate();
       const event1 = TestDomainEvent.create({
-        aggregateId,
-        schemaVersion: 1,
-        occurredAt: Date.now(),
         payload: { userId: 'user-1', action: 'login' },
+        occurredAt: Date.now(),
+        schemaVersion: 1,
+        aggregateId,
       });
       const event2 = TestDomainEvent.create({
-        aggregateId,
-        schemaVersion: 1,
-        occurredAt: Date.now(),
         payload: { userId: 'user-1', action: 'login' },
+        occurredAt: Date.now(),
+        schemaVersion: 1,
+        aggregateId,
       });
 
       expect(event1.id).toBeDefined();
@@ -71,11 +72,11 @@ describe('DomainEvent', () => {
       const customId = 'custom-event-id';
 
       const event = TestDomainEvent.create({
+        payload: { userId: 'user-1', action: 'login' },
+        occurredAt: Date.now(),
+        schemaVersion: 1,
         id: customId,
         aggregateId,
-        schemaVersion: 1,
-        occurredAt: Date.now(),
-        payload: { userId: 'user-1', action: 'login' },
       });
 
       expect(event.id).toBe(customId);
@@ -86,15 +87,15 @@ describe('DomainEvent', () => {
       const payload: TestPayload = { userId: 'user-1', action: 'login' };
 
       const event = TestDomainEvent.create({
-        aggregateId,
-        schemaVersion: 1,
         occurredAt: Date.now(),
+        schemaVersion: 1,
+        aggregateId,
         payload,
       });
 
       expect(() => {
         (event.payload as any).userId = 'user-2';
-      }).toThrow();
+      }).toThrow('Cannot assign to read only property');
     });
   });
 
@@ -105,8 +106,8 @@ describe('DomainEvent', () => {
       const payload: TestPayload = { userId: 'user-1', action: 'login' };
 
       const event = TestDomainEvent.create({
-        aggregateId,
         schemaVersion: 1,
+        aggregateId,
         occurredAt,
         payload,
       });
@@ -114,10 +115,10 @@ describe('DomainEvent', () => {
       const primitives = event.toPrimitives();
 
       expect(primitives).toEqual({
-        id: event.id,
-        eventName: 'TestEvent',
         aggregateId: aggregateId.toString(),
+        eventName: 'TestEvent',
         schemaVersion: 1,
+        id: event.id,
         occurredAt,
         payload,
       });
@@ -126,10 +127,10 @@ describe('DomainEvent', () => {
     it('should return primitives with correct structure', () => {
       const aggregateId = UUID.generate();
       const event = TestDomainEvent.create({
-        aggregateId,
-        schemaVersion: 1,
-        occurredAt: Date.now(),
         payload: { userId: 'user-1', action: 'login' },
+        occurredAt: Date.now(),
+        schemaVersion: 1,
+        aggregateId,
       });
 
       const primitives = event.toPrimitives();
@@ -147,10 +148,10 @@ describe('DomainEvent', () => {
     it('should have correct event name', () => {
       const aggregateId = UUID.generate();
       const event = TestDomainEvent.create({
-        aggregateId,
-        schemaVersion: 1,
-        occurredAt: Date.now(),
         payload: { userId: 'user-1', action: 'login' },
+        occurredAt: Date.now(),
+        schemaVersion: 1,
+        aggregateId,
       });
 
       expect(event.eventName).toBe('TestEvent');
@@ -163,9 +164,9 @@ describe('DomainEvent', () => {
       const payload: TestPayload = { userId: 'user-1', action: 'login' };
 
       const event = TestDomainEvent.create({
-        aggregateId,
-        schemaVersion: 1,
         occurredAt: Date.now(),
+        schemaVersion: 1,
+        aggregateId,
         payload,
       });
 

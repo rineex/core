@@ -4,7 +4,9 @@ import { InvalidValueObjectError } from '../../errors/invalid-vo.error';
 import { PrimitiveValueObject } from '../primitive-vo';
 
 // Test implementations
+
 class StringVO extends PrimitiveValueObject<string> {
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(value: string) {
     super(value);
   }
@@ -17,6 +19,7 @@ class StringVO extends PrimitiveValueObject<string> {
 }
 
 class NumberVO extends PrimitiveValueObject<number> {
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(value: number) {
     super(value);
   }
@@ -29,16 +32,17 @@ class NumberVO extends PrimitiveValueObject<number> {
 }
 
 class BooleanVO extends PrimitiveValueObject<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(value: boolean) {
     super(value);
   }
 
-  protected validate(value: boolean): void {
+  protected validate(_value: boolean): void {
     // Always valid
   }
 }
 
-describe('PrimitiveValueObject', () => {
+describe('primitiveValueObject', () => {
   describe('constructor', () => {
     it('should create a valid string value object', () => {
       const vo = new StringVO('test');
@@ -60,10 +64,12 @@ describe('PrimitiveValueObject', () => {
 
     it('should throw error if validation fails', () => {
       expect(() => {
+        // eslint-disable-next-line no-new
         new StringVO('');
       }).toThrow('String cannot be empty');
 
       expect(() => {
+        // eslint-disable-next-line no-new
         new NumberVO(-1);
       }).toThrow('Number must be non-negative');
     });

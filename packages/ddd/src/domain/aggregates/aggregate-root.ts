@@ -1,4 +1,4 @@
-import { Entity, EntityProps } from '../entities/entity';
+import { Entity } from '../entities/entity';
 import { DomainEvent } from '../events';
 import { EntityId } from '../types';
 
