@@ -125,6 +125,218 @@ For in-depth guidance, examples, and best practices, see the
 
 ---
 
+### [`@rineex/ioredis`](./packages/ioredis) – Redis Adapter for NestJS
+
+[![npm version](https://img.shields.io/npm/v/@rineex/ioredis)](https://www.npmjs.com/package/@rineex/ioredis)
+
+NestJS integration for [`ioredis`](https://www.npmjs.com/package/ioredis),
+providing Redis client management with dependency injection, lifecycle
+management, and health check integration.
+
+#### Key Features
+
+- **Multiple Connections** - Support for single instance or cluster
+  configurations with named connections
+- **Lifecycle Management** - Automatic connection health checks on bootstrap and
+  graceful shutdown
+- **Health Check Integration** - Built-in Terminus health indicator for
+  monitoring
+- **Dependency Injection** - Seamless NestJS DI integration with
+  `@InjectRedis()` decorator
+
+#### Quick Start
+
+```bash
+npm install @rineex/ioredis
+```
+
+```typescript
+import { Module, Injectable } from '@nestjs/common';
+import { InjectRedis, RedisModule } from '@rineex/ioredis';
+import type Redis from 'ioredis';
+
+@Module({
+  imports: [
+    RedisModule.register({
+      type: 'single',
+      url: process.env.REDIS_URL ?? 'redis://localhost:6379',
+    }),
+  ],
+})
+export class AppModule {}
+
+@Injectable()
+export class CacheService {
+  constructor(@InjectRedis() private readonly redis: Redis) {}
+
+  async setValue(key: string, value: string) {
+    await this.redis.set(key, value);
+  }
+}
+```
+
+For complete documentation, see the
+[@rineex/ioredis README](./packages/ioredis/README.md).
+
+---
+
+### [`@rineex/pg-slonik`](./packages/pg-slonik) – PostgreSQL Adapter using Slonik
+
+[![npm version](https://img.shields.io/npm/v/@rineex/pg-slonik)](https://www.npmjs.com/package/@rineex/pg-slonik)
+
+NestJS module wrapper for [Slonik](https://github.com/gajus/slonik), providing
+type-safe PostgreSQL database access with dependency injection, automatic retry
+logic, and graceful shutdown handling.
+
+#### Key Features
+
+- **Type-Safe Database Access** - Full TypeScript support with Slonik's type
+  system
+- **Multiple Connections** - Support for multiple named database connections
+- **Automatic Retry Logic** - Built-in connection retry with configurable
+  attempts and delays
+- **SQL Safety** - Built-in SQL injection protection via Slonik's tagged
+  template literals
+- **Transaction Support** - First-class transaction handling
+
+#### Quick Start
+
+```bash
+npm install @rineex/pg-slonik
+```
+
+```typescript
+import { Module, Injectable } from '@nestjs/common';
+import { InjectPool, SlonikModule } from '@rineex/pg-slonik';
+import type { DatabasePool } from 'slonik';
+
+@Module({
+  imports: [
+    SlonikModule.register({
+      connections: [
+        {
+          name: 'DEFAULT',
+          dsn: process.env.DATABASE_URL!,
+        },
+      ],
+    }),
+  ],
+})
+export class AppModule {}
+
+@Injectable()
+export class UserService {
+  constructor(@InjectPool() private readonly pool: DatabasePool) {}
+
+  async findUser(id: string) {
+    const result = await this.pool.query(
+      this.pool.sql`SELECT * FROM users WHERE id = ${id}`,
+    );
+    return result.rows[0];
+  }
+}
+```
+
+For complete documentation, see the
+[@rineex/pg-slonik README](./packages/pg-slonik/README.md).
+
+---
+
+### [`@rineex/auth-core`](./packages/authentication/core) – Authentication Core
+
+[![npm version](https://img.shields.io/npm/v/@rineex/auth-core)](https://www.npmjs.com/package/@rineex/auth-core)
+
+Core authentication package providing foundational abstractions for building
+authentication systems. Designed following DDD principles with support for
+multiple authentication methods.
+
+#### Key Features
+
+- **Domain-Driven Design** - Built on `@rineex/ddd` for maintainable
+  authentication logic
+- **Extensible Architecture** - Support for OTP, passwordless, and social login
+  methods
+- **Type-Safe** - Full TypeScript support with strict typing
+- **Framework Agnostic** - Core domain logic independent of framework specifics
+
+For complete documentation, see the
+[@rineex/auth-core README](./packages/authentication/core/README.md).
+
+---
+
+### [`@rineex/libs`](./packages/libs) – Utility Libraries
+
+[![npm version](https://img.shields.io/npm/v/@rineex/libs)](https://www.npmjs.com/package/@rineex/libs)
+
+Shared utility libraries and helper functions for Rineex core modules.
+
+---
+
+### NestJS Middleware Modules
+
+Production-ready NestJS middleware modules for common web application needs:
+
+#### [`@rineex/helmet-mw-module`](./packages/nest/helmet-middleware-module)
+
+[![npm version](https://img.shields.io/npm/v/@rineex/helmet-mw-module)](https://www.npmjs.com/package/@rineex/helmet-mw-module)
+
+Helmet middleware module for securing HTTP headers in NestJS applications.
+
+#### [`@rineex/cors-mw-module`](./packages/nest/cors-middleware-module)
+
+[![npm version](https://img.shields.io/npm/v/@rineex/cors-mw-module)](https://www.npmjs.com/package/@rineex/cors-mw-module)
+
+CORS middleware module for handling cross-origin resource sharing in NestJS
+applications.
+
+#### [`@rineex/cookie-parser-mw-module`](./packages/nest/cookie-middleware-module)
+
+[![npm version](https://img.shields.io/npm/v/@rineex/cookie-parser-mw-module)](https://www.npmjs.com/package/@rineex/cookie-parser-mw-module)
+
+Cookie parser middleware module for parsing cookies in NestJS applications.
+
+#### [`@rineex/response-time-mw-module`](./packages/nest/response-time-middleware-module)
+
+[![npm version](https://img.shields.io/npm/v/@rineex/response-time-mw-module)](https://www.npmjs.com/package/@rineex/response-time-mw-module)
+
+Response time middleware module for measuring and reporting response times in
+NestJS applications.
+
+#### [`@rineex/favicon-ignore-mw-module`](./packages/nest/no-favicon-middleware-module)
+
+[![npm version](https://img.shields.io/npm/v/@rineex/favicon-ignore-mw-module)](https://www.npmjs.com/package/@rineex/favicon-ignore-mw-module)
+
+Favicon ignore middleware module to prevent favicon requests from cluttering
+logs in NestJS applications.
+
+---
+
+### Shared Configuration Packages
+
+#### [`@rineex/eslint-config`](./packages/eslint-config)
+
+Shared ESLint configuration for Rineex packages. Provides consistent linting
+rules across the monorepo.
+
+**Exports:**
+
+- `@rineex/eslint-config/base` - Base ESLint configuration
+- `@rineex/eslint-config/next-js` - Next.js specific configuration
+- `@rineex/eslint-config/react-internal` - React internal configuration
+- `@rineex/eslint-config/db` - Database/SQL linting configuration
+
+#### [`@rineex/typescript-config`](./packages/typescript-config)
+
+Shared TypeScript configuration for Rineex packages. Provides consistent
+TypeScript compiler settings.
+
+**Exports:**
+
+- `@rineex/typescript-config/base` - Base TypeScript configuration
+- `@rineex/typescript-config/react-library` - React library configuration
+
+---
+
 ## Project Structure
 
 ```
@@ -138,6 +350,21 @@ For in-depth guidance, examples, and best practices, see the
 │   │   │   └── utils/          # Helper utilities
 │   │   ├── README.md           # Complete documentation
 │   │   └── package.json
+│   ├── ioredis/                # Redis adapter for NestJS
+│   ├── pg-slonik/              # PostgreSQL adapter using Slonik
+│   ├── libs/                   # Utility libraries
+│   ├── authentication/         # Authentication packages
+│   │   ├── core/              # Core authentication abstractions
+│   │   ├── methods/           # Authentication methods (OTP, passwordless)
+│   │   ├── adapters/          # Framework adapters
+│   │   ├── orchestration/     # Authentication orchestration
+│   │   └── policies/         # Authentication policies
+│   ├── nest/                  # NestJS middleware modules
+│   │   ├── helmet-middleware-module/
+│   │   ├── cors-middleware-module/
+│   │   ├── cookie-middleware-module/
+│   │   ├── response-time-middleware-module/
+│   │   └── no-favicon-middleware-module/
 │   ├── eslint-config/          # Shared ESLint configuration
 │   └── typescript-config/      # Shared TypeScript configuration
 ├── scripts/                    # Build and utility scripts
@@ -218,8 +445,7 @@ This monorepo follows these key principles:
 
 ## Contributing
 
-We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md)
-for details on our code of conduct and the process for submitting pull requests.
+We welcome contributions! Please follow these guidelines when contributing:
 
 ### Quick Start for Contributors
 
@@ -239,6 +465,29 @@ pnpm lint
 # Push and open a PR
 git push origin feature/your-feature
 ```
+
+### Development Guidelines
+
+- **Code Style**: Follow the ESLint configuration provided by
+  `@rineex/eslint-config`
+- **Type Safety**: Ensure all code passes TypeScript type checking
+  (`pnpm check-types`)
+- **Testing**: Write tests for new functionality and ensure all tests pass
+- **Documentation**: Update relevant README files and add JSDoc comments for
+  public APIs
+- **Changesets**: Create a changeset for any package changes using
+  `pnpm changeset`
+
+### Package Generator
+
+Use the package generator to scaffold new packages following the established
+structure:
+
+```bash
+pnpm g:pkg <package-name> [description]
+```
+
+For more details, see [PACKAGE_GENERATOR.md](./PACKAGE_GENERATOR.md).
 
 ## License
 
