@@ -7,6 +7,10 @@ export class EntityValidationError extends DomainError {
   public code: DomainErrorCode = 'CORE.VALIDATION_FAILED';
   public type: DomainErrorType = 'DOMAIN.INVALID_STATE';
 
+  constructor(message: string) {
+    super(message, {});
+  }
+
   public static create(msg: string) {
     return new EntityValidationError(msg);
   }
