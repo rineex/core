@@ -11,7 +11,7 @@
 
 ### Minor Changes
 
-- fuc
+- enhance TypeScript configuration and update package.json
   ([`5f08435`](https://github.com/rineex/core/commit/5f08435b20b7f9bc0448b345df64de1f436413f0))
 
 ## 2.0.0
@@ -51,7 +51,7 @@
 
 ### Minor Changes
 
-- f
+- add changelog entry for minor updates
   ([`0fab4a2`](https://github.com/rineex/core/commit/0fab4a28f4b5b8af947f587448804115a2fd509c))
 
 ## 1.5.2

@@ -4,7 +4,7 @@
 
 ### Minor Changes
 
-- fuc
+- enhance TypeScript configuration and update package.json
   ([`5f08435`](https://github.com/rineex/core/commit/5f08435b20b7f9bc0448b345df64de1f436413f0))
 
 ## 1.1.0

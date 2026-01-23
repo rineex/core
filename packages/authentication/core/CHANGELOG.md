@@ -12,7 +12,7 @@
 
 ### Patch Changes
 
-- fuck
+- update package.json files to include files field for distribution
   ([`ec6ad7a`](https://github.com/rineex/core/commit/ec6ad7a70910ebb31d067eaaf3584cc2926acfc5))
 
 - Updated dependencies []:
@@ -22,7 +22,7 @@
 
 ### Minor Changes
 
-- fuc
+- enhance TypeScript configuration and update package.json
   ([`5f08435`](https://github.com/rineex/core/commit/5f08435b20b7f9bc0448b345df64de1f436413f0))
 
 ### Patch Changes
