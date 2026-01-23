@@ -17,7 +17,7 @@ describe('deepFreeze', () => {
     expect(Object.isFrozen(frozen)).toBe(true);
     expect(() => {
       (frozen as any).a = 2;
-    }).toThrowError();
+    }).toThrowError('Cannot assign to read only property');
     expect(frozen).toEqual({ b: 'test', a: 1 });
   });
 
@@ -30,7 +30,7 @@ describe('deepFreeze', () => {
     expect(Object.isFrozen(frozen.a.b)).toBe(true);
     expect(() => {
       (frozen.a.b as any).c = 2;
-    }).toThrow();
+    }).toThrow('Cannot assign to read only property');
     expect(frozen.a.b.c).toBe(1);
   });
 
@@ -43,7 +43,7 @@ describe('deepFreeze', () => {
     expect(Object.isFrozen(frozen[1])).toBe(true);
     expect(() => {
       (frozen[0] as any).a = 3;
-    }).toThrow();
+    }).toThrow('Cannot assign to read only property');
     expect(frozen[0].a).toBe(1);
   });
 
@@ -56,7 +56,7 @@ describe('deepFreeze', () => {
     expect(frozen.self).toBe(frozen);
     expect(() => {
       (frozen as any).a = 2;
-    }).toThrow();
+    }).toThrow('Cannot assign to read only property');
   });
 
   it('should not re-freeze already frozen objects', () => {

@@ -459,7 +459,10 @@ describe('result', () => {
           return emailResult;
         }
 
-        const validatedEmail = emailResult.getValue()!;
+        const validatedEmail = emailResult.getValue();
+        if (!validatedEmail) {
+          throw new Error('Email validation failed');
+        }
         return Result.ok({ email: validatedEmail });
       }
 
