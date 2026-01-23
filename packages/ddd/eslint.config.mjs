@@ -1,6 +1,7 @@
 import config from '@rineex/eslint-config/base';
 import db from '@rineex/eslint-config/db';
 
+/* import type { Linter } from 'eslint'; */
 export default [
   ...config,
   ...db,
@@ -14,10 +15,23 @@ export default [
   },
   {
     rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          message: 'Use static factory methods instead of new.',
+          selector: 'NewExpression[callee.name=/^[A-Z].*/]',
+        },
+      ],
+    },
+    files: ['*.entity.ts', '*.vo.ts'],
+  },
+  {
+    rules: {
       'perfectionist/sort-imports': [
         'error',
         {
           groups: [
+            'rineex',
             'builtin', // Node.js built-in modules (e.g., 'fs', 'path')
             'external', // External dependencies (e.g., 'react', 'lodash')
             'nestjs',
@@ -30,6 +44,7 @@ export default [
           customGroups: {
             value: {
               nestjs: '@nestjs/*',
+              rineex: '@rineex/*',
               common: '@/*', // Matches imports like '@/common/utils', '@/common/helpers', etc.
             },
           },

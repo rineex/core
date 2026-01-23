@@ -16,7 +16,7 @@ export class IPAddress extends ValueObject<Props> {
     const result = IPAddress.schema.safeParse(value);
 
     if (!result.success) {
-      throw new InvalidValueObjectError(`Invalid IP Address: ${value}`);
+      throw InvalidValueObjectError.create(`Invalid IP Address: ${value}`);
     }
   }
 }

@@ -16,7 +16,9 @@ describe('url ValueObject', () => {
   });
 
   it('should throw an error for an invalid URL', () => {
+    // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
     expect(() => Url.create(invalidUrl)).toThrow(InvalidValueObjectError);
+    expect(() => Url.create(invalidUrl)).toThrow(`Invalid URL: ${invalidUrl}`);
   });
 
   it('should be equal if URLs are the same', () => {

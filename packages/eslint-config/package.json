@@ -1,6 +1,6 @@
 {
   "name": "@rineex/eslint-config",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "private": true,
   "exports": {
@@ -10,11 +10,26 @@
     "./db": "./db.js"
   },
   "types": "./eslint.config.d.ts",
+  "keywords": [
+    "rineex",
+    "eslint",
+    "eslint-config",
+    "linting",
+    "typescript"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rineex/core.git",
+    "directory": "packages/eslint-config"
+  },
+  "homepage": "https://github.com/rineex/core/tree/main/packages/eslint-config",
   "devDependencies": {
-    "@fullstacksjs/eslint-config": "13.12.0",
+    "@fullstacksjs/eslint-config": "13.8.2",
     "eslint-plugin-react-hooks": "7.0.1",
     "eslint-plugin-sql": "3.2.2",
     "eslint-plugin-turbo": "2.6.3",
     "typescript": "5.9.3"
-  }
+  },
+  "packageManager": "pnpm@10.22.0"
 }

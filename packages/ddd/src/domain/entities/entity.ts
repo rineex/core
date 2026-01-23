@@ -1,0 +1,104 @@
+import { deepFreeze } from '@/utils';
+
+import { EntityId } from '../types';
+
+// export type Immutable<T> = {
+//   readonly [K in keyof T]: Immutable<T[K]>;
+// };
+
+export type Immutable<T> = T extends (...args: any[]) => any
+  ? T
+  : T extends Date
+    ? T
+    : T extends Map<infer K, infer V>
+      ? ReadonlyMap<Immutable<K>, Immutable<V>>
+      : T extends Set<infer U>
+        ? ReadonlySet<Immutable<U>>
+        : T extends object
+          ? { readonly [K in keyof T]: Immutable<T[K]> }
+          : T;
+
+/**
+ * Configuration for the base Entity constructor.
+ * Forces a single-object argument pattern to avoid positional argument errors.
+ * @template ID - A type satisfying the EntityId interface.
+ */
+export interface EntityProps<ID extends EntityId, Props> {
+  /** The unique identity of the entity */
+  readonly id: ID;
+  /** Optional creation timestamp; defaults to 'now' if not provided */
+  readonly createdAt?: Date;
+
+  props: Props;
+}
+
+/**
+ * Abstract Base Entity for Domain-Driven Design (DDD).
+ * This class provides the standard contract for entity equality and identity.
+ * It intentionally avoids "magic" property bags to ensure V8 engine optimization
+ * and better IDE intellisense.
+ * @template ID - The specific Identity Value Object type.
+ */
+export abstract class Entity<ID extends EntityId, Props> {
+  /** The timestamp when this entity was first instantiated/created */
+  public readonly createdAt: Date;
+  /** The immutable unique identifier for this entity */
+  public readonly id: ID;
+
+  /**
+   * Read-only view of entity state.
+   * External code can never mutate internal state.
+   */
+  protected get props(): Immutable<Props> {
+    return this.#props as Immutable<Props>;
+  }
+
+  // protected props: Props;
+  #props: Props;
+
+  /**
+   * Protected constructor to be called by subclasses.
+   * @param params - Initial identity and metadata.
+   */
+  protected constructor(params: EntityProps<ID, Props>) {
+    this.id = params.id;
+    this.createdAt = params.createdAt ?? new Date();
+    this.#props = deepFreeze(params.props);
+
+    this.validate();
+  }
+
+  /**
+   * Compares entities by identity.
+   * In DDD, two entities are considered equal if their IDs match,
+   * regardless of their other properties.
+   * @param other - The entity to compare against.
+   * @returns True if IDs are equal.
+   */
+  public equals(other?: Entity<ID, Props>): boolean {
+    if (other == null) return false;
+    if (this === other) return true;
+    return this.id.equals(other.id);
+  }
+
+  /**
+   * Converts the Entity into a plain Javascript object.
+   * Subclasses must implement this to explicitly control serialization,
+   * @returns A plain object representation of the entity.
+   */
+  public abstract toObject(): Record<string, unknown>;
+
+  /**
+   * Validates the current state of the entity against domain invariants.
+   * This method should be called after construction and any mutation.
+   * @throws {Error} Should throw a specific DomainError if validation fails.
+   */
+  public abstract validate(): void;
+
+  protected mutate(updater: (current: Props) => Props): void {
+    const next = updater(this.#props);
+
+    this.#props = deepFreeze(next);
+    this.validate();
+  }
+}

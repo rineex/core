@@ -1,0 +1,55 @@
+{
+  "name": "@rineex/ioredis",
+  "version": "1.2.0",
+  "description": "Redis adapter for Rineex core modules",
+  "author": "Rineex Team",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "test": "vitest run",
+    "lint": "eslint 'src/**/*.ts'",
+    "check-types": "tsc --noEmit",
+    "build": "tsup"
+  },
+  "files": [
+    "dist/**"
+  ],
+  "sideEffects": false,
+  "devDependencies": {
+    "@changesets/cli": "2.29.8",
+    "@nestjs/core": "11.1.11",
+    "@nestjs/testing": "11.1.11",
+    "@rineex/eslint-config": "workspace:*",
+    "@rineex/typescript-config": "workspace:*",
+    "@types/node": "24.10.4",
+    "@vitest/ui": "4.0.16",
+    "reflect-metadata": "0.2.2",
+    "tslib": "2.8.1",
+    "tsup": "8.5.1",
+    "typescript": "5.9.3",
+    "vite-tsconfig-paths": "6.0.2",
+    "vitest": "4.0.16"
+  },
+  "keywords": [
+    "rineex",
+    "ioredis"
+  ],
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "provenance": true,
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rineex/core.git",
+    "directory": "packages/ioredis"
+  },
+  "homepage": "https://github.com/rineex/core/tree/main/packages/ioredis",
+  "dependencies": {
+    "@nestjs/common": "11.1.11",
+    "@nestjs/terminus": "11.0.0",
+    "ioredis": "5.9.0"
+  }
+}

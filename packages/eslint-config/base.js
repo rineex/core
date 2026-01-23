@@ -23,6 +23,7 @@ export default defineConfig(
     files: ['**/*.{js,mjs,cjs,ts,tsx}'],
     rules: {
       'n/no-unpublished-import': 'off',
+      'prefer-exponentiation-operator': 'error',
     },
   },
 );

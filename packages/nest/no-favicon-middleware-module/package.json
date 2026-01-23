@@ -1,0 +1,60 @@
+{
+  "name": "@rineex/favicon-ignore-mw-module",
+  "version": "1.2.3",
+  "description": "Nest - a Favicon Ignore middleware module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "prebuild": "shx rm -rf dist",
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "prepublishOnly": "pnpm run build",
+    "format": "prettier **/**/*.ts --ignore-path ./.prettierignore --write",
+    "check-types": "tsc --noEmit",
+    "test": "jest"
+  },
+  "keywords": [
+    "rineex",
+    "nestjs",
+    "nest",
+    "middleware",
+    "favicon",
+    "no-favicon"
+  ],
+  "files": [
+    "dist/**"
+  ],
+  "author": "Rineex Team",
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "provenance": true,
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rineex/core.git",
+    "directory": "packages/nest/no-favicon-middleware-module"
+  },
+  "homepage": "https://github.com/rineex/core/tree/main/packages/nest/no-favicon-middleware-module",
+  "packageManager": "pnpm@10.22.0",
+  "devDependencies": {
+    "@nestjs/common": "11.0.1",
+    "@nestjs/core": "11.0.1",
+    "@rineex/eslint-config": "workspace:*",
+    "@types/cors": "2.8.19",
+    "@types/express": "5.0.3",
+    "eslint": "9.28.0",
+    "jest": "29.7.0",
+    "prettier": "3.5.3",
+    "shx": "0.4.0",
+    "tslib": "2.8.1",
+    "tsup": "8.5.0",
+    "typescript": "5.8.3"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "11.0.1",
+    "@nestjs/core": "11.0.1",
+    "express": "5.1.0"
+  }
+}

@@ -1,64 +1,38 @@
-import { UAParser } from 'ua-parser-js';
-import { isbot } from 'isbot';
-import { z } from 'zod';
-
 import { InvalidValueObjectError } from '../errors/invalid-vo.error';
 import { ValueObject } from '../base/vo';
 
-type Props = string;
-
-export class UserAgent extends ValueObject<Props> {
-  private static schema = z.string().min(5).max(512);
-
-  get browser(): Pick<UAParser.IBrowser, 'name' | 'version'> {
-    return {
-      version: this.parsed.browser.version,
-      name: this.parsed.browser.name,
-    };
-  }
-
-  get device(): Pick<UAParser.IDevice, 'model' | 'type' | 'vendor'> {
-    return this.parsed.device;
-  }
-
+export interface UserAgentProps {
+  readonly raw: string;
+  readonly browser: { name?: string; version?: string };
+  readonly os: { name?: string; version?: string };
+  readonly device: { model?: string; type?: string; vendor?: string };
+  readonly isBot: boolean;
+}
+export class UserAgent extends ValueObject<string> {
   get isBot(): boolean {
-    return isbot(this.props);
-  }
-
-  get isDesktop(): boolean {
-    return !this.parsed.device.type;
+    return this.metadata.isBot;
   }
 
   get isMobile(): boolean {
-    return this.parsed.device.type === 'mobile';
+    return this.metadata.device.type === 'mobile';
   }
 
-  get isTablet(): boolean {
-    return this.parsed.device.type === 'tablet';
+  // Store metadata as a private field, not part of the ValueObject identity (props)
+  // This keeps .equals() fast (only compares the UA string)
+  private readonly metadata: UserAgentProps;
+
+  // We make the constructor internal-friendly
+  constructor(rawString: string, metadata: UserAgentProps) {
+    super(rawString);
+    this.metadata = metadata;
   }
 
-  get os(): Pick<UAParser.IOS, 'name' | 'version'> {
-    return {
-      version: this.parsed.os.version,
-      name: this.parsed.os.name,
-    };
+  getProps(): string {
+    return this.props;
   }
 
-  private get parsed(): UAParser.IResult {
-    return new UAParser().setUA(this.props).getResult();
-  }
-
-  public static create(value: string) {
-    return new UserAgent(value);
-  }
-
-  protected validate(value: Props): void {
-    const result = UserAgent.schema.safeParse(value);
-
-    if (!result.success) {
-      throw new InvalidValueObjectError(
-        `Invalid UserAgent: ${result.error.message}`,
-      );
-    }
+  protected validate(value: string): void {
+    if (value.length < 5)
+      throw InvalidValueObjectError.create('UA too short', { value });
   }
 }
