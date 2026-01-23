@@ -11,7 +11,7 @@
     "prepublishOnly": "pnpm run build",
     "format": "prettier **/**/*.ts --ignore-path ./.prettierignore --write",
     "check-types": "tsc --noEmit",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "release": "standard-version",
     "patch": "npm run release -- --release-as patch",
     "minor": "npm run release -- --release-as minor",

@@ -28,7 +28,7 @@ export class OtpAuthMethod implements AuthMethodPort {
 
   async authenticate(context: AuthContext) {
     if (!context || !context.metadata?.identityId) {
-      throw new OtpAuthenticationViolation({
+      throw new OtpAuthenticationViolation('Invalid or expired OTP code', {
         reason: 'Identity ID is required in context metadata',
       });
     }
