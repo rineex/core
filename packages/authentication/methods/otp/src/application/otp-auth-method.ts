@@ -28,9 +28,9 @@ export class OtpAuthMethod implements AuthMethodPort {
 
   async authenticate(context: AuthContext) {
     if (!context || !context.metadata?.identityId) {
-      throw new OtpAuthenticationViolation(
-        'Identity ID is required in context metadata',
-      );
+      throw new OtpAuthenticationViolation({
+        reason: 'Identity ID is required in context metadata',
+      });
     }
 
     const identityId = context.metadata.identityId as IdentityId;

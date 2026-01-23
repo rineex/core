@@ -1,16 +1,24 @@
-import { DomainErrorType } from '@rineex/ddd';
+import {
+  DomainError,
+  DomainErrorCode,
+  DomainErrorType,
+  Metadata,
+} from '@rineex/ddd';
 
-import { AuthDomainViolation } from './auth-domain.violation';
-
+type ExtraProps = {
+  actualLength: number;
+  minLength: number;
+};
+type Props = Metadata<ExtraProps>;
 /**
  * Raised when an authentication token violates domain invariants.
  */
-export class InvalidAuthTokenViolation extends AuthDomainViolation {
-  readonly code = 'AUTH_TOKEN_INVALID';
+export class InvalidAuthTokenViolation extends DomainError<Props> {
+  readonly code: DomainErrorCode = 'AUTH_CORE_TOKEN.INVALID';
   readonly message = 'Authentication token is invalid';
   readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
 
-  public static create(payload: { actualLength: number; minLength: number }) {
-    return new InvalidAuthTokenViolation({ ...payload });
+  public static create(message: string, meta: Props) {
+    return new InvalidAuthTokenViolation(message, meta);
   }
 }

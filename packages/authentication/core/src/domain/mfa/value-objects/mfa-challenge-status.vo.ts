@@ -1,21 +1,42 @@
-import { AuthDomainViolation } from '@/domain/violations/auth-domain.violation';
-import { DomainErrorType, PrimitiveValueObject } from '@rineex/ddd';
+import {
+  DomainError,
+  DomainErrorCode,
+  DomainErrorType,
+  Metadata,
+  PrimitiveValueObject,
+} from '@rineex/ddd';
 
 const AllowedStatuses = ['pending', 'verified', 'expired', 'failed'] as const;
 
 type MfaChallengeStatusValue = (typeof AllowedStatuses)[number];
 
-class InvalidMfaChallengeStatusViolation extends AuthDomainViolation {
-  readonly code = 'MFA_CHALLENGE_STATUS_INVALID';
-  readonly message = 'MFA challenge status is invalid';
+type MetaProps = {
+  value: MfaChallengeStatusValue;
+};
+
+type Meta = Metadata<MetaProps>;
+
+class InvalidMfaChallengeStatusViolation extends DomainError<Meta> {
+  readonly code: DomainErrorCode = 'AUTH_CORE_MFA.CHALLENGE_STATUS_INVALID';
   readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
 
+  constructor(message: string, metadata: Meta) {
+    super(message, { ...metadata });
+  }
+
   static create(value: MfaChallengeStatusValue) {
-    return new InvalidMfaChallengeStatusViolation({ value });
+    return new InvalidMfaChallengeStatusViolation(
+      'MFA challenge status is invalid',
+      { value },
+    );
   }
 }
 
 export class MfaChallengeStatus extends PrimitiveValueObject<MfaChallengeStatusValue> {
+  public static create(value: MfaChallengeStatusValue): MfaChallengeStatus {
+    return new MfaChallengeStatus(value);
+  }
+
   static pending() {
     return new MfaChallengeStatus('pending');
   }
@@ -23,7 +44,6 @@ export class MfaChallengeStatus extends PrimitiveValueObject<MfaChallengeStatusV
   static verified() {
     return new MfaChallengeStatus('verified');
   }
-
   protected validate(value: MfaChallengeStatusValue): void {
     if (!AllowedStatuses.includes(value)) {
       throw InvalidMfaChallengeStatusViolation.create(value);

@@ -100,11 +100,6 @@ export class AuthenticationAttempt extends AggregateRoot<
       throw new Error('Authentication attempt already completed');
     }
 
-    this.props = {
-      ...this.props,
-      status: AuthStatus.create('SUCCEEDED'),
-    };
-
     this.mutate(current => ({
       ...current,
       status: AuthStatus.create('SUCCEEDED'),
@@ -115,11 +110,11 @@ export class AuthenticationAttempt extends AggregateRoot<
 
   toObject(): Record<string, unknown> {
     return {
-      identityId: this.props.identityId?.getValue(),
+      identityId: this.props.identityId?.value,
       createdAt: this.createdAt,
       status: this.props.status,
       method: this.props.method,
-      id: this.id.getValue(),
+      id: this.id.value,
     };
   }
 

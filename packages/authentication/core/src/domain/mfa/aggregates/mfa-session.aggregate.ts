@@ -33,11 +33,18 @@ export class MFASession extends AggregateRoot<MfaSessionId, MfaSessionProps> {
       throw MfaActiveChallengeExistsViolation.create();
     }
 
-    this.props.challenges.push(challenge);
+    this.mutate(current => ({
+      ...current,
+      challenges: [...current.challenges, challenge],
+    }));
   }
 
   markAttempt(): void {
-    this.props.attemptsUsed += 1;
+    this.mutate(current => ({
+      ...current,
+      attemptsUsed: current.attemptsUsed + 1,
+    }));
+
     this.validate();
   }
 

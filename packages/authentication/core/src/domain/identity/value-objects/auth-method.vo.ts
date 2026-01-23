@@ -1,5 +1,5 @@
+import { InvalidValueObjectError, PrimitiveValueObject } from '@rineex/ddd';
 import { AuthMethodName } from '@/types/auth-method.type';
-import { PrimitiveValueObject } from '@rineex/ddd';
 
 /**
  * Represents the authentication method requested or used.
@@ -28,7 +28,7 @@ export class AuthMethod extends PrimitiveValueObject<AuthMethodName> {
 
   protected validate(value: AuthMethodName): void {
     if (!value) {
-      throw new Error('AuthMethod cannot be empty');
+      throw InvalidValueObjectError.create('AuthMethod cannot be empty');
     }
   }
 }

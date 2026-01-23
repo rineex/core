@@ -1,16 +1,14 @@
-import { DomainErrorType } from '@rineex/ddd';
-
-import { AuthDomainViolation } from './auth-domain.violation';
+import { DomainError, DomainErrorCode, DomainErrorType } from '@rineex/ddd';
 
 /**
  * Raised when a session invariant is violated.
  */
-export class InvalidSessionViolation extends AuthDomainViolation {
-  readonly code = 'session.invalid';
+export class InvalidSessionDomainError extends DomainError {
+  readonly code: DomainErrorCode = 'AUTH_CORE_SESSION.INVALID';
   readonly message = 'Session state is invalid';
   readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
 
-  public static create(): InvalidSessionViolation {
-    return new InvalidSessionViolation();
+  public static create(): InvalidSessionDomainError {
+    return new InvalidSessionDomainError('Session state is invalid');
   }
 }

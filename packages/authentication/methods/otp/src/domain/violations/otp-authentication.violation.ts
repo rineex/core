@@ -1,25 +1,22 @@
-import { DomainViolation } from '@rineex/ddd';
+import { DomainError, DomainErrorType } from '@rineex/ddd';
 
 /**
  * Domain violation representing a failed OTP attempt.
  * In Hexagonal Architecture, this belongs in:
  */
-export class OtpAuthenticationViolation extends DomainViolation {
+export class OtpAuthenticationViolation extends DomainError {
+  public readonly message: string = 'Invalid or expired OTP code';
+  public readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
+
   public get code() {
     return 'OTP_AUTHENTICATION_FAILED';
   }
-
-  public readonly message: string;
 
   /**
    * @param {string} [message='Invalid or expired OTP code'] - Obfuscated message for security.
    * @param {Record<string, unknown>} [metadata] - Optional context for internal logging (e.g., attempt count).
    */
-  constructor(
-    message = 'Invalid or expired OTP code',
-    metadata: { attemptsUsed?: number; reason?: string } = {},
-  ) {
+  constructor(metadata: { attemptsUsed?: number; reason?: string } = {}) {
     super(metadata);
-    this.message = message;
   }
 }

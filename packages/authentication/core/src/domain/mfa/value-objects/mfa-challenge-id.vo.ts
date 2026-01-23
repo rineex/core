@@ -1,24 +1,36 @@
-import { AuthDomainViolation } from '@/domain/violations/auth-domain.violation';
-import { DomainErrorType, PrimitiveValueObject } from '@rineex/ddd';
+import {
+  DomainError,
+  DomainErrorCode,
+  DomainErrorType,
+  Metadata,
+  PrimitiveValueObject,
+} from '@rineex/ddd';
 
-class InvalidMfaChallengeIdViolation extends AuthDomainViolation {
-  readonly code = 'MFA_CHALLENGE_ID_INVALID';
-  readonly message = 'MFA challenge ID is invalid';
+type ExtraProps = {
+  value: string;
+};
+
+type P = Metadata<ExtraProps>;
+class InvalidMfaChallengeIdViolation extends DomainError<P> {
+  readonly code: DomainErrorCode = 'AUTH_CORE_MFA.CHALLENGE_ID_INVALID';
   readonly type: DomainErrorType = 'DOMAIN.INVALID_VALUE';
 
-  protected constructor(props: { value: string }) {
-    super({ ...props });
-  }
-
-  static create(props: { value: string }) {
-    return new InvalidMfaChallengeIdViolation(props);
+  static create(msg: string, props: Metadata<P>) {
+    return new InvalidMfaChallengeIdViolation(msg, props);
   }
 }
 
 export class MfaChallengeId extends PrimitiveValueObject<string> {
+  public static create(value: string): MfaChallengeId {
+    return new MfaChallengeId(value);
+  }
+
   protected validate(value: string): void {
     if (!value || value.length < 16) {
-      throw InvalidMfaChallengeIdViolation.create({ value });
+      throw InvalidMfaChallengeIdViolation.create(
+        'MFA challenge ID is invalid',
+        { value },
+      );
     }
   }
 }

@@ -5,5 +5,6 @@ import { DomainError } from '@rineex/ddd';
  *
  * Auth domain MUST only throw DomainViolation objects.
  * Mapping to native Error happens at application or adapter layer.
+ * @deprecated
  */
 export abstract class AuthDomainViolation extends DomainError {}

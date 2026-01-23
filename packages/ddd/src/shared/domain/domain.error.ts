@@ -1,6 +1,9 @@
+import { EmptyObject } from 'type-fest';
+
 export type Primitive = boolean | number | string | null | undefined;
 
-export type Metadata<T = {}> = T extends Record<string, Primitive> ? T : {};
+export type Metadata<T = EmptyObject> =
+  T extends Record<string, Primitive> ? T : EmptyObject;
 
 /**
  * Categories of domain errors based on the nature of the violation.
@@ -128,7 +131,7 @@ export type ExtractErrorName<Code extends DomainErrorCode> =
  * @abstract
  */
 export abstract class DomainError<
-  Meta extends Record<string, Primitive> = {},
+  Meta extends Record<string, Primitive> = EmptyObject,
   Code extends DomainErrorCode = DomainErrorCode,
 > {
   /**

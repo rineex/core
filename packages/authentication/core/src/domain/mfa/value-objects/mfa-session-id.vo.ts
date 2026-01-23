@@ -1,20 +1,36 @@
-import { AuthDomainViolation } from '@/domain/violations/auth-domain.violation';
-import { DomainErrorType, PrimitiveValueObject } from '@rineex/ddd';
+import {
+  DomainError,
+  DomainErrorCode,
+  DomainErrorType,
+  Metadata,
+  PrimitiveValueObject,
+} from '@rineex/ddd';
 
-class InvalidMfaSessionIdViolation extends AuthDomainViolation {
-  readonly code = 'MFA_SESSION_ID_INVALID';
-  readonly message = 'MFA session ID is invalid';
+type ExtraProps = {
+  value: string;
+};
+
+type MetaProps = Metadata<ExtraProps>;
+
+class InvalidMfaSessionIdViolation extends DomainError<MetaProps> {
+  readonly code: DomainErrorCode = 'AUTH_CORE_MFA.SESSION_ID_INVALID';
   readonly type: DomainErrorType = 'DOMAIN.INVALID_VALUE';
 
-  static create(props: { value: string }) {
-    return new InvalidMfaSessionIdViolation(props);
+  static create(message: string, meta: MetaProps) {
+    return new InvalidMfaSessionIdViolation(message, meta);
   }
 }
 
 export class MfaSessionId extends PrimitiveValueObject<string> {
+  public static create(value: string): MfaSessionId {
+    return new MfaSessionId(value);
+  }
+
   protected validate(value: string): void {
     if (!value || value.length < 16) {
-      throw InvalidMfaSessionIdViolation.create({ value });
+      throw InvalidMfaSessionIdViolation.create('MFA session ID is invalid', {
+        value,
+      });
     }
   }
 }
