@@ -5,6 +5,6 @@ export class InvalidStateError extends DomainError {
   public type: DomainErrorType = 'DOMAIN.INVALID_STATE';
 
   constructor(message = 'invalid state') {
-    super(message);
+    super(message, undefined);
   }
 }
