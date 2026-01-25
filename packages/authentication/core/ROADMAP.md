@@ -139,13 +139,16 @@ Week 7:  [═══════════════════════�
 ## 🎯 Milestones
 
 ### Milestone 1: Flow System Complete ✅
+
 **Target:** End of Week 2  
 **Deliverables:**
+
 - ✅ Flow DSL implemented
 - ✅ Proofs collected
 - ✅ Attempts track flow progress
 
 **Definition of Done:**
+
 - Can define multi-step flows
 - Attempts execute flows step-by-step
 - Proofs collected per step
@@ -154,13 +157,16 @@ Week 7:  [═══════════════════════�
 ---
 
 ### Milestone 2: Trust & Session Complete ✅
+
 **Target:** End of Week 3  
 **Deliverables:**
+
 - ✅ Trust levels computed
 - ✅ Sessions created from attempts
 - ✅ Context snapshots captured
 
 **Definition of Done:**
+
 - Trust computed from proofs
 - Sessions have trust levels
 - Can create session from attempt
@@ -169,12 +175,15 @@ Week 7:  [═══════════════════════�
 ---
 
 ### Milestone 3: Credentials Complete ✅
+
 **Target:** End of Week 4  
 **Deliverables:**
+
 - ✅ Credential lifecycle
 - ✅ Status checks during auth
 
 **Definition of Done:**
+
 - Credentials can be created/revoked
 - Status checked during authentication
 - Unit tests passing
@@ -182,12 +191,15 @@ Week 7:  [═══════════════════════�
 ---
 
 ### Milestone 4: End-to-End Flow ✅
+
 **Target:** End of Week 5  
 **Deliverables:**
+
 - ✅ Orchestrator executes flows
 - ✅ Multi-step auth works
 
 **Definition of Done:**
+
 - Can authenticate with multi-step flow
 - Proofs collected correctly
 - Session created successfully
@@ -196,13 +208,16 @@ Week 7:  [═══════════════════════�
 ---
 
 ### Milestone 5: Production Ready ✅
+
 **Target:** End of Week 7  
 **Deliverables:**
+
 - ✅ All features implemented
 - ✅ Tests passing
 - ✅ Documentation updated
 
 **Definition of Done:**
+
 - All phases complete
 - Integration tests passing
 - Documentation updated
@@ -213,6 +228,7 @@ Week 7:  [═══════════════════════�
 ## 📊 Progress Tracking
 
 ### Phase 1: Foundation
+
 - [ ] Task 1.1: Flow Value Objects
 - [ ] Task 1.2: Flow Aggregate
 - [ ] Task 1.3: Proof System
@@ -220,25 +236,30 @@ Week 7:  [═══════════════════════�
 - [ ] Task 1.5: Flow Repository Port
 
 ### Phase 2: Trust & Session
+
 - [ ] Task 2.1: Trust Level VO
 - [ ] Task 2.2: Context Snapshot VO
 - [ ] Task 2.3: Session Aggregate
 - [ ] Task 2.4: Session Repository Port
 
 ### Phase 3: Credentials
+
 - [ ] Task 3.1: Credential VOs
 - [ ] Task 3.2: Credential Entity
 - [ ] Task 3.3: Credential Repository Port
 
 ### Phase 4: Orchestration
+
 - [ ] Task 4.1: Orchestrator Update
 - [ ] Task 4.2: Flow Execution Service (Optional)
 
 ### Phase 5: Policies
+
 - [ ] Task 5.1: Policy Domain Objects
 - [ ] Task 5.2: Policy Engine Update
 
 ### Phase 6: Integration
+
 - [ ] Task 6.1: Domain Exports
 - [ ] Task 6.2: Integration Tests
 - [ ] Task 6.3: Documentation
