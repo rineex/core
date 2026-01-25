@@ -24,6 +24,7 @@ softprops
 svitejs
 terbal
 topbar
+TOTP
 treeify
 Turborepo
 tsup

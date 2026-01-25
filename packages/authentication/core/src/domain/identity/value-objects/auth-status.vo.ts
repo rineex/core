@@ -1,6 +1,14 @@
-import { PrimitiveValueObject } from '@rineex/ddd';
+import { InvalidValueObjectError, PrimitiveValueObject } from '@rineex/ddd';
 
-type AuthStatusType = 'FAILED' | 'PENDING' | 'SUCCEEDED';
+const allowed = ['pending', 'succeed', 'failed'] as const;
+
+/**
+ * All supported authentication lifecycle states.
+ *
+ * This union is intentionally closed.
+ * New states require explicit domain design.
+ */
+export type AuthStatusType = (typeof allowed)[number];
 
 /**
  * Represents the lifecycle state of an authentication attempt.
@@ -8,6 +16,14 @@ type AuthStatusType = 'FAILED' | 'PENDING' | 'SUCCEEDED';
  * This is intentionally restrictive to avoid invalid transitions.
  */
 export class AuthStatus extends PrimitiveValueObject<AuthStatusType> {
+  /**
+   * Make sure auth is not finished
+   */
+  public get isFinal(): boolean {
+    // return this.isNot('pending);
+    return this.is('succeed') || this.is('failed');
+  }
+
   static create(value: AuthStatusType): AuthStatus {
     return new AuthStatus(value);
   }
@@ -31,8 +47,8 @@ export class AuthStatus extends PrimitiveValueObject<AuthStatusType> {
   }
 
   protected validate(value: AuthStatusType): void {
-    if (!['FAILED', 'PENDING', 'SUCCEEDED'].includes(value)) {
-      throw new Error(`Invalid AuthStatus: ${value}`);
+    if (!allowed.includes(value)) {
+      throw InvalidValueObjectError.create(`Invalid AuthStatus: ${value}`);
     }
   }
 }

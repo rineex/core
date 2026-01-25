@@ -10,10 +10,14 @@ export class AuthenticationFailedEvent extends DomainEvent {
     return 'authentication.auth_attempt.failed';
   }
 
-  constructor(public readonly attemptId: AuthAttemptId) {
+  constructor(
+    public readonly attemptId: AuthAttemptId,
+    reason?: string,
+  ) {
     super({
       payload: {
         attemptId: attemptId.toString(),
+        reason: reason ?? 'UNKNOWN',
       },
       id: crypto.randomUUID(),
       aggregateId: attemptId,

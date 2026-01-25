@@ -1,135 +1,175 @@
 import { AggregateRoot, EntityProps } from '@rineex/ddd';
 
-import { AuthenticationSucceededEvent } from '../events/authentication-succeeded.event';
-import { AuthenticationStartedEvent } from '../events/authentication-started.event';
-import { AuthenticationFailedEvent } from '../events/authentication-failed.event';
-import { AuthAttemptId } from '../value-objects/auth-attempt-id.vo';
-import { AuthStatus } from '../value-objects/auth-status.vo';
-import { AuthMethod } from '../value-objects/auth-method.vo';
-import { IdentityId } from '../value-objects/identity-id.vo';
+import {
+  AuthenticationFailedEvent,
+  AuthenticationStartedEvent,
+  AuthenticationSucceededEvent,
+} from '../events';
+import {
+  AuthAttemptId,
+  AuthFactor,
+  AuthMethod,
+  AuthStatus,
+  RiskSignal,
+} from '../value-objects';
+import { InvalidAuthenticationTransitionError } from '../errors/invalid-authentication-transition.error';
+import { AuthenticationAttemptExceeded } from '../errors/authentication-attempt.error';
 
-interface AuthenticationAttemptProps {
-  /**
-   * Current status of the authentication attempt.
-   */
-  status: AuthStatus;
-  /**
-   * Method used for authentication.
-   */
-  method: AuthMethod;
-  /**
-   * Optional identity being authenticated.
-   */
-  identityId?: IdentityId;
+export interface AuthenticationAttemptProps {
+  readonly method: AuthMethod;
+  readonly status: AuthStatus;
+  readonly factors: readonly AuthFactor[];
+  readonly attempts: number;
+  readonly maxAttempts: number;
+  readonly riskSignals: readonly RiskSignal[];
 }
 
-/**
- * Aggregate Root representing a single authentication attempt.
- *
- * Responsibilities:
- * - Enforce authentication lifecycle invariants
- * - Emit auditable domain events
- * - Prevent invalid state transitions
- *
- * This aggregate DOES NOT:
- * - Perform authentication
- * - Talk to infrastructure
- * - Know about HTTP or sessions
- */
+type CreateAuthAttemptProps = EntityProps<
+  AuthAttemptId,
+  AuthenticationAttemptProps
+>;
+
+type StartAuthenticationProps = {
+  id: AuthAttemptId;
+  method: AuthMethod;
+  maxAttempts: number;
+  riskSignals?: readonly RiskSignal[];
+};
+
 export class AuthenticationAttempt extends AggregateRoot<
   AuthAttemptId,
   AuthenticationAttemptProps
 > {
-  private constructor(
-    params: EntityProps<AuthAttemptId, AuthenticationAttemptProps>,
-  ) {
-    super({ ...params });
+  /**
+   * Checks whether the maximum number of authentication attempts has been reached or exceeded.
+   *
+   * @returns `true` if the current number of attempts is greater than or equal to the maximum allowed attempts, `false` otherwise.
+   */
+  public get hasReachedMaxAttempts(): boolean {
+    return this.props.attempts >= this.props.maxAttempts;
   }
 
-  /**
-   * Factory method to start a new authentication attempt.
-   */
-  static start(
-    id: AuthAttemptId,
-    method: AuthMethod,
-    identityId?: IdentityId,
-  ): AuthenticationAttempt {
+  /** Public accessor for the auth method name; used by application services (e.g. resolver). */
+  public get methodValue(): AuthMethod['value'] {
+    return this.props.method.value;
+  }
+
+  private constructor(props: CreateAuthAttemptProps) {
+    super(props);
+  }
+
+  public static start(props: StartAuthenticationProps): AuthenticationAttempt {
     const attempt = new AuthenticationAttempt({
       props: {
-        ...identityId,
-        status: AuthStatus.create('PENDING'),
-        method,
+        riskSignals: props.riskSignals ?? [],
+        status: AuthStatus.create('pending'),
+        maxAttempts: props.maxAttempts,
+        method: props.method,
+        attempts: 0,
+        factors: [],
       },
-      id,
+      id: props.id,
     });
 
-    attempt.addEvent(new AuthenticationStartedEvent(id, method));
+    attempt.addEvent(new AuthenticationStartedEvent(attempt.id, props.method));
 
     return attempt;
   }
 
   /**
-   * Marks the authentication attempt as failed.
-   *
-   * @throws Error if already completed
+   * Mark authentication as failed.
    */
-  fail(reason: string): void {
-    if (this.props.status.isNot('PENDING')) {
-      throw new Error('Authentication attempt already completed');
-    }
-
-    if (!reason || reason.length < 3) {
-      throw new Error('Failure reason must be provided');
+  public fail(reason: string): void {
+    const isFinal = this.props.status.isFinal;
+    if (isFinal) {
+      throw InvalidAuthenticationTransitionError.create(
+        'Authentication Finished before',
+        {
+          status: this.props.status.value,
+        },
+      );
     }
 
     this.mutate(current => ({
       ...current,
-      status: AuthStatus.create('FAILED'),
+      status: AuthStatus.create('failed'),
     }));
 
-    this.addEvent(new AuthenticationFailedEvent(this.id));
+    this.addEvent(new AuthenticationFailedEvent(this.id, reason));
+  }
+
+  public registerAttempt(factor: AuthFactor): void {
+    if (this.props.status.isFinal) {
+      throw InvalidAuthenticationTransitionError.create(
+        'Authentication Finished',
+        {
+          status: this.props.status.value,
+        },
+      );
+      //
+    }
+
+    if (this.hasReachedMaxAttempts) {
+      throw new AuthenticationAttemptExceeded({
+        attempts: this.props.attempts,
+        attemptId: this.id.value,
+      });
+    }
+
+    this.mutate(current => ({
+      ...current,
+
+      factors: [...current.factors, factor],
+      attempts: current.attempts + 1,
+    }));
   }
 
   /**
-   * Marks the authentication attempt as successful.
-   *
-   * @throws Error if already completed
+   * Mark authentication as successful.
    */
-  succeed(): void {
-    if (this.props.status.isNot('PENDING')) {
-      throw new Error('Authentication attempt already completed');
+  public succeed(): void {
+    if (this.props.status.isFinal) {
+      throw InvalidAuthenticationTransitionError.create(
+        'Authentication Finished before',
+        {
+          status: this.props.status.value,
+        },
+      );
     }
 
     this.mutate(current => ({
       ...current,
-      status: AuthStatus.create('SUCCEEDED'),
+      status: AuthStatus.create('succeed'),
     }));
 
     this.addEvent(new AuthenticationSucceededEvent(this.id));
   }
 
-  toObject(): Record<string, unknown> {
+  toObject() {
     return {
-      identityId: this.props.identityId?.value,
-      createdAt: this.createdAt,
-      status: this.props.status,
-      method: this.props.method,
-      id: this.id.value,
+      riskSignal: this.props.riskSignals.map(r => r.toString()),
+      factor: this.props.factors.map(f => f.toString()),
+      status: this.props.status.value,
+      attempt: this.props.attempts,
     };
   }
 
-  /**
-   * Aggregate invariant validation.
-   *
-   * Called automatically before domain events are added.
-   */
   validate(): void {
-    if (!this.props.method) {
-      throw new Error('AuthenticationAttempt must have a method');
+    if (this.props.maxAttempts <= 0) {
+      throw new Error('maxAttempts must be > 0');
     }
+  }
 
-    if (!this.props.status) {
-      throw new Error('AuthenticationAttempt must have a status');
+  private ensureNotFinal(): void {
+    const isFinal = this.props.status.isFinal;
+
+    if (isFinal) {
+      throw InvalidAuthenticationTransitionError.create(
+        'Authentication is not completed yet',
+        {
+          status: this.props.status.value,
+        },
+      );
     }
   }
 }

@@ -1,4 +1,5 @@
 import { InvalidValueObjectError, PrimitiveValueObject } from '@rineex/ddd';
+
 import { AuthMethodName } from '@/types/auth-method.type';
 
 /**

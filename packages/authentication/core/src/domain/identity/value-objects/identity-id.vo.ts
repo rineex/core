@@ -1,4 +1,4 @@
-import { PrimitiveValueObject } from '@rineex/ddd';
+import { DomainID } from '@rineex/ddd';
 
 /**
  * Represents the canonical identity identifier in the auth domain.
@@ -13,14 +13,4 @@ import { PrimitiveValueObject } from '@rineex/ddd';
  * - external IdPs
  * - service identities
  */
-export class IdentityId extends PrimitiveValueObject<string> {
-  public static create(value: string): IdentityId {
-    return new IdentityId(value);
-  }
-
-  protected validate(value: string): void {
-    if (!value || value.length < 8) {
-      throw new Error('IdentityId must be a valid identifier');
-    }
-  }
-}
+export class IdentityId extends DomainID {}

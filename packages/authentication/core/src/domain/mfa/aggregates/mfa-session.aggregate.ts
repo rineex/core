@@ -1,9 +1,10 @@
 import { AggregateRoot, EntityProps } from '@rineex/ddd';
+
 import { IdentityId } from '@/index';
 
-import { MfaActiveChallengeExistsViolation } from '../violations/mfa-active-challenge-exists.violation';
-import { MfaAttemptsExceededViolation } from '../violations/mfa-attempts-exceeded.violation';
-import { MfaAlreadyVerifiedViolation } from '../violations/mfa-already-verified.violation';
+import { MfaActiveChallengeExistsError } from '../errors/mfa-active-challenge-exists.error';
+import { MfaAttemptsExceededError } from '../errors/mfa-attempts-exceeded.error';
+import { MfaAlreadyVerifiedError } from '../errors/mfa-already-verified.error';
 import { MfaSessionId } from '../value-objects/mfa-session-id.vo';
 import { MFAChallenge } from '../entities/mfa-challenge.entity';
 
@@ -25,12 +26,12 @@ export class MFASession extends AggregateRoot<MfaSessionId, MfaSessionProps> {
   }
 
   issueChallenge(challenge: MFAChallenge, now: Date): void {
-    if (this.isVerified) throw MfaAlreadyVerifiedViolation.create();
+    if (this.isVerified) throw MfaAlreadyVerifiedError.create();
 
     const hasActive = this.props.challenges.some(c => !c.isExpired(now));
 
     if (hasActive) {
-      throw MfaActiveChallengeExistsViolation.create();
+      throw MfaActiveChallengeExistsError.create();
     }
 
     this.mutate(current => ({
@@ -61,7 +62,7 @@ export class MFASession extends AggregateRoot<MfaSessionId, MfaSessionProps> {
 
   validate(): void {
     if (this.props.attemptsUsed > this.props.maxAttempts) {
-      throw MfaAttemptsExceededViolation.create(
+      throw MfaAttemptsExceededError.create(
         this.props.attemptsUsed,
         this.props.maxAttempts,
       );
@@ -73,7 +74,7 @@ export class MFASession extends AggregateRoot<MfaSessionId, MfaSessionProps> {
   }
 
   verify(now: Date): void {
-    if (this.isVerified) throw MfaAlreadyVerifiedViolation.create();
+    if (this.isVerified) throw MfaAlreadyVerifiedError.create();
 
     this.mutate(current => ({
       ...current,

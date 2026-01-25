@@ -1,6 +1,6 @@
 import { PrimitiveValueObject } from '@rineex/ddd';
 
-import { InvalidOAuthProviderViolation } from '../violations/invalid-oauth-provider.violation';
+import { InvalidOAuthProviderError } from '../errors/invalid-oauth-provider.error';
 
 export class OAuthProvider extends PrimitiveValueObject<string> {
   public static create(value: string): OAuthProvider {
@@ -9,7 +9,7 @@ export class OAuthProvider extends PrimitiveValueObject<string> {
 
   protected validate(value: string): void {
     if (!value || value.length < 2) {
-      throw InvalidOAuthProviderViolation.create({ value });
+      throw InvalidOAuthProviderError.create({ value });
     }
   }
 }

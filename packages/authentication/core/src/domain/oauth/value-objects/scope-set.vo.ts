@@ -26,7 +26,7 @@ export class ScopeSet extends ValueObject<ReadonlySet<Scope>> {
   }
 
   toStringArray(): string[] {
-    return [...this.props].map(s => s.getValue());
+    return [...this.props].map(s => s.value);
   }
 
   protected validate(value: ReadonlySet<Scope>): void {
