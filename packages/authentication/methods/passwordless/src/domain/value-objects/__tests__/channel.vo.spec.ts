@@ -37,12 +37,14 @@ describe('passwordlessChannel', () => {
     it('should throw InvalidValueObjectError for invalid channel', () => {
       expect(() => {
         PasswordlessChannel.create('invalid' as PasswordlessChannelType);
+        // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
       }).toThrow(InvalidValueObjectError);
     });
 
     it('should throw InvalidValueObjectError for empty string', () => {
       expect(() => {
         PasswordlessChannel.create('' as PasswordlessChannelType);
+        // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
       }).toThrow(InvalidValueObjectError);
     });
 

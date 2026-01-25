@@ -85,9 +85,13 @@ describe('issuePasswordlessChallengeService', () => {
 
       expect(challenge).toBeInstanceOf(PasswordlessChallengeAggregate);
       expect(challenge.id).toBe(validId);
+      // @ts-expect-error - props is protected, but needed for testing
       expect(challenge.props.status.value).toBe('issued');
+      // @ts-expect-error - props is protected, but needed for testing
       expect(challenge.props.channel).toBe(validChannel);
+      // @ts-expect-error - props is protected, but needed for testing
       expect(challenge.props.destination).toBe(validDestination);
+      // @ts-expect-error - props is protected, but needed for testing
       expect(challenge.props.secret).toBe(validSecret);
     });
 
@@ -106,6 +110,7 @@ describe('issuePasswordlessChallengeService', () => {
       const challenge = result.getValue();
       const expectedExpiresAt = new Date(issuedAt.getTime() + 600 * 1000);
 
+      // @ts-expect-error - props is protected, but needed for testing
       expect(challenge.props.expiresAt.getTime()).toBe(
         expectedExpiresAt.getTime(),
       );
@@ -122,6 +127,7 @@ describe('issuePasswordlessChallengeService', () => {
 
       const challenge = result.getValue();
 
+      // @ts-expect-error - props is protected, but needed for testing
       expect(challenge.props.status).toEqual(
         PasswordlessChallengeStatus.issued(),
       );
@@ -157,15 +163,15 @@ describe('issuePasswordlessChallengeService', () => {
 
       const challenge = result.getValue();
 
+      // @ts-expect-error - props is protected, but needed for testing
       expect(challenge.props.channel.value).toBe('sms');
+      // @ts-expect-error - props is protected, but needed for testing
       expect(challenge.props.destination.value).toBe('+1234567890');
     });
 
     it('should return Result.fail when repository save fails', async () => {
       const error = new Error('Database error');
-      vi.spyOn(mockRepository, 'save')
-        .mockImplementation()
-        .mockRejectedValue(error);
+      vi.spyOn(mockRepository, 'save').mockRejectedValue(error);
 
       const result = await service.execute({
         destination: validDestination,
@@ -181,9 +187,7 @@ describe('issuePasswordlessChallengeService', () => {
       // Test with a scenario that will cause an error
       // by making the repository throw an error during save
       const error = new Error('Aggregate validation failed');
-      vi.spyOn(mockRepository, 'save')
-        .mockImplementation()
-        .mockRejectedValue(error);
+      vi.spyOn(mockRepository, 'save').mockRejectedValue(error);
 
       const result = await service.execute({
         destination: validDestination,
@@ -193,14 +197,12 @@ describe('issuePasswordlessChallengeService', () => {
 
       // The service catches errors and returns Result.fail
       expect(result.isFailure).toBe(true);
-      expect(mockRepository.save).toHaveBeenCalled();
+      expect(mockRepository.save).toHaveBeenCalledOnce();
     });
 
     it('should set issuedAt to current time from clock', async () => {
       const customTime = new Date('2024-06-15T14:30:00Z');
-      vi.spyOn(mockClock, 'now')
-        .mockImplementation()
-        .mockReturnValue(customTime);
+      vi.spyOn(mockClock, 'now').mockReturnValue(customTime);
 
       const result = await service.execute({
         destination: validDestination,
@@ -212,6 +214,7 @@ describe('issuePasswordlessChallengeService', () => {
 
       const challenge = result.getValue();
 
+      // @ts-expect-error - props is protected, but needed for testing
       expect(challenge.props.issuedAt).toEqual(customTime);
     });
 

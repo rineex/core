@@ -30,20 +30,24 @@ describe('challengeSecret', () => {
     it('should throw InvalidValueObjectError for empty string', () => {
       expect(() => {
         ChallengeSecret.create('');
+        // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
       }).toThrow(InvalidValueObjectError);
     });
 
     it('should throw InvalidValueObjectError for string shorter than 4 characters', () => {
       expect(() => {
         ChallengeSecret.create('123');
+        // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
       }).toThrow(InvalidValueObjectError);
 
       expect(() => {
         ChallengeSecret.create('ab');
+        // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
       }).toThrow(InvalidValueObjectError);
 
       expect(() => {
         ChallengeSecret.create('a');
+        // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
       }).toThrow(InvalidValueObjectError);
     });
 
