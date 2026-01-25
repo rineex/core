@@ -8,8 +8,8 @@ export default [
   {
     rules: {
       '@typescript-eslint/class-literal-property-style': 'off',
-      'files': ['*.event.ts'],
     },
+    files: ['*.event.ts'],
   },
   {
     rules: {

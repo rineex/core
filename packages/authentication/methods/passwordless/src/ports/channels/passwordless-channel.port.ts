@@ -1,25 +1,39 @@
 import { ChallengeDestination } from '@/domain/value-objects/challenge-destination.vo';
 import { ChallengeSecret } from '@/domain/value-objects/challenge-secret.vo';
-import { PasswordlessChannelNameLiteral } from '@/domain/value-objects/passwordless-channel-name.vo';
+import { PasswordlessChannel } from '@/domain/value-objects/channel.vo';
 
 /**
- * Strategy interface for passwordless channels.
+ * Port interface for passwordless channel implementations.
  *
- * Each channel implementation is a plug-in.
+ * This port defines the contract for delivering passwordless challenges
+ * through various channels (email, SMS, push notifications, etc.).
+ * Each channel implementation is a plug-in that implements this interface.
+ *
+ * @example
+ * ```typescript
+ * const emailChannel: PasswordlessChannelPort = {
+ *   channelName: PasswordlessChannel.create('email'),
+ *   deliver: async (destination, secret) => {
+ *     await emailService.send(destination.value, secret.value);
+ *   },
+ * };
+ * ```
  */
 export type PasswordlessChannelPort = {
-  readonly channelName: PasswordlessChannelNameLiteral;
+  /**
+   * The name of the channel this port implements.
+   */
+  readonly channelName: PasswordlessChannel;
 
   /**
-   * Generates a challenge secret.
+   * Delivers the challenge secret to the specified destination.
+   *
+   * @param {ChallengeDestination} destination - Where to deliver the challenge
+   * @param {ChallengeSecret} secret - The secret to deliver
+   * @returns {Promise<void>} Promise that resolves when delivery is complete
    */
-  generateSecret(): ChallengeSecret;
-
-  /**
-   * Delivers the challenge to the destination.
-   */
-  deliver(
+  deliver: (
     destination: ChallengeDestination,
     secret: ChallengeSecret,
-  ): Promise<void>;
+  ) => Promise<void>;
 };

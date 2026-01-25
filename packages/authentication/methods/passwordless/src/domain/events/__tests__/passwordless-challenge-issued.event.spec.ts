@@ -6,7 +6,7 @@ import {
 } from '../passwordless-challenge-issued.event';
 import { PasswordlessChallengeId } from '../../value-objects/passwordless-challenge-id.vo';
 
-describe('PasswordlessChallengeIssuedEvent', () => {
+describe('passwordlessChallengeIssuedEvent', () => {
   const VALID_UUID_1 = '550e8400-e29b-41d4-a716-446655440000';
   const VALID_UUID_2 = '660e8400-e29b-41d4-a716-446655440001';
   const VALID_UUID_3 = '770e8400-e29b-41d4-a716-446655440002';
@@ -17,8 +17,8 @@ describe('PasswordlessChallengeIssuedEvent', () => {
       const occurredAt = Date.now();
       const expiresAt = new Date(occurredAt + 600000).toISOString();
       const payload: PasswordlessChallengeIssuedPayload = {
-        channel: 'email',
         destination: 'user@example.com',
+        channel: 'email',
         expiresAt,
       };
 
@@ -43,22 +43,22 @@ describe('PasswordlessChallengeIssuedEvent', () => {
       const occurredAt = Date.now();
       const expiresAt = new Date(occurredAt + 600000).toISOString();
       const payload: PasswordlessChallengeIssuedPayload = {
-        channel: 'sms',
         destination: '+1234567890',
+        channel: 'sms',
         expiresAt,
       };
 
       const event1 = PasswordlessChallengeIssuedEvent.create({
-        payload,
-        occurredAt,
         schemaVersion: 1,
         aggregateId,
+        occurredAt,
+        payload,
       });
       const event2 = PasswordlessChallengeIssuedEvent.create({
-        payload,
-        occurredAt,
         schemaVersion: 1,
         aggregateId,
+        occurredAt,
+        payload,
       });
 
       expect(event1.id).toBeDefined();
@@ -72,17 +72,17 @@ describe('PasswordlessChallengeIssuedEvent', () => {
       const occurredAt = Date.now();
       const expiresAt = new Date(occurredAt + 600000).toISOString();
       const payload: PasswordlessChallengeIssuedPayload = {
-        channel: 'email',
         destination: 'user@example.com',
+        channel: 'email',
         expiresAt,
       };
 
       const event = PasswordlessChallengeIssuedEvent.create({
-        payload,
-        occurredAt,
         schemaVersion: 1,
         id: customId,
         aggregateId,
+        occurredAt,
+        payload,
       });
 
       expect(event.id).toBe(customId);
@@ -93,15 +93,15 @@ describe('PasswordlessChallengeIssuedEvent', () => {
       const occurredAt = Date.now();
       const expiresAt = new Date(occurredAt + 600000).toISOString();
       const payload: PasswordlessChallengeIssuedPayload = {
-        channel: 'email',
         destination: 'user@example.com',
+        channel: 'email',
         expiresAt,
       };
 
       const event = PasswordlessChallengeIssuedEvent.create({
-        occurredAt,
         schemaVersion: 1,
         aggregateId,
+        occurredAt,
         payload,
       });
 
@@ -117,16 +117,16 @@ describe('PasswordlessChallengeIssuedEvent', () => {
       const occurredAt = Date.now();
       const expiresAt = new Date(occurredAt + 600000).toISOString();
       const payload: PasswordlessChallengeIssuedPayload = {
-        channel: 'email',
         destination: 'user@example.com',
+        channel: 'email',
         expiresAt,
       };
 
       const event = PasswordlessChallengeIssuedEvent.create({
-        payload,
-        occurredAt,
         schemaVersion: 1,
         aggregateId,
+        occurredAt,
+        payload,
       });
 
       expect(event.eventName).toBe('auth.passwordless.challenge_created');
@@ -139,15 +139,15 @@ describe('PasswordlessChallengeIssuedEvent', () => {
       const occurredAt = Date.now();
       const expiresAt = new Date(occurredAt + 600000).toISOString();
       const payload: PasswordlessChallengeIssuedPayload = {
-        channel: 'email',
         destination: 'user@example.com',
+        channel: 'email',
         expiresAt,
       };
 
       const event = PasswordlessChallengeIssuedEvent.create({
-        occurredAt,
         schemaVersion: 1,
         aggregateId,
+        occurredAt,
         payload,
       });
 
@@ -162,15 +162,15 @@ describe('PasswordlessChallengeIssuedEvent', () => {
       const occurredAt = Date.now();
       const expiresAt = new Date(occurredAt + 300000).toISOString();
       const payload: PasswordlessChallengeIssuedPayload = {
-        channel: 'sms',
         destination: '+1234567890',
+        channel: 'sms',
         expiresAt,
       };
 
       const event = PasswordlessChallengeIssuedEvent.create({
-        occurredAt,
         schemaVersion: 1,
         aggregateId,
+        occurredAt,
         payload,
       });
 
@@ -187,25 +187,25 @@ describe('PasswordlessChallengeIssuedEvent', () => {
       const longExpiry = new Date(occurredAt + 3600000).toISOString();
 
       const event1 = PasswordlessChallengeIssuedEvent.create({
-        occurredAt,
-        schemaVersion: 1,
-        aggregateId,
         payload: {
-          channel: 'email',
           destination: 'user@example.com',
           expiresAt: shortExpiry,
+          channel: 'email',
         },
+        schemaVersion: 1,
+        aggregateId,
+        occurredAt,
       });
 
       const event2 = PasswordlessChallengeIssuedEvent.create({
-        occurredAt,
-        schemaVersion: 1,
-        aggregateId,
         payload: {
-          channel: 'sms',
           destination: '+1234567890',
           expiresAt: longExpiry,
+          channel: 'sms',
         },
+        schemaVersion: 1,
+        aggregateId,
+        occurredAt,
       });
 
       expect(event1.payload.expiresAt).toBe(shortExpiry);
@@ -219,8 +219,8 @@ describe('PasswordlessChallengeIssuedEvent', () => {
       const occurredAt = Date.now();
       const expiresAt = new Date(occurredAt + 600000).toISOString();
       const payload: PasswordlessChallengeIssuedPayload = {
-        channel: 'email',
         destination: 'user@example.com',
+        channel: 'email',
         expiresAt,
       };
 
@@ -234,8 +234,8 @@ describe('PasswordlessChallengeIssuedEvent', () => {
       const primitives = event.toPrimitives();
 
       expect(primitives).toEqual({
-        aggregateId: aggregateId.toString(),
         eventName: 'auth.passwordless.challenge_created',
+        aggregateId: aggregateId.toString(),
         schemaVersion: 1,
         id: event.id,
         occurredAt,
@@ -248,16 +248,16 @@ describe('PasswordlessChallengeIssuedEvent', () => {
       const occurredAt = Date.now();
       const expiresAt = new Date(occurredAt + 600000).toISOString();
       const payload: PasswordlessChallengeIssuedPayload = {
-        channel: 'email',
         destination: 'user@example.com',
+        channel: 'email',
         expiresAt,
       };
 
       const event = PasswordlessChallengeIssuedEvent.create({
-        payload,
-        occurredAt,
         schemaVersion: 1,
         aggregateId,
+        occurredAt,
+        payload,
       });
 
       const primitives = event.toPrimitives();
@@ -275,16 +275,16 @@ describe('PasswordlessChallengeIssuedEvent', () => {
       const occurredAt = Date.now();
       const expiresAt = new Date(occurredAt + 600000).toISOString();
       const payload: PasswordlessChallengeIssuedPayload = {
-        channel: 'email',
         destination: 'user@example.com',
+        channel: 'email',
         expiresAt,
       };
 
       const event = PasswordlessChallengeIssuedEvent.create({
-        payload,
-        occurredAt,
         schemaVersion: 1,
         aggregateId,
+        occurredAt,
+        payload,
       });
 
       const primitives = event.toPrimitives();
@@ -300,16 +300,16 @@ describe('PasswordlessChallengeIssuedEvent', () => {
       const occurredAt = Date.now();
       const expiresAt = new Date(occurredAt + 600000).toISOString();
       const payload: PasswordlessChallengeIssuedPayload = {
-        channel: 'email',
         destination: 'user@example.com',
+        channel: 'email',
         expiresAt,
       };
 
       const event = PasswordlessChallengeIssuedEvent.create({
-        payload,
-        occurredAt,
         schemaVersion: 2,
         aggregateId,
+        occurredAt,
+        payload,
       });
 
       expect(event.schemaVersion).toBe(2);
@@ -323,23 +323,23 @@ describe('PasswordlessChallengeIssuedEvent', () => {
       const occurredAt = Date.now();
       const expiresAt = new Date(occurredAt + 600000).toISOString();
       const payload: PasswordlessChallengeIssuedPayload = {
-        channel: 'email',
         destination: 'user@example.com',
+        channel: 'email',
         expiresAt,
       };
 
       const event1 = PasswordlessChallengeIssuedEvent.create({
-        payload,
-        occurredAt,
-        schemaVersion: 1,
         aggregateId: aggregateId1,
+        schemaVersion: 1,
+        occurredAt,
+        payload,
       });
 
       const event2 = PasswordlessChallengeIssuedEvent.create({
-        payload,
-        occurredAt,
-        schemaVersion: 1,
         aggregateId: aggregateId2,
+        schemaVersion: 1,
+        occurredAt,
+        payload,
       });
 
       expect(event1.aggregateId).toBe(aggregateId1);

@@ -1,49 +1,72 @@
 import { ApplicationServicePort, ClockPort, Result } from '@rineex/ddd';
-import { PasswordlessChannelRegistry } from '../registry/passwordless-channel-registry';
-import { ChallengeDestination } from '@/domain/value-objects/challenge-destination.vo';
-import { PasswordlessChallenge } from '@/domain/aggregates/passwordless-challenge.aggregate';
+
+import ms from 'ms';
+
 import { PasswordlessChallengeRepository } from '@/ports/repositories/passwordless-challenge.repository';
-import { PasswordlessChallengeId } from '@/domain/value-objects/passwordless-challenge-id.vo';
+import { PasswordlessChallengeAggregate } from '@/domain/aggregates/passwordless-challenge.aggregate';
+import { PasswordlessChallengeStatus } from '@/domain/value-objects/passwordless-challenge-status.vo';
+import { ChallengeDestination } from '@/domain/value-objects/challenge-destination.vo';
+import { PasswordlessIdGeneratorPort } from '@/ports/passwordless-id-generator.port';
+import { ChallengeSecret } from '@/domain/value-objects/challenge-secret.vo';
 import { PasswordlessChannel } from '@/domain/value-objects/channel.vo';
 
 type Input = {
   channel: PasswordlessChannel;
   destination: ChallengeDestination;
+  secret: ChallengeSecret;
+  /**
+   * optional, default 300
+   */
+  ttlSeconds?: ms.StringValue;
 };
-type Output = Result<void, any>;
+type Output = Result<PasswordlessChallengeAggregate, any>;
 
+/**
+ * Application Service responsible for issuing passwordless challenges.
+ *
+ * Responsibilities:
+ * - Create new PasswordlessChallengeAggregate
+ * - Persist via repository port
+ * - Generate new ID and timestamp via ports
+ * - Returns Result<PasswordlessChallengeAggregate, DomainViolation>
+ */
 export class IssuePasswordlessChallengeService implements ApplicationServicePort<
   Input,
   Output
 > {
   constructor(
-    private readonly registry: PasswordlessChannelRegistry,
     private readonly repository: PasswordlessChallengeRepository,
+    private readonly idGenerator: PasswordlessIdGeneratorPort,
     private readonly clock: ClockPort,
   ) {}
 
-  async execute({ channel, destination }: Input): Promise<Output> {
-    const handler = this.registry.get(channel);
-    const secret = handler.generateSecret();
+  async execute({
+    ttlSeconds = '300s',
+    destination,
+    channel,
+    secret,
+  }: Input): Promise<Output> {
+    try {
+      const id = this.idGenerator.generate();
+      const now = this.clock.now();
 
-    const now = this.clock.now();
-    const expiresAt = new Date(now.getTime() + 5 * 60 * 1000);
+      const challenge = PasswordlessChallengeAggregate.issue({
+        props: {
+          expiresAt: new Date(now.getTime() + ms(ttlSeconds)),
+          status: PasswordlessChallengeStatus.issued(),
+          issuedAt: now,
+          destination,
 
-    const challenge = PasswordlessChallenge.issue({
-      id: PasswordlessChallengeId.generate(),
+          channel,
+          secret,
+        },
+        id,
+      });
 
-      props: {
-        secret,
-        channel,
-        destination,
-        expiresAt,
-        issuedAt: now,
-      },
-    });
-
-    await this.repository.save(challenge);
-    await handler.deliver(destination, secret);
-
-    return Result.ok(undefined);
+      await this.repository.save(challenge);
+      return Result.ok(challenge);
+    } catch (error) {
+      return Result.fail(error);
+    }
   }
 }

@@ -5,6 +5,8 @@ elif
 FAANG
 frameguard
 fullstacksjs
+gantt
+gitgraph
 golevelup
 hsts
 initdb
@@ -29,4 +31,5 @@ treeify
 Turborepo
 tsup
 unplugin
+uuidv
 vitest

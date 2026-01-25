@@ -1,1 +1,1 @@
-export {};
+import './auth-method.d.ts';
