@@ -1,6 +1,7 @@
 # Implementation Plan: Completing Auth Core
 
-This document outlines the step-by-step plan to implement all missing pieces identified in the gap analysis.
+This document outlines the step-by-step plan to implement all missing pieces
+identified in the gap analysis.
 
 ## 🎯 Goals
 
@@ -20,18 +21,22 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 **Duration:** ~2-3 weeks
 
 ### Task 1.1: Create Flow Value Objects
+
 **Priority:** Critical  
 **Dependencies:** None
 
 **Files to Create:**
+
 - `src/domain/identity/value-objects/flow-id.vo.ts`
 - `src/domain/identity/value-objects/auth-flow-step.vo.ts`
 - `src/domain/identity/value-objects/transition.vo.ts`
 - `src/domain/identity/value-objects/terminal-state.vo.ts`
 
 **Implementation Steps:**
+
 1. Create `FlowId` value object (similar to `AuthAttemptId`)
-2. Create `TerminalState` enum/value object: `AUTHENTICATED | FAILED | CHALLENGED`
+2. Create `TerminalState` enum/value object:
+   `AUTHENTICATED | FAILED | CHALLENGED`
 3. Create `Transition` value object:
    ```typescript
    Transition {
@@ -53,6 +58,7 @@ This document outlines the step-by-step plan to implement all missing pieces ide
    ```
 
 **Acceptance Criteria:**
+
 - ✅ All value objects are immutable
 - ✅ Validation logic in place
 - ✅ Serializable to JSON
@@ -61,14 +67,17 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 ---
 
 ### Task 1.2: Create AuthenticationFlow Aggregate
+
 **Priority:** Critical  
 **Dependencies:** Task 1.1
 
 **Files to Create:**
+
 - `src/domain/identity/aggregates/authentication-flow.aggregate.ts`
 - `src/domain/identity/events/flow-created.event.ts` (if needed)
 
 **Implementation Steps:**
+
 1. Create `AuthenticationFlow` aggregate root:
    ```typescript
    AuthenticationFlow {
@@ -90,6 +99,7 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 6. Add method: `isValid(): boolean`
 
 **Acceptance Criteria:**
+
 - ✅ Flow is immutable after creation
 - ✅ Validation prevents invalid flows
 - ✅ Can serialize/deserialize flows
@@ -99,17 +109,20 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 ---
 
 ### Task 1.3: Create Auth Proof System
+
 **Priority:** Critical  
 **Dependencies:** None (can be parallel with Task 1.1)
 
 **Files to Create:**
+
 - `src/domain/identity/value-objects/auth-proof-type.vo.ts`
 - `src/domain/identity/value-objects/auth-proof.vo.ts`
 
 **Implementation Steps:**
+
 1. Create `AuthProofType` value object:
    ```typescript
-   AuthProofType = 
+   AuthProofType =
      | 'password_proof'
      | 'otp_proof'
      | 'oauth_proof'
@@ -133,6 +146,7 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 4. Add method: `toObject()` for serialization
 
 **Acceptance Criteria:**
+
 - ✅ Proof is immutable
 - ✅ Can serialize/deserialize
 - ✅ Tests for proof creation and validation
@@ -140,17 +154,20 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 ---
 
 ### Task 1.4: Update AuthenticationAttempt for Flow-Driven
+
 **Priority:** Critical  
 **Dependencies:** Task 1.1, Task 1.2, Task 1.3
 
 **Files to Update:**
+
 - `src/domain/identity/aggregates/authentication-attempt.aggregate.ts`
 - `src/domain/identity/value-objects/auth-status.vo.ts` (add new states)
 
 **Implementation Steps:**
+
 1. Update `AuthStatus` to include:
    ```typescript
-   AuthStatus = 
+   AuthStatus =
      | 'INITIALIZED'
      | 'IN_PROGRESS'
      | 'AWAITING_CHALLENGE'
@@ -160,12 +177,12 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 2. Update `AuthenticationAttemptProps`:
    ```typescript
    interface AuthenticationAttemptProps {
-     flowId: FlowId                    // NEW
-     currentStepId?: string            // NEW
-     collectedProofs: AuthProof[]     // NEW
-     status: AuthStatus
-     method: AuthMethod               // Keep for backward compat
-     identityId?: IdentityId
+     flowId: FlowId; // NEW
+     currentStepId?: string; // NEW
+     collectedProofs: AuthProof[]; // NEW
+     status: AuthStatus;
+     method: AuthMethod; // Keep for backward compat
+     identityId?: IdentityId;
    }
    ```
 3. Update factory method `start()`:
@@ -197,6 +214,7 @@ This document outlines the step-by-step plan to implement all missing pieces ide
     - Validate all required steps completed
 
 **Acceptance Criteria:**
+
 - ✅ Attempt tracks flow and current step
 - ✅ Proofs are collected per step
 - ✅ State transitions follow flow definition
@@ -209,13 +227,16 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 ---
 
 ### Task 1.5: Create Flow Repository Port
+
 **Priority:** High  
 **Dependencies:** Task 1.2
 
 **Files to Create:**
+
 - `src/ports/outbound/authentication-flow-repository.port.ts`
 
 **Implementation Steps:**
+
 1. Create port interface:
    ```typescript
    AuthenticationFlowRepositoryPort {
@@ -226,6 +247,7 @@ This document outlines the step-by-step plan to implement all missing pieces ide
    ```
 
 **Acceptance Criteria:**
+
 - ✅ Port interface defined
 - ✅ No implementation (infrastructure concern)
 
@@ -238,16 +260,19 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 **Duration:** ~1-2 weeks
 
 ### Task 2.1: Create Trust Level Value Object
+
 **Priority:** High  
 **Dependencies:** None
 
 **Files to Create:**
+
 - `src/domain/session/value-objects/trust-level.vo.ts`
 
 **Implementation Steps:**
+
 1. Create `TrustLevel` value object:
    ```typescript
-   TrustLevel = 
+   TrustLevel =
      | 'ANONYMOUS'  // 0 - unauthenticated
      | 'LOW'        // 1 - weak auth (magic link, social)
      | 'MEDIUM'     // 2 - single strong factor
@@ -255,9 +280,11 @@ This document outlines the step-by-step plan to implement all missing pieces ide
    ```
 2. Add method: `compare(other: TrustLevel): number` (for ordering)
 3. Add method: `isAtLeast(level: TrustLevel): boolean`
-4. Add method: `downgradeTo(level: TrustLevel): TrustLevel` (only allows downgrade)
+4. Add method: `downgradeTo(level: TrustLevel): TrustLevel` (only allows
+   downgrade)
 
 **Acceptance Criteria:**
+
 - ✅ Trust levels are ordered
 - ✅ Cannot upgrade in-place (new attempt required)
 - ✅ Tests for comparison and downgrade logic
@@ -265,13 +292,16 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 ---
 
 ### Task 2.2: Create Context Snapshot Value Object
+
 **Priority:** High  
 **Dependencies:** None
 
 **Files to Create:**
+
 - `src/domain/session/value-objects/context-snapshot.vo.ts`
 
 **Implementation Steps:**
+
 1. Create `ContextSnapshot` value object:
    ```typescript
    ContextSnapshot {
@@ -290,6 +320,7 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 3. Add validation for required fields
 
 **Acceptance Criteria:**
+
 - ✅ Immutable snapshot
 - ✅ Serializable
 - ✅ Tests for snapshot creation
@@ -297,22 +328,27 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 ---
 
 ### Task 2.3: Create AuthenticationSession Aggregate
+
 **Priority:** High  
 **Dependencies:** Task 2.1, Task 2.2, Task 1.3
 
 **Files to Create:**
+
 - `src/domain/session/aggregates/authentication-session.aggregate.ts`
 - `src/domain/session/value-objects/session-status.vo.ts`
 - `src/domain/session/events/session-created.event.ts`
 - `src/domain/session/events/session-revoked.event.ts`
 
 **Files to Update/Replace:**
-- `src/domain/session/entities/session.entity.ts` (may need to replace or refactor)
+
+- `src/domain/session/entities/session.entity.ts` (may need to replace or
+  refactor)
 
 **Implementation Steps:**
+
 1. Create `SessionStatus` value object:
    ```typescript
-   SessionStatus = 'ACTIVE' | 'EXPIRED' | 'REVOKED'
+   SessionStatus = 'ACTIVE' | 'EXPIRED' | 'REVOKED';
    ```
 2. Create `AuthenticationSession` aggregate:
    ```typescript
@@ -329,12 +365,14 @@ This document outlines the step-by-step plan to implement all missing pieces ide
      status: SessionStatus
    }
    ```
-3. Add factory: `createFromAttempt(attempt: AuthenticationAttempt, ...): AuthenticationSession`
+3. Add factory:
+   `createFromAttempt(attempt: AuthenticationAttempt, ...): AuthenticationSession`
    - Extract proofs from attempt
    - Compute trust level from proofs + policies
    - Capture context snapshot
    - Set expiration based on policy
-4. Add method: `computeTrustLevel(proofs: AuthProof[], policies: Policy[]): TrustLevel`
+4. Add method:
+   `computeTrustLevel(proofs: AuthProof[], policies: Policy[]): TrustLevel`
    - Rules:
      - No proofs → ANONYMOUS
      - Only passwordless/social → LOW
@@ -349,6 +387,7 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 8. Add method: `extractAuthFactors(proofs: AuthProof[]): AuthFactor[]`
 
 **Acceptance Criteria:**
+
 - ✅ Session created only from successful attempt
 - ✅ Trust level computed correctly
 - ✅ Cannot upgrade trust in-place
@@ -360,13 +399,16 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 ---
 
 ### Task 2.4: Create Session Repository Port
+
 **Priority:** High  
 **Dependencies:** Task 2.3
 
 **Files to Create:**
+
 - `src/ports/outbound/authentication-session-repository.port.ts`
 
 **Implementation Steps:**
+
 1. Create port interface:
    ```typescript
    AuthenticationSessionRepositoryPort {
@@ -378,6 +420,7 @@ This document outlines the step-by-step plan to implement all missing pieces ide
    ```
 
 **Acceptance Criteria:**
+
 - ✅ Port interface defined
 
 ---
@@ -389,18 +432,21 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 **Duration:** ~1-2 weeks
 
 ### Task 3.1: Create Credential Value Objects
+
 **Priority:** Medium  
 **Dependencies:** None
 
 **Files to Create:**
+
 - `src/domain/identity/value-objects/credential-id.vo.ts`
 - `src/domain/identity/value-objects/credential-status.vo.ts`
 
 **Implementation Steps:**
+
 1. Create `CredentialId` value object (UUID-based)
 2. Create `CredentialStatus` value object:
    ```typescript
-   CredentialStatus = 
+   CredentialStatus =
      | 'ACTIVE'
      | 'SUSPENDED'
      | 'REVOKED'
@@ -413,22 +459,26 @@ This document outlines the step-by-step plan to implement all missing pieces ide
    - SUSPENDED is reversible
 
 **Acceptance Criteria:**
+
 - ✅ Status transitions validated
 - ✅ Tests for status transitions
 
 ---
 
 ### Task 3.2: Create Credential Entity
+
 **Priority:** Medium  
 **Dependencies:** Task 3.1
 
 **Files to Create:**
+
 - `src/domain/identity/entities/credential.entity.ts`
 - `src/domain/identity/events/credential-created.event.ts`
 - `src/domain/identity/events/credential-revoked.event.ts`
 - `src/domain/identity/events/credential-suspended.event.ts`
 
 **Implementation Steps:**
+
 1. Create `Credential` entity:
    ```typescript
    Credential {
@@ -467,6 +517,7 @@ This document outlines the step-by-step plan to implement all missing pieces ide
    - Cannot reactivate after REVOKED/COMPROMISED
 
 **Acceptance Criteria:**
+
 - ✅ Credential lifecycle enforced
 - ✅ Cannot authenticate with non-ACTIVE credential
 - ✅ Revocation is terminal
@@ -475,13 +526,16 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 ---
 
 ### Task 3.3: Create Credential Repository Port
+
 **Priority:** Medium  
 **Dependencies:** Task 3.2
 
 **Files to Create:**
+
 - `src/ports/outbound/credential-repository.port.ts`
 
 **Implementation Steps:**
+
 1. Create port interface:
    ```typescript
    CredentialRepositoryPort {
@@ -496,6 +550,7 @@ This document outlines the step-by-step plan to implement all missing pieces ide
    ```
 
 **Acceptance Criteria:**
+
 - ✅ Port interface defined
 
 ---
@@ -507,13 +562,16 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 **Duration:** ~1 week
 
 ### Task 4.1: Update AuthOrchestratorService
+
 **Priority:** Critical  
 **Dependencies:** Phase 1 complete, Phase 2 complete
 
 **Files to Update:**
+
 - `src/application/services/auth-orchestrator.service.ts`
 
 **Implementation Steps:**
+
 1. Update constructor to accept:
    - `flowRepository: AuthenticationFlowRepositoryPort`
    - `sessionRepository: AuthenticationSessionRepositoryPort`
@@ -523,19 +581,19 @@ This document outlines the step-by-step plan to implement all missing pieces ide
    async execute(command: StartAuthenticationCommand): Promise<AuthAttemptId> {
      // 1. Resolve or select flow (from command or policy)
      const flow = await this.selectFlow(command);
-     
+
      // 2. Create attempt with flow
      const attempt = AuthenticationAttempt.start(attemptId, flow, command.identityId);
-     
+
      // 3. Start flow execution
      attempt.startFlow(flow);
-     
+
      // 4. Execute first step
      await this.executeStep(attempt, flow);
-     
+
      // 5. Save attempt
      await this.attemptRepository.save(attempt);
-     
+
      return attemptId;
    }
    ```
@@ -563,6 +621,7 @@ This document outlines the step-by-step plan to implement all missing pieces ide
    - Return session
 
 **Acceptance Criteria:**
+
 - ✅ Orchestrator executes flows, not just methods
 - ✅ Steps executed sequentially
 - ✅ Proofs collected properly
@@ -573,19 +632,23 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 ---
 
 ### Task 4.2: Create Flow Execution Service (Optional)
+
 **Priority:** Medium  
 **Dependencies:** Task 4.1
 
 **Files to Create:**
+
 - `src/application/services/flow-execution.service.ts`
 
 **Implementation Steps:**
+
 1. Extract flow execution logic from orchestrator
 2. Handle step-by-step execution
 3. Manage challenge states
 4. Handle retries and failures
 
 **Acceptance Criteria:**
+
 - ✅ Flow execution is testable independently
 - ✅ Can be reused by orchestrator
 
@@ -598,10 +661,12 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 **Duration:** ~1 week
 
 ### Task 5.1: Create Policy Domain Objects
+
 **Priority:** Medium  
 **Dependencies:** None
 
 **Files to Create:**
+
 - `src/domain/policy/aggregates/authentication-policy.aggregate.ts`
 - `src/domain/policy/value-objects/policy-rule.vo.ts`
 - `src/domain/policy/value-objects/condition-expression.vo.ts`
@@ -609,9 +674,10 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 - `src/domain/policy/value-objects/policy-scope.vo.ts`
 
 **Implementation Steps:**
+
 1. Create `PolicyScope` value object:
    ```typescript
-   PolicyScope = 
+   PolicyScope =
      | 'GLOBAL'
      | 'PRINCIPAL'
      | 'AUTH_METHOD'
@@ -663,6 +729,7 @@ This document outlines the step-by-step plan to implement all missing pieces ide
    - Rules are valid
 
 **Acceptance Criteria:**
+
 - ✅ Policies are immutable
 - ✅ Policies are serializable
 - ✅ Policies can be versioned
@@ -672,18 +739,22 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 ---
 
 ### Task 5.2: Update Policy Engine to Use Domain Objects
+
 **Priority:** Medium  
 **Dependencies:** Task 5.1
 
 **Files to Update:**
+
 - `src/domain/policy/engine/auth-policy-engine.ts`
 
 **Implementation Steps:**
+
 1. Update to accept `AuthenticationPolicy[]` instead of `AuthPolicyEvaluator[]`
 2. Call `policy.evaluate(context)` on each policy
 3. Aggregate results
 
 **Acceptance Criteria:**
+
 - ✅ Engine uses domain objects
 - ✅ Backward compatible if needed
 
@@ -696,30 +767,36 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 **Duration:** ~1 week
 
 ### Task 6.1: Update Domain Exports
+
 **Priority:** High  
 **Dependencies:** All previous phases
 
 **Files to Update:**
+
 - `src/domain/index.ts`
 - `src/index.ts`
 
 **Implementation Steps:**
+
 1. Export all new aggregates, entities, value objects
 2. Ensure proper module boundaries
 
 ---
 
 ### Task 6.2: Integration Tests
+
 **Priority:** High  
 **Dependencies:** All previous phases
 
 **Files to Create:**
+
 - `src/__tests__/integration/flow-execution.test.ts`
 - `src/__tests__/integration/mfa-flow.test.ts`
 - `src/__tests__/integration/trust-level-computation.test.ts`
 - `src/__tests__/integration/session-creation.test.ts`
 
 **Test Scenarios:**
+
 1. Single-step password flow
 2. Multi-step password + OTP flow
 3. Risk-based step-up flow
@@ -730,10 +807,12 @@ This document outlines the step-by-step plan to implement all missing pieces ide
 ---
 
 ### Task 6.3: Update Documentation
+
 **Priority:** Medium  
 **Dependencies:** All phases
 
 **Files to Update:**
+
 - `README.md`
 - `Architecture.md` (if needed)
 - Add examples of flow definitions
@@ -758,33 +837,39 @@ Week 7:    Phase 6 (Integration & Testing)
 ## 🎯 Success Criteria
 
 ### Phase 1 Complete When:
+
 - ✅ Can define authentication flows declaratively
 - ✅ Attempts track flow and steps
 - ✅ Proofs are collected per step
 - ✅ Multi-step flows execute correctly
 
 ### Phase 2 Complete When:
+
 - ✅ Sessions have trust levels
 - ✅ Trust computed from proofs
 - ✅ Sessions created from attempts
 - ✅ Trust downgrade works
 
 ### Phase 3 Complete When:
+
 - ✅ Credentials can be created/revoked
 - ✅ Credential status checked during auth
 - ✅ Credential lifecycle enforced
 
 ### Phase 4 Complete When:
+
 - ✅ Orchestrator executes flows
 - ✅ Multi-step authentication works end-to-end
 - ✅ Challenge handling works
 
 ### Phase 5 Complete When:
+
 - ✅ Policies are declarative
 - ✅ Policies are serializable/versionable
 - ✅ Policy evaluation works
 
 ### Phase 6 Complete When:
+
 - ✅ All integration tests pass
 - ✅ Documentation updated
 - ✅ Examples provided
@@ -794,19 +879,25 @@ Week 7:    Phase 6 (Integration & Testing)
 ## 🔍 Risk Mitigation
 
 ### Risk 1: Breaking Changes
-**Mitigation:** 
+
+**Mitigation:**
+
 - Keep backward compatibility where possible
 - Use feature flags if needed
 - Gradual migration path
 
 ### Risk 2: Complexity
+
 **Mitigation:**
+
 - Implement incrementally
 - Test each phase thoroughly
 - Refactor as needed
 
 ### Risk 3: Performance
+
 **Mitigation:**
+
 - Profile flow execution
 - Optimize proof collection
 - Cache flows if needed

@@ -1,10 +1,12 @@
 # Gap Analysis: Design vs Implementation
 
-This document identifies what's **documented** in `Definition.md` and `Architecture.md` vs what's **actually implemented** in the codebase.
+This document identifies what's **documented** in `Definition.md` and
+`Architecture.md` vs what's **actually implemented** in the codebase.
 
 ## ✅ Implemented (Complete)
 
 ### 1. Auth Method SPI (Step 1) - ✅ PARTIALLY
+
 - ✅ `AuthMethod` value object exists
 - ✅ `AuthMethodPort` interface exists
 - ✅ `AuthMethodRegistry` type exists (extensible)
@@ -14,6 +16,7 @@ This document identifies what's **documented** in `Definition.md` and `Architect
 - ❌ **Missing**: `AuthMethodRegistry` domain service
 
 ### 2. AuthenticationAttempt Lifecycle (Step 3) - ✅ BASIC
+
 - ✅ `AuthenticationAttempt` aggregate exists
 - ✅ Basic state machine (PENDING → SUCCEEDED/FAILED)
 - ✅ Domain events (Started, Succeeded, Failed)
@@ -25,27 +28,32 @@ This document identifies what's **documented** in `Definition.md` and `Architect
 - ❌ **Missing**: Proof validation per step
 
 ### 3. Policy Engine (Step 4) - ✅ BASIC
+
 - ✅ `AuthPolicyEngine` exists
 - ✅ `AuthPolicyEvaluator` contract exists
 - ✅ `AuthPolicyContext` exists
 - ✅ `AuthPolicyDecision` exists
 - ❌ **Missing**: `AuthenticationPolicy` domain object (immutable, versionable)
 - ❌ **Missing**: `PolicyRule` with `ConditionExpression` and `PolicyAction`
-- ❌ **Missing**: `PolicyScope` value object (Global, Principal, AuthMethod, etc.)
+- ❌ **Missing**: `PolicyScope` value object (Global, Principal, AuthMethod,
+  etc.)
 - ❌ **Missing**: Declarative policy definitions (currently procedural)
 - ❌ **Missing**: Policy serialization/versioning
 
 ### 4. MFA Domain - ✅ IMPLEMENTED
+
 - ✅ `MFASession` aggregate exists
 - ✅ Challenge issuance
 - ✅ Verification logic
 - ✅ Attempt tracking
 
 ### 5. OAuth Domain - ✅ PARTIALLY
+
 - ✅ `OAuthAuthorization` aggregate exists
 - ✅ Basic OAuth flow structure
 
 ### 6. Session Domain - ✅ BASIC
+
 - ✅ `Session` entity exists
 - ✅ Expiration and revocation
 - ❌ **Missing**: `AuthenticationSession` aggregate (as per design)
@@ -61,6 +69,7 @@ This document identifies what's **documented** in `Definition.md` and `Architect
 ### 1. Authentication Flow DSL (Step 2) - ❌ NOT IMPLEMENTED
 
 **Documented Design:**
+
 ```ts
 AuthenticationFlow
 - flowId
@@ -85,6 +94,7 @@ Transition
 **Status:** ❌ **COMPLETELY MISSING**
 
 **Impact:**
+
 - Cannot support multi-step authentication flows
 - Cannot support conditional flows (risk-based step-up)
 - Cannot support MFA orchestration
@@ -92,6 +102,7 @@ Transition
 - No declarative flow definitions
 
 **Files to Create:**
+
 - `src/domain/identity/aggregates/authentication-flow.aggregate.ts`
 - `src/domain/identity/value-objects/auth-flow-step.vo.ts`
 - `src/domain/identity/value-objects/transition.vo.ts`
@@ -102,6 +113,7 @@ Transition
 ### 2. Credential Lifecycle (Step 5) - ❌ NOT IMPLEMENTED
 
 **Documented Design:**
+
 ```ts
 Credential (Entity)
 - CredentialId
@@ -118,6 +130,7 @@ Credential (Entity)
 **Status:** ❌ **COMPLETELY MISSING**
 
 **Impact:**
+
 - Cannot track credential lifecycle
 - Cannot support credential rotation
 - Cannot support credential revocation
@@ -125,6 +138,7 @@ Credential (Entity)
 - No audit trail for credential usage
 
 **Files to Create:**
+
 - `src/domain/identity/entities/credential.entity.ts`
 - `src/domain/identity/value-objects/credential-id.vo.ts`
 - `src/domain/identity/value-objects/credential-status.vo.ts`
@@ -137,6 +151,7 @@ Credential (Entity)
 **Current:** `Session` entity exists but doesn't match design
 
 **Documented Design:**
+
 ```ts
 AuthenticationSession (Aggregate Root)
 - SessionId
@@ -153,6 +168,7 @@ AuthenticationSession (Aggregate Root)
 **Status:** ❌ **MISSING KEY FEATURES**
 
 **What's Missing:**
+
 - `TrustLevel` value object
 - `ContextSnapshot` value object
 - `AuthFactorsUsed` tracking
@@ -161,7 +177,9 @@ AuthenticationSession (Aggregate Root)
 - Flow reference
 
 **Files to Create/Update:**
-- `src/domain/session/aggregates/authentication-session.aggregate.ts` (new aggregate)
+
+- `src/domain/session/aggregates/authentication-session.aggregate.ts` (new
+  aggregate)
 - `src/domain/session/value-objects/trust-level.vo.ts`
 - `src/domain/session/value-objects/context-snapshot.vo.ts`
 - Update `Session` entity or replace with `AuthenticationSession`
@@ -171,6 +189,7 @@ AuthenticationSession (Aggregate Root)
 ### 4. Auth Proof System - ❌ NOT IMPLEMENTED
 
 **Documented Design:**
+
 ```ts
 AuthProof (Value Object)
 - proofType (password_proof | otp_proof | oauth_proof | assertion_proof)
@@ -182,12 +201,14 @@ AuthProof (Value Object)
 **Status:** ❌ **COMPLETELY MISSING**
 
 **Impact:**
+
 - Cannot collect proofs during authentication
 - Cannot validate proofs
 - Cannot track which factors were used
 - Cannot compute trust levels from proofs
 
 **Files to Create:**
+
 - `src/domain/identity/value-objects/auth-proof.vo.ts`
 - `src/domain/identity/value-objects/auth-proof-type.vo.ts`
 
@@ -198,12 +219,14 @@ AuthProof (Value Object)
 **Current:** `AuthenticationAttempt` has basic state but no flow integration
 
 **Missing Properties:**
+
 - `flowId: FlowId`
 - `currentStepId: StepId`
 - `collectedProofs: AuthProof[]`
 - States: `Initialized`, `InProgress`, `AwaitingChallenge`
 
 **Missing Methods:**
+
 - `startFlow(flow: AuthenticationFlow)`
 - `completeStep(proof: AuthProof)`
 - `advanceToNextStep()`
@@ -211,6 +234,7 @@ AuthProof (Value Object)
 - `resumeFromChallenge()`
 
 **Impact:**
+
 - Cannot execute multi-step flows
 - Cannot track progress through flow steps
 - Cannot collect proofs for trust computation
@@ -225,17 +249,20 @@ AuthProof (Value Object)
 **Current:** Only `Identity` entity exists (minimal)
 
 **Missing:**
+
 - `Principal` aggregate root
 - Relationship between Principal and Credentials
 - Principal lifecycle management
 
-**Note:** `Identity` might be the Principal, but design doc suggests separate concept.
+**Note:** `Identity` might be the Principal, but design doc suggests separate
+concept.
 
 ---
 
 ### 7. Auth Method Definition System - ❌ NOT IMPLEMENTED
 
 **Documented Design:**
+
 ```ts
 AuthMethodDefinition
 - type: AuthMethodType
@@ -248,6 +275,7 @@ AuthMethodDefinition
 **Status:** ❌ **COMPLETELY MISSING**
 
 **Impact:**
+
 - Cannot declare method capabilities
 - Cannot validate method requirements
 - Cannot compose methods into flows
@@ -260,6 +288,7 @@ AuthMethodDefinition
 **Current:** Only contracts exist, no domain objects
 
 **Missing:**
+
 - `AuthenticationPolicy` domain object
 - `PolicyRule` value object
 - `ConditionExpression` value object
@@ -267,6 +296,7 @@ AuthMethodDefinition
 - `PolicyScope` value object
 
 **Impact:**
+
 - Policies cannot be serialized/versioned
 - Policies cannot be stored/configured declaratively
 - Policies are procedural, not data-driven
@@ -276,6 +306,7 @@ AuthMethodDefinition
 ## 🔄 Partially Implemented (Needs Completion)
 
 ### 1. Auth Orchestrator Service
+
 - ✅ Basic method resolution
 - ✅ Attempt creation
 - ❌ **Missing**: Flow execution
@@ -285,6 +316,7 @@ AuthMethodDefinition
 - ❌ **Missing**: Session creation from attempt
 
 ### 2. Policy Engine
+
 - ✅ Basic evaluation loop
 - ✅ Step-up detection
 - ❌ **Missing**: Declarative policy definitions
@@ -297,6 +329,7 @@ AuthMethodDefinition
 ## 📋 Implementation Priority
 
 ### Phase 1: Core Flow System (Critical)
+
 1. ✅ Create `AuthenticationFlow` aggregate
 2. ✅ Create `AuthFlowStep` value object
 3. ✅ Create `Transition` value object
@@ -305,6 +338,7 @@ AuthMethodDefinition
 6. ✅ Update orchestrator to execute flows
 
 ### Phase 2: Proof & Session (High Priority)
+
 1. ✅ Create `AuthProof` value object
 2. ✅ Create `AuthenticationSession` aggregate
 3. ✅ Create `TrustLevel` value object
@@ -312,18 +346,21 @@ AuthMethodDefinition
 5. ✅ Implement session creation from attempt
 
 ### Phase 3: Credential Lifecycle (Medium Priority)
+
 1. ✅ Create `Credential` entity
 2. ✅ Create credential status value object
 3. ✅ Implement credential repository port
 4. ✅ Integrate credential checks in authentication
 
 ### Phase 4: Policy Domain Objects (Medium Priority)
+
 1. ✅ Create `AuthenticationPolicy` domain object
 2. ✅ Create `PolicyRule` value object
 3. ✅ Create `ConditionExpression` value object
 4. ✅ Make policies serializable/versionable
 
 ### Phase 5: Auth Method Definitions (Low Priority)
+
 1. ✅ Create `AuthMethodDefinition` domain object
 2. ✅ Create method registry service
 3. ✅ Integrate with flow system
@@ -333,6 +370,7 @@ AuthMethodDefinition
 ## 🎯 Summary
 
 **What Works:**
+
 - Basic authentication attempt tracking
 - MFA session management
 - OAuth structure
@@ -340,6 +378,7 @@ AuthMethodDefinition
 - Plugin-based auth method system
 
 **What's Missing:**
+
 - **Flow DSL** (most critical - blocks MFA, step-up, enterprise flows)
 - **Proof system** (blocks trust computation, auditability)
 - **Credential lifecycle** (blocks security features)
@@ -347,6 +386,7 @@ AuthMethodDefinition
 - **Flow-driven attempts** (blocks multi-step auth)
 
 **Architecture Compliance:**
+
 - Current implementation: ~40% of documented design
 - Core flow system: 0% implemented
 - Credential system: 0% implemented
