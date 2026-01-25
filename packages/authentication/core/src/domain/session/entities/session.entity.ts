@@ -1,5 +1,6 @@
-import { SessionToken } from '@/domain/token/value-objects/session-token.vo';
 import { Entity, EntityProps } from '@rineex/ddd';
+
+import { SessionToken } from '@/domain/token/value-objects/session-token.vo';
 import { IdentityId } from '@/domain/identity';
 
 import { SessionId } from '../value-objects/session-id.vo';

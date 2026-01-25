@@ -1,14 +1,15 @@
+import { AggregateRoot, EntityProps } from '@rineex/ddd';
+
 import isNil from 'lodash.isnil';
 
 import { defaultIfNilOrEmpty } from '@/utils/default-if-blank.util';
-import { AggregateRoot, EntityProps } from '@rineex/ddd';
 import { IdentityId } from '@/domain/identity';
 
-import { AuthorizationAlreadyUsedViolation } from '../violations/authorization-already-used.violation';
-import { AuthorizationExpiredViolation } from '../violations/authorization-expired.violation';
-import { ConsentRequiredViolation } from '../violations/consent-required.violation';
+import { AuthorizationAlreadyUsedError } from '../errors/authorization-already-used.error';
+import { AuthorizationExpiredError } from '../errors/authorization-expired.error';
 import { OAuthAuthorizationId } from '../value-objects/oauth-authorization-id.vo';
 import { AuthorizationCode } from '../value-objects/authorization-code.vo';
+import { ConsentRequiredError } from '../errors/consent-required.error';
 import { CodeChallenge } from '../value-objects/code-challenge.vo';
 import { RedirectUri } from '../value-objects/redirect-uri.vo';
 import { ClientId } from '../value-objects/client-id.vo';
@@ -53,11 +54,11 @@ export class OauthAuthorization extends AggregateRoot<
 
   issueAuthorizationCode(code: AuthorizationCode): void {
     if (this.props.authorizationCode) {
-      throw AuthorizationAlreadyUsedViolation.create();
+      throw AuthorizationAlreadyUsedError.create();
     }
 
     if (this.requiresConsent()) {
-      throw ConsentRequiredViolation.create();
+      throw ConsentRequiredError.create();
     }
 
     this.mutate(current => ({
@@ -90,7 +91,7 @@ export class OauthAuthorization extends AggregateRoot<
 
   validate() {
     if (this.props.expiresAt.getTime() <= Date.now()) {
-      throw AuthorizationExpiredViolation.create();
+      throw AuthorizationExpiredError.create();
     }
   }
 

@@ -4,7 +4,7 @@ import {
   AuthMethodPort,
   IdentityId,
 } from '@rineex/auth-core';
-import { OtpAuthenticationViolation } from '@/domain/violations/otp-authentication.violation';
+import { OtpAuthenticationError } from '@/domain/errors/otp-authentication.error';
 import { OtpCode } from '@/domain/value-objects/otp-code.vo';
 
 import { OtpChannelPort } from './ports/otp-channel.port';
@@ -28,7 +28,7 @@ export class OtpAuthMethod implements AuthMethodPort {
 
   async authenticate(context: AuthContext) {
     if (!context || !context.metadata?.identityId) {
-      throw new OtpAuthenticationViolation('Invalid or expired OTP code', {
+      throw OtpAuthenticationError.create('Invalid or expired OTP code', {
         reason: 'Identity ID is required in context metadata',
       });
     }
@@ -52,7 +52,7 @@ export class OtpAuthMethod implements AuthMethodPort {
     const valid = await this.otpChannel.verifyOtp(identityId, code);
 
     if (!valid) {
-      throw new OtpAuthenticationViolation();
+      throw OtpAuthenticationError.create();
     }
   }
 }

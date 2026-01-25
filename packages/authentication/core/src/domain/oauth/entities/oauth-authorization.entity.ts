@@ -1,7 +1,7 @@
 import { Entity, EntityProps } from '@rineex/ddd';
 
-import { InvalidRedirectUriViolation } from '../violations/invalid-redirect-uri.violation';
 import { OAuthAuthorizationId } from '../value-objects/oauth-authorization-id.vo';
+import { InvalidRedirectUriError } from '../errors/invalid-redirect-uri.error';
 import { OAuthProvider } from '../value-objects/oauth-provider.vo';
 import { Pkce } from '../value-objects/pkce.vo';
 
@@ -34,7 +34,7 @@ export class OAuthAuthorization extends Entity<
 
   validate(): void {
     if (!this.props.redirectUri.startsWith('https://')) {
-      throw InvalidRedirectUriViolation.create({
+      throw InvalidRedirectUriError.create({
         redirectUri: this.props.redirectUri,
       });
     }

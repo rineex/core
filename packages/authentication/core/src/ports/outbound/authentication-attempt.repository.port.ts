@@ -1,4 +1,4 @@
-import { AuthenticationAttempt } from '@/domain';
+import { AuthAttemptId, AuthenticationAttempt } from '@/domain';
 
 /**
  * Persistence port for authentication attempts.
@@ -7,5 +7,5 @@ import { AuthenticationAttempt } from '@/domain';
  */
 export type AuthenticationAttemptRepositoryPort = {
   save: (attempt: AuthenticationAttempt) => Promise<void>;
-  findById: (id: string) => Promise<AuthenticationAttempt | null>;
+  findById: (id: AuthAttemptId) => Promise<AuthenticationAttempt | null>;
 };

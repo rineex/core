@@ -6,7 +6,7 @@ import { DomainError } from '../../../shared/domain/domain.error';
 describe('entityValidationError', () => {
   describe('constructor', () => {
     it('should create an entity validation error', () => {
-      const error = new EntityValidationError('Validation failed');
+      const error = new EntityValidationError('Validation failed', {});
 
       expect(error.message).toBe('Validation failed');
       expect(error.code).toBe('CORE.VALIDATION_FAILED');
@@ -14,7 +14,7 @@ describe('entityValidationError', () => {
     });
 
     it('should be instance of DomainError', () => {
-      const error = new EntityValidationError('Validation failed');
+      const error = new EntityValidationError('Validation failed', {});
 
       expect(error).toBeInstanceOf(DomainError);
     });
@@ -22,7 +22,7 @@ describe('entityValidationError', () => {
 
   describe('create', () => {
     it('should create error using static factory', () => {
-      const error = EntityValidationError.create('Custom message');
+      const error = EntityValidationError.create('Custom message', {});
 
       expect(error).toBeInstanceOf(EntityValidationError);
       expect(error.message).toBe('Custom message');
@@ -32,7 +32,7 @@ describe('entityValidationError', () => {
 
   describe('toObject', () => {
     it('should serialize to object', () => {
-      const error = new EntityValidationError('Validation failed');
+      const error = new EntityValidationError('Validation failed', {});
       const obj = error.toObject();
 
       expect(obj).toEqual({

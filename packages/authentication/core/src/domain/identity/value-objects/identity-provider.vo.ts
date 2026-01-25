@@ -1,5 +1,6 @@
-import { IdentityProviderName } from '@/types/identity-provider.type';
 import { PrimitiveValueObject } from '@rineex/ddd';
+
+import { IdentityProviderName } from '@/types/identity-provider.type';
 
 /**
  * Represents an external or internal identity provider.

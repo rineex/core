@@ -1,4 +1,4 @@
-import { PasswordlessChannelNameLiteral } from '@/domain/value-objects/passwordless-channel-name.vo';
+import { PasswordlessChannel } from '@/domain/value-objects/channel.vo';
 import { PasswordlessChannelPort } from '@/ports/channels/passwordless-channel.port';
 
 /**
@@ -8,7 +8,7 @@ import { PasswordlessChannelPort } from '@/ports/channels/passwordless-channel.p
  */
 export class PasswordlessChannelRegistry {
   private readonly channels = new Map<
-    PasswordlessChannelNameLiteral,
+    PasswordlessChannel,
     PasswordlessChannelPort
   >();
 
@@ -16,7 +16,7 @@ export class PasswordlessChannelRegistry {
     this.channels.set(channel.channelName, channel);
   }
 
-  get(channelName: PasswordlessChannelNameLiteral): PasswordlessChannelPort {
+  get(channelName: PasswordlessChannel): PasswordlessChannelPort {
     const channel = this.channels.get(channelName);
     if (!channel) {
       throw new Error(`Passwordless channel not registered: ${channelName}`);

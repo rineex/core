@@ -20,6 +20,7 @@ export default [
         'error',
         {
           groups: [
+            'rineex',
             'builtin', // Node.js built-in modules (e.g., 'fs', 'path')
             'external', // External dependencies (e.g., 'react', 'lodash')
             'nestjs',
@@ -32,6 +33,7 @@ export default [
           customGroups: {
             value: {
               nestjs: '@nestjs/*',
+              rineex: '@rineex/*',
               common: '@/*', // Matches imports like '@/common/utils', '@/common/helpers', etc.
             },
           },

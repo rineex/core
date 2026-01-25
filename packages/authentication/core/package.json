@@ -57,6 +57,7 @@
   "dependencies": {
     "@rineex/ddd": "workspace:*",
     "lodash.isempty": "4.4.0",
-    "lodash.isnil": "4.0.0"
+    "lodash.isnil": "4.0.0",
+    "uuid": "13.0.0"
   }
 }

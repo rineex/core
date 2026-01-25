@@ -1,19 +1,27 @@
 import { AggregateRoot, EntityProps } from '@rineex/ddd';
 import { ChallengeDestination } from '../value-objects/challenge-destination.vo';
 import { ChallengeSecret } from '../value-objects/challenge-secret.vo';
-import { PasswordlessChannelName } from '../value-objects/passwordless-channel-name.vo';
 import { PasswordlessChallengeId } from '../value-objects/passwordless-challenge-id.vo';
 import { PasswordlessChallengeIssuedEvent } from '../events/passwordless-challenge-issued.event';
+import { PasswordlessChannel } from '../value-objects/channel.vo';
 
 type PasswordlessChallengeProps = {
-  readonly channel: PasswordlessChannelName;
+  readonly channel: PasswordlessChannel;
   readonly destination: ChallengeDestination;
   readonly secret: ChallengeSecret;
   readonly issuedAt: Date;
   readonly expiresAt: Date;
 };
 
-export class PasswordlessChallenge extends AggregateRoot<PasswordlessChallengeProps> {
+type CreatePasswordlessProps = EntityProps<
+  PasswordlessChallengeId,
+  PasswordlessChallengeProps
+>;
+
+export class PasswordlessChallenge extends AggregateRoot<
+  PasswordlessChallengeId,
+  PasswordlessChallengeProps
+> {
   validate(): void {
     if (this.props.expiresAt <= this.props.issuedAt) {
       throw new Error('Challenge expiration must be after issuedAt');
@@ -24,7 +32,7 @@ export class PasswordlessChallenge extends AggregateRoot<PasswordlessChallengePr
     props,
     id,
     createdAt,
-  }: EntityProps<PasswordlessChallengeProps>): PasswordlessChallenge {
+  }: CreatePasswordlessProps): PasswordlessChallenge {
     const challenge = new PasswordlessChallenge({ props, id, createdAt });
 
     challenge.addEvent(

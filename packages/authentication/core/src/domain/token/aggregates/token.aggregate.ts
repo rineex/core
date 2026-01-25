@@ -1,4 +1,5 @@
 import { AggregateRoot, EntityProps } from '@rineex/ddd';
+
 import { IdentityId } from '@/domain/identity';
 
 interface TokenProps {
@@ -32,7 +33,7 @@ export class Token extends AggregateRoot<IdentityId, TokenProps> {
       IdentityId: this.props.identityId.getValue(),
       revokedAt: this.props.revokedAt,
       isActive: this.isActive,
-      id: this.id.getValue(),
+      id: this.id.value,
     };
   }
 

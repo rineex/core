@@ -1,5 +1,6 @@
-import { AuthPolicyName } from '@/types/auth-policy.type';
 import { PrimitiveValueObject } from '@rineex/ddd';
+
+import { AuthPolicyName } from '@/types/auth-policy.type';
 
 /**
  * Represents a policy applied during authentication orchestration.

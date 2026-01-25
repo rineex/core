@@ -19,7 +19,7 @@ export type StartAuthenticationCommand = {
    * Optional identity hint.
    * Used for passwordless, SSO, or known users.
    */
-  readonly identityId?: IdentityId;
+  readonly identityId: IdentityId;
 
   /**
    * Execution context for auditing, correlation, and risk.

@@ -1,6 +1,6 @@
 import { ValueObject } from '@rineex/ddd';
 
-import { InvalidPkceViolation } from '../violations/invalid-pkce.violation';
+import { InvalidPkceError } from '../errors/invalid-pkce.error';
 
 export type PkceProps = {
   readonly codeVerifier: string;
@@ -23,7 +23,7 @@ export class Pkce extends ValueObject<PkceProps> {
 
   protected validate(props: PkceProps): void {
     if (!props.codeVerifier || !props.codeChallenge) {
-      throw InvalidPkceViolation.create(props);
+      throw InvalidPkceError.create(props);
     }
   }
 }

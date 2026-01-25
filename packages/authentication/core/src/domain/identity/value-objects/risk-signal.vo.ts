@@ -1,5 +1,6 @@
-import { RiskSignalName } from '@/types/risk-signal.type';
 import { PrimitiveValueObject } from '@rineex/ddd';
+
+import { RiskSignalName } from '@/types/risk-signal.type';
 
 /**
  * Represents a detected risk signal during authentication.

@@ -1,5 +1,6 @@
-import { AuthFactorName } from '@/types/auth-factor.type';
 import { PrimitiveValueObject } from '@rineex/ddd';
+
+import { AuthFactorName } from '@/types/auth-factor.type';
 
 /**
  * Represents an authentication factor.
