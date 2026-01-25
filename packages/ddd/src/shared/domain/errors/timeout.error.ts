@@ -11,6 +11,8 @@ import {
  * Error thrown when an operation times out.
  * Use for operations that exceed their allowed execution time.
  *
+ * @template T - Type of metadata object (must extend Record<string, Primitive>)
+ *
  * @example
  * // Operation timeout:
  * const timeout = setTimeout(() => {
@@ -21,7 +23,7 @@ import {
  *
  * @example
  * // With Promise.race:
- * type Props = { url: string, timeoutMs: number }
+ * type Props = { url: string; timeoutMs: number };
  * async function fetchWithTimeout(url: string, timeoutMs: number) {
  *   const timeoutPromise = new Promise<never>((_, reject) => {
  *     setTimeout(() => {
@@ -34,10 +36,17 @@ import {
  *
  *   return await Promise.race([fetch(url), timeoutPromise]);
  * }
+ *
+ * @example
+ * // With custom metadata:
+ * throw new TimeoutError(
+ *   'Database query timed out',
+ *   { query: 'SELECT * FROM users', timeout: 5000, retries: 3 }
+ * );
  */
-export class TimeoutError<T = Record<string, Primitive>> extends DomainError<
-  Metadata<T>
-> {
+export class TimeoutError<
+  T extends Record<string, Primitive> = Record<string, Primitive>,
+> extends DomainError<Metadata<T>> {
   /** @inheritdoc */
   public readonly code = 'SYSTEM.TIMEOUT' as const;
 
