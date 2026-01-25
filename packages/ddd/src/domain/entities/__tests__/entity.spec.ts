@@ -39,10 +39,10 @@ class User extends Entity<UUID, UserProps> {
 
   public validate(): void {
     if (!this.props.name || this.props.name.trim().length === 0) {
-      throw EntityValidationError.create('Name is required');
+      throw EntityValidationError.create('Name is required', {});
     }
     if (!this.props.email || !this.props.email.includes('@')) {
-      throw EntityValidationError.create('Valid email is required');
+      throw EntityValidationError.create('Valid email is required', {});
     }
   }
 }

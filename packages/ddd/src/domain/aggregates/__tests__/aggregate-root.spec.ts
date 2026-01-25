@@ -79,10 +79,10 @@ class Order extends AggregateRoot<UUID, OrderProps> {
 
   public validate(): void {
     if (!this.props.customerId || this.props.customerId.trim().length === 0) {
-      throw EntityValidationError.create('Customer ID is required');
+      throw EntityValidationError.create('Customer ID is required', {});
     }
     if (this.props.total < 0) {
-      throw EntityValidationError.create('Total must be non-negative');
+      throw EntityValidationError.create('Total must be non-negative', {});
     }
   }
 }
