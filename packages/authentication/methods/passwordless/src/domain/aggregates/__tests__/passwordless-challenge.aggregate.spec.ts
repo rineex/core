@@ -1,23 +1,23 @@
-import { describe, expect, it, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
-import { PasswordlessChallengeAggregate } from '../passwordless-challenge.aggregate';
-import { PasswordlessChallengeId } from '../../value-objects/passwordless-challenge-id.vo';
-import { PasswordlessChannel } from '../../value-objects/channel.vo';
-import { ChallengeDestination } from '../../value-objects/challenge-destination.vo';
-import { ChallengeSecret } from '../../value-objects/challenge-secret.vo';
-import { PasswordlessChallengeStatus } from '../../value-objects/passwordless-challenge-status.vo';
-import { PasswordlessChallengeIssuedEvent } from '../../events/passwordless-challenge-issued.event';
-import { PasswordlessChallengeVerifiedEvent } from '../../events/passwordless-challenge-verified.event';
 import {
+  PasswordlessChallengeAlreadyUsedErr,
   PasswordlessChallengeChannelRequired,
   PasswordlessChallengeExpired,
   PasswordlessChallengeInvalidExpiration,
-  PasswordlessChallengeAlreadyUsedErr,
   PasswordlessChallengeSecretMismatch,
   PasswordlessChallengeSecretRequired,
 } from '../../errors/passwordless-challenge.error';
+import { PasswordlessChallengeVerifiedEvent } from '../../events/passwordless-challenge-verified.event';
+import { PasswordlessChallengeIssuedEvent } from '../../events/passwordless-challenge-issued.event';
+import { PasswordlessChallengeStatus } from '../../value-objects/passwordless-challenge-status.vo';
+import { PasswordlessChallengeId } from '../../value-objects/passwordless-challenge-id.vo';
+import { PasswordlessChallengeAggregate } from '../passwordless-challenge.aggregate';
+import { ChallengeDestination } from '../../value-objects/challenge-destination.vo';
+import { ChallengeSecret } from '../../value-objects/challenge-secret.vo';
+import { PasswordlessChannel } from '../../value-objects/channel.vo';
 
-describe('PasswordlessChallengeAggregate', () => {
+describe('passwordlessChallengeAggregate', () => {
   const VALID_UUID = '550e8400-e29b-41d4-a716-446655440000';
   const VALID_SECRET = '123456';
   const VALID_DESTINATION = 'user@example.com';
@@ -41,16 +41,16 @@ describe('PasswordlessChallengeAggregate', () => {
   describe('validate', () => {
     it('should pass validation with valid props', () => {
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          channel: validChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       expect(() => challenge.validate()).not.toThrow();
@@ -58,34 +58,36 @@ describe('PasswordlessChallengeAggregate', () => {
 
     it('should throw PasswordlessChallengeChannelRequired when channel is missing', () => {
       expect(() => {
+        // eslint-disable-next-line no-new
         new PasswordlessChallengeAggregate({
-          id: validId,
-          createdAt: issuedAt,
           props: {
-            channel: null as any,
-            destination: validDestination,
-            secret: validSecret,
-            issuedAt,
-            expiresAt,
             status: PasswordlessChallengeStatus.issued(),
+            destination: validDestination,
+            channel: null as any,
+            secret: validSecret,
+            expiresAt,
+            issuedAt,
           },
+          createdAt: issuedAt,
+          id: validId,
         });
       }).toThrow(PasswordlessChallengeChannelRequired);
     });
 
     it('should throw PasswordlessChallengeSecretRequired when secret is missing', () => {
       expect(() => {
+        // eslint-disable-next-line no-new
         new PasswordlessChallengeAggregate({
-          id: validId,
-          createdAt: issuedAt,
           props: {
-            channel: validChannel,
-            destination: validDestination,
-            secret: null as any,
-            issuedAt,
-            expiresAt,
             status: PasswordlessChallengeStatus.issued(),
+            destination: validDestination,
+            channel: validChannel,
+            secret: null as any,
+            expiresAt,
+            issuedAt,
           },
+          createdAt: issuedAt,
+          id: validId,
         });
       }).toThrow(PasswordlessChallengeSecretRequired);
     });
@@ -94,34 +96,36 @@ describe('PasswordlessChallengeAggregate', () => {
       const invalidExpiresAt = new Date('2024-01-01T09:00:00Z'); // Before issuedAt
 
       expect(() => {
+        // eslint-disable-next-line no-new
         new PasswordlessChallengeAggregate({
-          id: validId,
-          createdAt: issuedAt,
           props: {
-            channel: validChannel,
+            status: PasswordlessChallengeStatus.issued(),
             destination: validDestination,
+            expiresAt: invalidExpiresAt,
+            channel: validChannel,
             secret: validSecret,
             issuedAt,
-            expiresAt: invalidExpiresAt,
-            status: PasswordlessChallengeStatus.issued(),
           },
+          createdAt: issuedAt,
+          id: validId,
         });
       }).toThrow(PasswordlessChallengeInvalidExpiration);
     });
 
     it('should throw PasswordlessChallengeInvalidExpiration when expiresAt equals issuedAt', () => {
       expect(() => {
+        // eslint-disable-next-line no-new
         new PasswordlessChallengeAggregate({
-          id: validId,
-          createdAt: issuedAt,
           props: {
-            channel: validChannel,
-            destination: validDestination,
-            secret: validSecret,
-            issuedAt,
-            expiresAt: issuedAt,
             status: PasswordlessChallengeStatus.issued(),
+            destination: validDestination,
+            channel: validChannel,
+            secret: validSecret,
+            expiresAt: issuedAt,
+            issuedAt,
           },
+          createdAt: issuedAt,
+          id: validId,
         });
       }).toThrow(PasswordlessChallengeInvalidExpiration);
     });
@@ -130,16 +134,16 @@ describe('PasswordlessChallengeAggregate', () => {
   describe('issue', () => {
     it('should create a new challenge aggregate with issued status', () => {
       const challenge = PasswordlessChallengeAggregate.issue({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          channel: validChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       expect(challenge).toBeInstanceOf(PasswordlessChallengeAggregate);
@@ -149,19 +153,20 @@ describe('PasswordlessChallengeAggregate', () => {
 
     it('should emit PasswordlessChallengeIssuedEvent when issued', () => {
       const challenge = PasswordlessChallengeAggregate.issue({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          channel: validChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       const events = challenge.domainEvents;
+
       expect(events).toHaveLength(1);
       expect(events[0]).toBeInstanceOf(PasswordlessChallengeIssuedEvent);
       expect(events[0].eventName).toBe('auth.passwordless.challenge_created');
@@ -173,19 +178,20 @@ describe('PasswordlessChallengeAggregate', () => {
 
     it('should set occurredAt to issuedAt timestamp in event', () => {
       const challenge = PasswordlessChallengeAggregate.issue({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          channel: validChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       const events = challenge.domainEvents;
+
       expect(events[0].occurredAt).toBe(issuedAt.getTime());
     });
 
@@ -194,19 +200,20 @@ describe('PasswordlessChallengeAggregate', () => {
       const phoneDestination = ChallengeDestination.create('+1234567890');
 
       const challenge = PasswordlessChallengeAggregate.issue({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: smsChannel,
-          destination: phoneDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: phoneDestination,
+          channel: smsChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       const events = challenge.domainEvents;
+
       expect(events[0].payload.channel).toBe('sms');
       expect(events[0].payload.destination).toBe('+1234567890');
     });
@@ -217,16 +224,16 @@ describe('PasswordlessChallengeAggregate', () => {
       const now = new Date('2024-01-01T10:05:00Z'); // 5 minutes after issuedAt
 
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          channel: validChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       expect(challenge.isExpired(now)).toBe(false);
@@ -236,16 +243,16 @@ describe('PasswordlessChallengeAggregate', () => {
       const now = new Date('2024-01-01T10:15:00Z'); // After expiresAt
 
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          channel: validChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       expect(challenge.isExpired(now)).toBe(true);
@@ -253,16 +260,16 @@ describe('PasswordlessChallengeAggregate', () => {
 
     it('should return false when current time equals expiresAt', () => {
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          channel: validChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       expect(challenge.isExpired(expiresAt)).toBe(false);
@@ -270,16 +277,16 @@ describe('PasswordlessChallengeAggregate', () => {
 
     it('should use current date when now parameter is not provided', () => {
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
+          status: PasswordlessChallengeStatus.issued(),
+          expiresAt: new Date(Date.now() - 1000), // Expired 1 second ago
           destination: validDestination,
+          channel: validChannel,
           secret: validSecret,
           issuedAt,
-          expiresAt: new Date(Date.now() - 1000), // Expired 1 second ago
-          status: PasswordlessChallengeStatus.issued(),
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       expect(challenge.isExpired()).toBe(true);
@@ -289,16 +296,16 @@ describe('PasswordlessChallengeAggregate', () => {
   describe('matchesSecret', () => {
     it('should return true when input matches the secret', () => {
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          channel: validChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       expect(challenge.matchesSecret(VALID_SECRET)).toBe(true);
@@ -306,16 +313,16 @@ describe('PasswordlessChallengeAggregate', () => {
 
     it('should return false when input does not match the secret', () => {
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          channel: validChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       expect(challenge.matchesSecret('wrong-secret')).toBe(false);
@@ -323,16 +330,16 @@ describe('PasswordlessChallengeAggregate', () => {
 
     it('should return false for empty string input', () => {
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          channel: validChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       expect(challenge.matchesSecret('')).toBe(false);
@@ -342,16 +349,16 @@ describe('PasswordlessChallengeAggregate', () => {
       // This test verifies that the method uses timingSafeEqual
       // by checking that different length secrets don't cause early returns
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: ChallengeSecret.create('123456'),
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          secret: ChallengeSecret.create('123456'),
+          destination: validDestination,
+          channel: validChannel,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       // Different length secrets should still go through full comparison
@@ -363,16 +370,16 @@ describe('PasswordlessChallengeAggregate', () => {
     it('should handle special characters in secret', () => {
       const specialSecret = ChallengeSecret.create('!@#$%^');
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: specialSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          channel: validChannel,
+          secret: specialSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       expect(challenge.matchesSecret('!@#$%^')).toBe(true);
@@ -385,16 +392,16 @@ describe('PasswordlessChallengeAggregate', () => {
       const now = new Date('2024-01-01T10:05:00Z'); // Before expiresAt
 
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          channel: validChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       expect(() => challenge.verify(VALID_SECRET, now)).not.toThrow();
@@ -405,21 +412,22 @@ describe('PasswordlessChallengeAggregate', () => {
       const now = new Date('2024-01-01T10:05:00Z');
 
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          channel: validChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       challenge.verify(VALID_SECRET, now);
 
       const events = challenge.domainEvents;
+
       expect(events).toHaveLength(1);
       expect(events[0]).toBeInstanceOf(PasswordlessChallengeVerifiedEvent);
       expect(events[0].eventName).toBe('auth.passwordless.challenge_verified');
@@ -434,16 +442,16 @@ describe('PasswordlessChallengeAggregate', () => {
       const now = new Date('2024-01-01T10:15:00Z'); // After expiresAt
 
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          channel: validChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       expect(() => challenge.verify(VALID_SECRET, now)).toThrow(
@@ -456,16 +464,16 @@ describe('PasswordlessChallengeAggregate', () => {
       const now = new Date('2024-01-01T10:05:00Z');
 
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.verified(),
+          destination: validDestination,
+          channel: validChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       expect(() => challenge.verify(VALID_SECRET, now)).toThrow(
@@ -477,16 +485,16 @@ describe('PasswordlessChallengeAggregate', () => {
       const now = new Date('2024-01-01T10:05:00Z');
 
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.expired(),
+          destination: validDestination,
+          channel: validChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       expect(() => challenge.verify(VALID_SECRET, now)).toThrow(
@@ -498,16 +506,16 @@ describe('PasswordlessChallengeAggregate', () => {
       const now = new Date('2024-01-01T10:05:00Z');
 
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          channel: validChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       expect(() => challenge.verify('wrong-secret', now)).toThrow(
@@ -521,16 +529,16 @@ describe('PasswordlessChallengeAggregate', () => {
       const futureExpiresAt = new Date(Date.now() + 60000); // 1 minute from now
 
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: new Date(),
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt: new Date(),
-          expiresAt: futureExpiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          expiresAt: futureExpiresAt,
+          channel: validChannel,
+          issuedAt: new Date(),
+          secret: validSecret,
         },
+        createdAt: new Date(),
+        id: validId,
       });
 
       expect(() => challenge.verify(VALID_SECRET)).not.toThrow();
@@ -538,16 +546,16 @@ describe('PasswordlessChallengeAggregate', () => {
 
     it('should verify challenge exactly at expiration time', () => {
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          channel: validChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       // At exactly expiresAt, should still be valid (not expired)
@@ -558,16 +566,16 @@ describe('PasswordlessChallengeAggregate', () => {
       const justBeforeExpires = new Date(expiresAt.getTime() - 1000); // 1 second before
 
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          channel: validChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       expect(() =>
@@ -583,24 +591,24 @@ describe('PasswordlessChallengeAggregate', () => {
       const futureExpiresAt = new Date(Date.now() + 600000); // 10 minutes from now
 
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: futureIssuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt: futureIssuedAt,
-          expiresAt: futureExpiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          expiresAt: futureExpiresAt,
+          issuedAt: futureIssuedAt,
+          channel: validChannel,
+          secret: validSecret,
         },
+        createdAt: futureIssuedAt,
+        id: validId,
       });
 
       const obj = challenge.toObject();
 
       expect(obj).toEqual({
-        channel: 'email',
-        destination: VALID_DESTINATION,
         issuedAt: futureIssuedAt.toISOString(),
+        destination: VALID_DESTINATION,
+        channel: 'email',
         expired: false,
       });
     });
@@ -609,16 +617,16 @@ describe('PasswordlessChallengeAggregate', () => {
       const pastExpiresAt = new Date(Date.now() - 1000); // 1 second ago
 
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
+          status: PasswordlessChallengeStatus.issued(),
           destination: validDestination,
+          expiresAt: pastExpiresAt,
+          channel: validChannel,
           secret: validSecret,
           issuedAt,
-          expiresAt: pastExpiresAt,
-          status: PasswordlessChallengeStatus.issued(),
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       const obj = challenge.toObject();
@@ -630,16 +638,16 @@ describe('PasswordlessChallengeAggregate', () => {
       const futureExpiresAt = new Date(Date.now() + 60000); // 1 minute from now
 
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
+          status: PasswordlessChallengeStatus.issued(),
           destination: validDestination,
+          expiresAt: futureExpiresAt,
+          channel: validChannel,
           secret: validSecret,
           issuedAt,
-          expiresAt: futureExpiresAt,
-          status: PasswordlessChallengeStatus.issued(),
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       const obj = challenge.toObject();
@@ -652,16 +660,16 @@ describe('PasswordlessChallengeAggregate', () => {
       const phoneDestination = ChallengeDestination.create('+1234567890');
 
       const challenge = new PasswordlessChallengeAggregate({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: smsChannel,
-          destination: phoneDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: phoneDestination,
+          channel: smsChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       const obj = challenge.toObject();
@@ -677,16 +685,16 @@ describe('PasswordlessChallengeAggregate', () => {
 
       // Issue challenge
       const challenge = PasswordlessChallengeAggregate.issue({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          channel: validChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       expect(challenge.props.status.value).toBe('issued');
@@ -708,16 +716,16 @@ describe('PasswordlessChallengeAggregate', () => {
       const expiredNow = new Date('2024-01-01T10:15:00Z'); // After expiresAt
 
       const challenge = PasswordlessChallengeAggregate.issue({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          channel: validChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       // Try to verify expired challenge
@@ -731,16 +739,16 @@ describe('PasswordlessChallengeAggregate', () => {
       const now = new Date('2024-01-01T10:05:00Z');
 
       const challenge = PasswordlessChallengeAggregate.issue({
-        id: validId,
-        createdAt: issuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt,
-          expiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          channel: validChannel,
+          secret: validSecret,
+          expiresAt,
+          issuedAt,
         },
+        createdAt: issuedAt,
+        id: validId,
       });
 
       // Try wrong secret first

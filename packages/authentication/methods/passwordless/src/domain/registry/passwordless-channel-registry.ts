@@ -1,8 +1,18 @@
 /**
- * Open registry for passwordless channel identifiers.
+ * Open registry type for passwordless channel identifiers.
  *
- * Each channel implementation extends this registry
- * via TypeScript module augmentation.
+ * This type serves as a registry that can be extended via TypeScript
+ * module augmentation. Each channel implementation should extend this
+ * registry to register its channel identifier.
+ *
+ * @example
+ * ```typescript
+ * declare module '@rineex/auth-passwordless' {
+ *   interface PasswordlessChannelRegistry {
+ *     readonly sms: true;
+ *   }
+ * }
+ * ```
  */
 export type PasswordlessChannelRegistry = {
   readonly email: true;

@@ -9,7 +9,6 @@ interface TestPayload extends DomainEventPayload {
   action: string;
 }
 
-/* eslint-disable @typescript-eslint/class-literal-property-style */
 class TestDomainEvent extends DomainEvent<UUID, TestPayload> {
   public readonly eventName = 'TestEvent';
 

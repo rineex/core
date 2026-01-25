@@ -1,21 +1,33 @@
 import { AggregateRoot, EntityProps } from '@rineex/ddd';
-import { ChallengeDestination } from '../value-objects/challenge-destination.vo';
-import { ChallengeSecret } from '../value-objects/challenge-secret.vo';
-import { PasswordlessChallengeId } from '../value-objects/passwordless-challenge-id.vo';
-import { PasswordlessChallengeIssuedEvent } from '../events/passwordless-challenge-issued.event';
-import { PasswordlessChallengeVerifiedEvent } from '../events/passwordless-challenge-verified.event';
-import { PasswordlessChannel } from '../value-objects/channel.vo';
-import { PasswordlessChallengeStatus } from '../value-objects/passwordless-challenge-status.vo';
+
 import { createHash, timingSafeEqual } from 'node:crypto';
+
 import {
+  PasswordlessChallengeAlreadyUsedErr,
   PasswordlessChallengeChannelRequired,
   PasswordlessChallengeExpired,
   PasswordlessChallengeInvalidExpiration,
-  PasswordlessChallengeAlreadyUsedErr,
   PasswordlessChallengeSecretMismatch,
   PasswordlessChallengeSecretRequired,
 } from '../errors/passwordless-challenge.error';
+import { PasswordlessChallengeVerifiedEvent } from '../events/passwordless-challenge-verified.event';
+import { PasswordlessChallengeIssuedEvent } from '../events/passwordless-challenge-issued.event';
+import { PasswordlessChallengeStatus } from '../value-objects/passwordless-challenge-status.vo';
+import { PasswordlessChallengeId } from '../value-objects/passwordless-challenge-id.vo';
+import { ChallengeDestination } from '../value-objects/challenge-destination.vo';
+import { ChallengeSecret } from '../value-objects/challenge-secret.vo';
+import { PasswordlessChannel } from '../value-objects/channel.vo';
 
+/**
+ * Properties for a passwordless challenge aggregate.
+ *
+ * @property {PasswordlessChannel} channel - The channel used for passwordless authentication
+ * @property {ChallengeDestination} destination - The destination where the challenge is sent
+ * @property {ChallengeSecret} secret - The secret generated for the challenge
+ * @property {Date} issuedAt - Timestamp when the challenge was issued
+ * @property {Date} expiresAt - Timestamp when the challenge expires
+ * @property {PasswordlessChallengeStatus} status - Current status of the challenge
+ */
 type PasswordlessChallengeProps = {
   readonly channel: PasswordlessChannel;
   readonly destination: ChallengeDestination;
@@ -25,55 +37,88 @@ type PasswordlessChallengeProps = {
   status: PasswordlessChallengeStatus;
 };
 
+/**
+ * Properties required to create a new passwordless challenge aggregate.
+ */
 type CreatePasswordlessProps = EntityProps<
   PasswordlessChallengeId,
   PasswordlessChallengeProps
 >;
 
+/**
+ * Aggregate root representing a passwordless authentication challenge.
+ *
+ * This aggregate manages the lifecycle of a passwordless challenge, including:
+ * - Creation and issuance
+ * - Secret verification
+ * - Expiration checking
+ * - Status management
+ *
+ * @example
+ * ```typescript
+ * const challenge = PasswordlessChallengeAggregate.issue({
+ *   id: challengeId,
+ *   createdAt: new Date(),
+ *   props: {
+ *     channel: PasswordlessChannel.create('email'),
+ *     destination: ChallengeDestination.create('user@example.com'),
+ *     secret: ChallengeSecret.create('123456'),
+ *     issuedAt: new Date(),
+ *     expiresAt: new Date(Date.now() + 600000),
+ *     status: PasswordlessChallengeStatus.issued(),
+ *   },
+ * });
+ * ```
+ */
 export class PasswordlessChallengeAggregate extends AggregateRoot<
   PasswordlessChallengeId,
   PasswordlessChallengeProps
 > {
-  validate(): void {
-    if (!this.props.channel) {
-      throw PasswordlessChallengeChannelRequired.create();
-    }
-    if (!this.props.secret) {
-      throw PasswordlessChallengeSecretRequired.create();
-    }
-
-    if (this.props.expiresAt <= this.props.issuedAt) {
-      throw PasswordlessChallengeInvalidExpiration.create();
-    }
-  }
-
+  /**
+   * Creates and issues a new passwordless challenge.
+   *
+   * This factory method creates a new challenge aggregate and emits a
+   * PasswordlessChallengeIssuedEvent domain event.
+   *
+   * @param {CreatePasswordlessProps} props - Properties for creating the challenge
+   * @param {PasswordlessChallengeId} props.id - Unique identifier for the challenge
+   * @param {Date} [props.createdAt] - Creation timestamp (defaults to current time)
+   * @param {PasswordlessChallengeProps} props.props - Challenge properties
+   * @returns {PasswordlessChallengeAggregate} A new passwordless challenge aggregate
+   */
   public static issue({
+    createdAt,
     props,
     id,
-    createdAt,
   }: CreatePasswordlessProps): PasswordlessChallengeAggregate {
     const challenge = new PasswordlessChallengeAggregate({
+      createdAt,
       props,
       id,
-      createdAt,
     });
 
     challenge.addEvent(
       PasswordlessChallengeIssuedEvent.create({
-        aggregateId: challenge.id,
-        occurredAt: props.issuedAt.getTime(),
-        schemaVersion: 1,
         payload: {
-          channel: challenge.props.channel.value,
-          destination: challenge.props.destination.value,
           expiresAt: challenge.props.expiresAt.toISOString(),
+          destination: challenge.props.destination.value,
+          channel: challenge.props.channel.value,
         },
+        occurredAt: props.issuedAt.getTime(),
+        aggregateId: challenge.id,
+        schemaVersion: 1,
       }),
     );
 
     return challenge;
   }
 
+  /**
+   * Checks if the challenge has expired.
+   *
+   * @param {Date} [now] - Optional current date for comparison (defaults to new Date())
+   * @returns {boolean} True if the challenge has expired, false otherwise
+   */
   isExpired(now = new Date()): boolean {
     return now > this.props.expiresAt;
   }
@@ -104,6 +149,44 @@ export class PasswordlessChallengeAggregate extends AggregateRoot<
     const inputHash = createHash('sha256').update(input, 'utf8').digest();
 
     return timingSafeEqual(secretHash, inputHash);
+  }
+
+  /**
+   * Converts the aggregate to a plain object representation.
+   *
+   * @returns {Object} Plain object containing challenge information
+   * @returns {string} returns.issuedAt - ISO string of when the challenge was issued
+   * @returns {string} returns.destination - The destination value
+   * @returns {string} returns.channel - The channel value
+   * @returns {boolean} returns.expired - Whether the challenge has expired
+   */
+  toObject() {
+    return {
+      issuedAt: this.props.issuedAt.toISOString(),
+      destination: this.props.destination.value,
+      channel: this.props.channel.value,
+      expired: this.isExpired(),
+    };
+  }
+
+  /**
+   * Validates the challenge aggregate's invariants.
+   *
+   * @throws {PasswordlessChallengeChannelRequired} If channel is missing
+   * @throws {PasswordlessChallengeSecretRequired} If secret is missing
+   * @throws {PasswordlessChallengeInvalidExpiration} If expiration is invalid
+   */
+  validate(): void {
+    if (!this.props.channel) {
+      throw PasswordlessChallengeChannelRequired.create();
+    }
+    if (!this.props.secret) {
+      throw PasswordlessChallengeSecretRequired.create();
+    }
+
+    if (this.props.expiresAt <= this.props.issuedAt) {
+      throw PasswordlessChallengeInvalidExpiration.create();
+    }
   }
 
   /**
@@ -145,24 +228,15 @@ export class PasswordlessChallengeAggregate extends AggregateRoot<
 
     this.addEvent(
       PasswordlessChallengeVerifiedEvent.create({
-        aggregateId: this.id,
-        occurredAt: now.getTime(),
-        schemaVersion: 1,
         payload: {
-          channel: this.props.channel.value,
           destination: this.props.destination.value,
+          channel: this.props.channel.value,
           verifiedAt: now.toISOString(),
         },
+        occurredAt: now.getTime(),
+        aggregateId: this.id,
+        schemaVersion: 1,
       }),
     );
-  }
-
-  toObject() {
-    return {
-      channel: this.props.channel.value,
-      destination: this.props.destination.value,
-      issuedAt: this.props.issuedAt.toISOString(),
-      expired: this.isExpired(),
-    };
   }
 }

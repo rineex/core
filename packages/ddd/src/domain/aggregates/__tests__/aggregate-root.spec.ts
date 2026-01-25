@@ -11,7 +11,6 @@ interface OrderProps {
   total: number;
 }
 
-/* eslint-disable @typescript-eslint/class-literal-property-style */
 class OrderCreatedEvent extends DomainEvent<UUID, { customerId: string }> {
   public readonly eventName = 'OrderCreated';
 

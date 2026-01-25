@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/class-literal-property-style */
-
 import {
   DomainError,
   DomainErrorType,
