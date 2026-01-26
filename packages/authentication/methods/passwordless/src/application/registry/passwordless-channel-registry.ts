@@ -1,5 +1,10 @@
-import { PasswordlessChannelPort } from '@/ports/channels/passwordless-channel.port';
-import { PasswordlessChannel } from '@/domain/value-objects/channel.vo';
+import { PasswordlessChannelPort } from '@/ports';
+import { PasswordlessChannel } from '@/domain';
+
+import {
+  DuplicatePasswordlessChannelApplicationError,
+  UnSupportedPasswordlessChannelApplicationError,
+} from '../errors';
 
 /**
  * Runtime registry for passwordless channel implementations.
@@ -7,31 +12,66 @@ import { PasswordlessChannel } from '@/domain/value-objects/channel.vo';
  * Enables open/closed extensibility.
  */
 export class PasswordlessChannelRegistry {
-  private readonly channels = new Map<string, PasswordlessChannelPort>();
+  private readonly channels: Map<string, PasswordlessChannelPort>;
+
+  private constructor(channels: readonly PasswordlessChannelPort[]) {
+    this.channels = PasswordlessChannelRegistry.build(channels);
+  }
+
+  public static init(
+    channels: readonly PasswordlessChannelPort[],
+  ): PasswordlessChannelRegistry {
+    return new PasswordlessChannelRegistry(channels);
+  }
+
+  private static build(
+    channels: readonly PasswordlessChannelPort[],
+  ): Map<string, PasswordlessChannelPort> {
+    const map = new Map<string, PasswordlessChannelPort>();
+
+    for (const channel of channels) {
+      const key = PasswordlessChannelRegistry.channelKey(channel);
+
+      if (map.has(key)) {
+        throw DuplicatePasswordlessChannelApplicationError.create(
+          `Duplicate passwordless channel registered: ${key}`,
+          { key },
+        );
+      }
+
+      map.set(key, channel);
+    }
+    return map;
+  }
+
+  private static channelKey(channel: PasswordlessChannelPort): string {
+    return channel.channelName.value;
+  }
 
   /**
    * Retrieves a registered passwordless channel implementation.
    *
-   * @param {PasswordlessChannel} channelName - The name of the channel to retrieve
+   * @param {PasswordlessChannel} key - The name of the channel to retrieve
    * @returns {PasswordlessChannelPort} The registered channel implementation
    * @throws {Error} If the channel is not registered
    */
-  get(channelName: PasswordlessChannel): PasswordlessChannelPort {
-    const channel = this.channels.get(channelName.value);
+  resolve(key: string): PasswordlessChannelPort {
+    const channel = this.channels.get(key);
     if (!channel) {
-      throw new Error(
-        `Passwordless channel not registered: ${channelName.value}`,
+      throw UnSupportedPasswordlessChannelApplicationError.create(
+        `Passwordless channel not registered: ${key}`,
+        { key },
       );
     }
     return channel;
   }
 
   /**
-   * Registers a passwordless channel implementation.
+   * Checks whether a channel is supported.
    *
-   * @param {PasswordlessChannelPort} channel - The channel implementation to register
+   * Useful for policy decisions before issuing challenges.
    */
-  register(channel: PasswordlessChannelPort): void {
-    this.channels.set(channel.channelName.value, channel);
+  public supports(channel: PasswordlessChannel): boolean {
+    return this.channels.has(channel.value);
   }
 }

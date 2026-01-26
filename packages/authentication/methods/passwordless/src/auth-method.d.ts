@@ -18,6 +18,7 @@ declare module '@rineex/ddd' {
       'CHANNEL_REQUIRED',
       'SECRET_REQUIRED',
       'INVALID_EXPIRATION',
+      'CHALLENGE_NOT_FOUND',
     ];
   }
 }

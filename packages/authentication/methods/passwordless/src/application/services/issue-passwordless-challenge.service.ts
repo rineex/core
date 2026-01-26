@@ -2,13 +2,17 @@ import { ApplicationServicePort, ClockPort, Result } from '@rineex/ddd';
 
 import ms from 'ms';
 
-import { PasswordlessChallengeRepository } from '@/ports/repositories/passwordless-challenge.repository';
-import { PasswordlessChallengeAggregate } from '@/domain/aggregates/passwordless-challenge.aggregate';
-import { PasswordlessChallengeStatus } from '@/domain/value-objects/passwordless-challenge-status.vo';
-import { ChallengeDestination } from '@/domain/value-objects/challenge-destination.vo';
-import { PasswordlessIdGeneratorPort } from '@/ports/passwordless-id-generator.port';
-import { ChallengeSecret } from '@/domain/value-objects/challenge-secret.vo';
-import { PasswordlessChannel } from '@/domain/value-objects/channel.vo';
+import {
+  ChallengeDestination,
+  ChallengeSecret,
+  PasswordlessChallengeAggregate,
+  PasswordlessChallengeStatus,
+  PasswordlessChannel,
+} from '@/domain';
+import {
+  PasswordlessChallengeRepository,
+  PasswordlessIdGeneratorPort,
+} from '@/ports';
 
 type Input = {
   channel: PasswordlessChannel;

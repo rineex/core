@@ -10,7 +10,6 @@ class TestApplicationError extends ApplicationError {
     super({
       code: HttpStatusMessage['400'],
       isOperational: true,
-      status: 400,
       message,
     });
   }
@@ -23,7 +22,6 @@ describe('applicationError', () => {
 
       expect(error.message).toBe('Test error message');
       expect(error.code).toBe(HttpStatusMessage['400']);
-      expect(error.status).toBe(400);
       expect(error.isOperational).toBe(true);
       expect(error.name).toBe('TestApplicationError');
     });
@@ -42,7 +40,6 @@ describe('applicationError', () => {
 
       expect(error.message).toBe('Test error');
       expect(error.code).toBe(HttpStatusMessage['500']);
-      expect(error.status).toBe(500);
       expect(error.isOperational).toBe(false);
     });
 

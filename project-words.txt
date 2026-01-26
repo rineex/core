@@ -22,14 +22,15 @@ plpgsql
 preid
 rineex
 slonik
+snakecase
 softprops
 svitejs
 terbal
 topbar
 TOTP
 treeify
-Turborepo
 tsup
+Turborepo
 unplugin
 uuidv
 vitest

@@ -1,4 +1,4 @@
-import { PasswordlessChallengeAggregate } from '@/domain/aggregates/passwordless-challenge.aggregate';
+import { PasswordlessChallengeAggregate } from '@/domain';
 
 /**
  * Repository port for persisting passwordless challenge aggregates.
@@ -14,4 +14,6 @@ export type PasswordlessChallengeRepository = {
    * @returns {Promise<void>} Promise that resolves when the challenge is saved
    */
   save: (challenge: PasswordlessChallengeAggregate) => Promise<void>;
+
+  findById: (id: string) => Promise<PasswordlessChallengeAggregate | null>;
 };

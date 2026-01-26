@@ -4,7 +4,7 @@ import {
   PasswordlessChallengeIssuedEvent,
   PasswordlessChallengeIssuedPayload,
 } from '../passwordless-challenge-issued.event';
-import { PasswordlessChallengeId } from '../../value-objects/passwordless-challenge-id.vo';
+import { PasswordlessChallengeId } from '../..';
 
 describe('passwordlessChallengeIssuedEvent', () => {
   const VALID_UUID_1 = '550e8400-e29b-41d4-a716-446655440000';

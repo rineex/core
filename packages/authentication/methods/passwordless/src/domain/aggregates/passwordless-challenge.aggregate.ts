@@ -3,20 +3,20 @@ import { AggregateRoot, EntityProps } from '@rineex/ddd';
 import { createHash, timingSafeEqual } from 'node:crypto';
 
 import {
-  PasswordlessChallengeAlreadyUsedErr,
+  ChallengeDestination,
+  ChallengeSecret,
+  PasswordlessChallengeAlreadyUsedError,
   PasswordlessChallengeChannelRequired,
-  PasswordlessChallengeExpired,
+  PasswordlessChallengeExpiredError,
+  PasswordlessChallengeId,
   PasswordlessChallengeInvalidExpiration,
-  PasswordlessChallengeSecretMismatch,
+  PasswordlessChallengeIssuedEvent,
+  PasswordlessChallengeSecretMismatchError,
   PasswordlessChallengeSecretRequired,
-} from '../errors/passwordless-challenge.error';
-import { PasswordlessChallengeVerifiedEvent } from '../events/passwordless-challenge-verified.event';
-import { PasswordlessChallengeIssuedEvent } from '../events/passwordless-challenge-issued.event';
-import { PasswordlessChallengeStatus } from '../value-objects/passwordless-challenge-status.vo';
-import { PasswordlessChallengeId } from '../value-objects/passwordless-challenge-id.vo';
-import { ChallengeDestination } from '../value-objects/challenge-destination.vo';
-import { ChallengeSecret } from '../value-objects/challenge-secret.vo';
-import { PasswordlessChannel } from '../value-objects/channel.vo';
+  PasswordlessChallengeStatus,
+  PasswordlessChallengeVerifiedEvent,
+  PasswordlessChannel,
+} from '..';
 
 /**
  * Properties for a passwordless challenge aggregate.
@@ -194,9 +194,9 @@ export class PasswordlessChallengeAggregate extends AggregateRoot<
    *
    * @param {string} secret - The secret to verify against the challenge
    * @param {Date} [now] - Optional current date for expiration checking (defaults to new Date())
-   * @throws {PasswordlessChallengeExpired} If the challenge has expired
-   * @throws {PasswordlessChallengeAlreadyUsedErr} If the challenge has already been verified
-   * @throws {PasswordlessChallengeSecretMismatch} If the provided secret does not match
+   * @throws {PasswordlessChallengeExpiredError} If the challenge has expired
+   * @throws {PasswordlessChallengeAlreadyUsedError} If the challenge has already been verified
+   * @throws {PasswordlessChallengeSecretMismatchError} If the provided secret does not match
    *
    * @example
    * ```typescript
@@ -210,15 +210,15 @@ export class PasswordlessChallengeAggregate extends AggregateRoot<
    */
   verify(secret: string, now = new Date()): void {
     if (this.isExpired(now)) {
-      throw PasswordlessChallengeExpired.create();
+      throw PasswordlessChallengeExpiredError.create();
     }
 
     if (this.props.status.isFinal()) {
-      throw PasswordlessChallengeAlreadyUsedErr.create();
+      throw PasswordlessChallengeAlreadyUsedError.create();
     }
 
     if (!this.matchesSecret(secret)) {
-      throw PasswordlessChallengeSecretMismatch.create();
+      throw PasswordlessChallengeSecretMismatchError.create();
     }
 
     this.mutate(current => ({

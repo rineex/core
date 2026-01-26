@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { PasswordlessChallengeStatus } from '../passwordless-challenge-status.vo';
+import { PasswordlessChallengeStatus } from '..';
 
 describe('passwordlessChallengeStatus', () => {
   describe('static factory methods', () => {
