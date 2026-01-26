@@ -36,10 +36,10 @@ describe('passwordlessChannelRegistry', () => {
       registry.register(mockSmsChannel);
 
       expect(() =>
-        registry.get(PasswordlessChannel.create('email')),
+        registry.resolve(PasswordlessChannel.create('email')),
       ).not.toThrow();
       expect(() =>
-        registry.get(PasswordlessChannel.create('sms')),
+        registry.resolve(PasswordlessChannel.create('sms')),
       ).not.toThrow();
     });
 
@@ -57,7 +57,7 @@ describe('passwordlessChannelRegistry', () => {
       registry.register(firstChannel);
       registry.register(secondChannel);
 
-      const retrieved = registry.get(PasswordlessChannel.create('email'));
+      const retrieved = registry.resolve(PasswordlessChannel.create('email'));
 
       expect(retrieved).toBe(secondChannel);
     });
@@ -67,7 +67,7 @@ describe('passwordlessChannelRegistry', () => {
     it('should retrieve a registered channel', () => {
       registry.register(mockEmailChannel);
 
-      const retrieved = registry.get(PasswordlessChannel.create('email'));
+      const retrieved = registry.resolve(PasswordlessChannel.create('email'));
 
       expect(retrieved).toBe(mockEmailChannel);
       expect(retrieved.channelName.value).toBe('email');
@@ -75,7 +75,7 @@ describe('passwordlessChannelRegistry', () => {
 
     it('should throw error when channel is not registered', () => {
       expect(() => {
-        registry.get(PasswordlessChannel.create('email'));
+        registry.resolve(PasswordlessChannel.create('email'));
       }).toThrow('Passwordless channel not registered: email');
     });
 
@@ -83,7 +83,7 @@ describe('passwordlessChannelRegistry', () => {
       registry.register(mockEmailChannel);
 
       expect(() => {
-        registry.get(PasswordlessChannel.create('sms'));
+        registry.resolve(PasswordlessChannel.create('sms'));
       }).toThrow('Passwordless channel not registered: sms');
     });
 
@@ -91,8 +91,10 @@ describe('passwordlessChannelRegistry', () => {
       registry.register(mockEmailChannel);
       registry.register(mockSmsChannel);
 
-      const emailChannel = registry.get(PasswordlessChannel.create('email'));
-      const smsChannel = registry.get(PasswordlessChannel.create('sms'));
+      const emailChannel = registry.resolve(
+        PasswordlessChannel.create('email'),
+      );
+      const smsChannel = registry.resolve(PasswordlessChannel.create('sms'));
 
       expect(emailChannel.channelName.value).toBe('email');
       expect(smsChannel.channelName.value).toBe('sms');
@@ -115,7 +117,7 @@ describe('passwordlessChannelRegistry', () => {
       };
 
       registry.register(testChannel);
-      const retrieved = registry.get(PasswordlessChannel.create('email'));
+      const retrieved = registry.resolve(PasswordlessChannel.create('email'));
 
       const destination = ChallengeDestination.create('user@example.com');
       const secret = ChallengeSecret.create('123456');

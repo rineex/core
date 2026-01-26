@@ -27,7 +27,7 @@ export abstract class PasswordlessChallengeError extends DomainError {
  * }
  * ```
  */
-export class PasswordlessChallengeExpired extends PasswordlessChallengeError {
+export class PasswordlessChallengeExpiredError extends PasswordlessChallengeError {
   readonly code: DomainErrorCode = 'AUTH_PASSWORDLESS.CHALLENGE_EXPIRED';
   readonly message = 'Passwordless challenge has expired';
   readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
@@ -37,8 +37,8 @@ export class PasswordlessChallengeExpired extends PasswordlessChallengeError {
    *
    * @returns New PasswordlessChallengeExpired instance
    */
-  static create(): PasswordlessChallengeExpired {
-    return new PasswordlessChallengeExpired(
+  static create(): PasswordlessChallengeExpiredError {
+    return new PasswordlessChallengeExpiredError(
       'Passwordless challenge has expired',
       {},
     );
@@ -60,7 +60,7 @@ export class PasswordlessChallengeExpired extends PasswordlessChallengeError {
  * }
  * ```
  */
-export class PasswordlessChallengeAlreadyUsedErr extends PasswordlessChallengeError {
+export class PasswordlessChallengeAlreadyUsedError extends PasswordlessChallengeError {
   readonly code: DomainErrorCode = 'AUTH_PASSWORDLESS.CHALLENGE_ALREADY_USED';
   readonly message = 'Passwordless challenge has already been used';
   readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
@@ -70,8 +70,8 @@ export class PasswordlessChallengeAlreadyUsedErr extends PasswordlessChallengeEr
    *
    * @returns New PasswordlessChallengeAlreadyUsedErr instance
    */
-  static create(): PasswordlessChallengeAlreadyUsedErr {
-    return new PasswordlessChallengeAlreadyUsedErr(
+  static create(): PasswordlessChallengeAlreadyUsedError {
+    return new PasswordlessChallengeAlreadyUsedError(
       'Passwordless challenge has already been used',
       {},
     );
@@ -93,7 +93,7 @@ export class PasswordlessChallengeAlreadyUsedErr extends PasswordlessChallengeEr
  * }
  * ```
  */
-export class PasswordlessChallengeSecretMismatch extends PasswordlessChallengeError {
+export class PasswordlessChallengeSecretMismatchError extends PasswordlessChallengeError {
   readonly code: DomainErrorCode = 'AUTH_PASSWORDLESS.SECRET_MISMATCH';
   readonly message = 'Passwordless challenge secret does not match';
   readonly type: DomainErrorType = 'DOMAIN.INVALID_VALUE';
@@ -103,8 +103,8 @@ export class PasswordlessChallengeSecretMismatch extends PasswordlessChallengeEr
    *
    * @returns New PasswordlessChallengeSecretMismatch instance
    */
-  static create(): PasswordlessChallengeSecretMismatch {
-    return new PasswordlessChallengeSecretMismatch(
+  static create(): PasswordlessChallengeSecretMismatchError {
+    return new PasswordlessChallengeSecretMismatchError(
       'Passwordless challenge secret does not match',
       {},
     );
@@ -202,6 +202,39 @@ export class PasswordlessChallengeInvalidExpiration extends PasswordlessChalleng
   static create(): PasswordlessChallengeInvalidExpiration {
     return new PasswordlessChallengeInvalidExpiration(
       'Challenge expiration must be after issuedAt',
+      {},
+    );
+  }
+}
+
+/**
+ * Raised when a passwordless challenge is not found.
+ *
+ * @remarks
+ * This error is thrown when attempting to retrieve a passwordless challenge
+ * that does not exist in the system.
+ *
+ * @example
+ * ```typescript
+ * // Thrown when challenge is not found
+ * const challenge = await repository.findById(id);
+ * if (!challenge) {
+ *   throw PasswordlessChallengeNotFOuntError.create();
+ * }
+ * ```
+ */
+export class PasswordlessChallengeNotFoundError extends PasswordlessChallengeError {
+  readonly code: DomainErrorCode = 'AUTH_PASSWORDLESS.CHALLENGE_NOT_FOUND';
+  readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
+
+  /**
+   * Creates a new PasswordlessChallengeNotFOuntError instance.
+   *
+   * @returns New PasswordlessChallengeNotFOuntError instance
+   */
+  static create(): PasswordlessChallengeNotFoundError {
+    return new PasswordlessChallengeNotFoundError(
+      'Passwordless challenge not found',
       {},
     );
   }
