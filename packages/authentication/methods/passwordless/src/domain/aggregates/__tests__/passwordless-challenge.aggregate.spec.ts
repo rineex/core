@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import {
-  PasswordlessChallengeAlreadyUsedErr,
+  PasswordlessChallengeAlreadyUsedError,
   PasswordlessChallengeChannelRequired,
-  PasswordlessChallengeExpired,
+  PasswordlessChallengeExpiredError,
   PasswordlessChallengeInvalidExpiration,
-  PasswordlessChallengeSecretMismatch,
+  PasswordlessChallengeSecretMismatchError,
   PasswordlessChallengeSecretRequired,
 } from '../../errors/passwordless-challenge.error';
 import { PasswordlessChallengeVerifiedEvent } from '../../events/passwordless-challenge-verified.event';
@@ -459,7 +459,7 @@ describe('passwordlessChallengeAggregate', () => {
 
       expect(() => challenge.verify(VALID_SECRET, now)).toThrow(
         // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
-        PasswordlessChallengeExpired,
+        PasswordlessChallengeExpiredError,
       );
       // @ts-expect-error - bypassing private props
       expect(challenge.props.status.value).toBe('issued'); // Status should not change
@@ -483,7 +483,7 @@ describe('passwordlessChallengeAggregate', () => {
 
       expect(() => challenge.verify(VALID_SECRET, now)).toThrow(
         // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
-        PasswordlessChallengeAlreadyUsedErr,
+        PasswordlessChallengeAlreadyUsedError,
       );
     });
 
@@ -505,7 +505,7 @@ describe('passwordlessChallengeAggregate', () => {
 
       expect(() => challenge.verify(VALID_SECRET, now)).toThrow(
         // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
-        PasswordlessChallengeAlreadyUsedErr,
+        PasswordlessChallengeAlreadyUsedError,
       );
     });
 
@@ -527,7 +527,7 @@ describe('passwordlessChallengeAggregate', () => {
 
       expect(() => challenge.verify('wrong-secret', now)).toThrow(
         // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
-        PasswordlessChallengeSecretMismatch,
+        PasswordlessChallengeSecretMismatchError,
       );
       // @ts-expect-error - bypassing private props
       expect(challenge.props.status.value).toBe('issued'); // Status should not change
@@ -720,7 +720,7 @@ describe('passwordlessChallengeAggregate', () => {
       // Try to verify again - should fail
       expect(() => challenge.verify(VALID_SECRET, now)).toThrow(
         // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
-        PasswordlessChallengeAlreadyUsedErr,
+        PasswordlessChallengeAlreadyUsedError,
       );
     });
 
@@ -743,7 +743,7 @@ describe('passwordlessChallengeAggregate', () => {
       // Try to verify expired challenge
       expect(() => challenge.verify(VALID_SECRET, expiredNow)).toThrow(
         // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
-        PasswordlessChallengeExpired,
+        PasswordlessChallengeExpiredError,
       );
       // @ts-expect-error - props is protected, but needed for testing
       expect(challenge.props.status.value).toBe('issued'); // Status unchanged
@@ -768,7 +768,7 @@ describe('passwordlessChallengeAggregate', () => {
       // Try wrong secret first
       expect(() => challenge.verify('wrong-secret', now)).toThrow(
         // @ts-expect-error - Cannot assign a 'protected' constructor type to a 'public' constructor
-        PasswordlessChallengeSecretMismatch,
+        PasswordlessChallengeSecretMismatchError,
       );
       // @ts-expect-error - props is protected, but needed for testing
       expect(challenge.props.status.value).toBe('issued'); // Still issued
