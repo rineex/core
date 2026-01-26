@@ -148,6 +148,9 @@ importers:
       '@rineex/ddd':
         specifier: workspace:*
         version: link:../../../ddd
+      lodash.snakecase:
+        specifier: 4.1.1
+        version: 4.1.1
       ms:
         specifier: ^2.1.3
         version: 2.1.3
@@ -158,6 +161,9 @@ importers:
       '@rineex/typescript-config':
         specifier: workspace:*
         version: link:../../../typescript-config
+      '@types/lodash.snakecase':
+        specifier: 4.1.9
+        version: 4.1.9
       '@types/ms':
         specifier: 2.1.0
         version: 2.1.0
@@ -185,6 +191,30 @@ importers:
       vitest:
         specifier: 4.0.16
         version: 4.0.16(@types/node@24.10.4)(@vitest/ui@4.0.16)(jiti@2.6.1)(yaml@2.8.2)
+
+  packages/authentication/ports:
+    devDependencies:
+      '@rineex/eslint-config':
+        specifier: workspace:*
+        version: link:../../eslint-config
+      '@rineex/typescript-config':
+        specifier: workspace:*
+        version: link:../../typescript-config
+      '@types/node':
+        specifier: 24.10.4
+        version: 24.10.4
+      '@vitest/ui':
+        specifier: 4.0.16
+        version: 4.0.16(vitest@4.0.16)
+      tslib:
+        specifier: 2.8.1
+        version: 2.8.1
+      tsup:
+        specifier: 8.5.1
+        version: 8.5.1(jiti@2.6.1)(postcss@8.5.6)(typescript@5.9.3)(yaml@2.8.2)
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
 
   packages/ddd:
     dependencies:
@@ -2091,6 +2121,9 @@ packages:
 
   '@types/lodash.isnil@4.0.9':
     resolution: {integrity: sha512-NruIMLXRJL8sOm1RZkzFBfoMIkLZ7hCNWaAXzzHiBTxf4JvQowcaP1l4eTr02jGJqCSEags/bPFN3ypUKMpgFw==}
+
+  '@types/lodash.snakecase@4.1.9':
+    resolution: {integrity: sha512-emBZJUiNlo+QPXr1junMKXwzHJK9zbFvTVdyAoorFcm1YRsbzkZCYPTVMM9AW+dlnA6utG7vpfvOs8alxv/TMw==}
 
   '@types/lodash@4.17.21':
     resolution: {integrity: sha512-FOvQ0YPD5NOfPgMzJihoT+Za5pdkDJWcbpuj1DjaKZIr/gxodQjY/uWEFlTNqW2ugXHUiL8lRQgw63dzKHZdeQ==}
@@ -4116,6 +4149,9 @@ packages:
 
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
+
+  lodash.snakecase@4.1.1:
+    resolution: {integrity: sha512-QZ1d4xoBHYUeuouhEq3lk3Uq7ldgyFXGBhg04+oRLnIz8o9T65Eh+8YdroUwn846zchkA9yDsDl5CVVaV2nqYw==}
 
   lodash.sortby@4.7.0:
     resolution: {integrity: sha512-HDWXG8isMntAyRF5vZ7xKuEvOhT4AhlRt/3czTSjvGUxjYCBVRQY48ViDHyfYz9VIoBkW4TMGQNapx+l3RUwdA==}
@@ -7144,6 +7180,10 @@ snapshots:
     dependencies:
       '@types/lodash': 4.17.21
 
+  '@types/lodash.snakecase@4.1.9':
+    dependencies:
+      '@types/lodash': 4.17.21
+
   '@types/lodash@4.17.21': {}
 
   '@types/ms@2.1.0': {}
@@ -9799,6 +9839,8 @@ snapshots:
   lodash.isnil@4.0.0: {}
 
   lodash.merge@4.6.2: {}
+
+  lodash.snakecase@4.1.1: {}
 
   lodash.sortby@4.7.0: {}
 
