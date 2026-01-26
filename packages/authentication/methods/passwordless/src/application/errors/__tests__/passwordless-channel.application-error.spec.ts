@@ -6,7 +6,7 @@ import {
 } from '../passwordless-channel.application-error';
 
 describe('passwordlessChannelApplicationError', () => {
-  describe('UnSupportedPasswordlessChannelApplicationError', () => {
+  describe('unSupportedPasswordlessChannelApplicationError', () => {
     describe('create', () => {
       it('should create an error with message and metadata', () => {
         const error = UnSupportedPasswordlessChannelApplicationError.create(
@@ -117,7 +117,7 @@ describe('passwordlessChannelApplicationError', () => {
     });
   });
 
-  describe('DuplicatePasswordlessChannelApplicationError', () => {
+  describe('duplicatePasswordlessChannelApplicationError', () => {
     describe('create', () => {
       it('should create an error with message and metadata', () => {
         const error = DuplicatePasswordlessChannelApplicationError.create(

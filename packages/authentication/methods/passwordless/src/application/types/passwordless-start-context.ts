@@ -1,4 +1,4 @@
-import { PasswordlessChannel } from '@/domain/value-objects/channel.vo';
+import { PasswordlessChannel } from '@/domain';
 
 /**
  * Input contract for starting a passwordless authentication flow.

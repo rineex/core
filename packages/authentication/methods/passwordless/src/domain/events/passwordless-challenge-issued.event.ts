@@ -1,6 +1,6 @@
 import { CreateEventProps, DomainEvent, DomainEventPayload } from '@rineex/ddd';
 
-import { PasswordlessChallengeId } from '../value-objects/passwordless-challenge-id.vo';
+import { PasswordlessChallengeId } from '..';
 
 /**
  * Payload for the PasswordlessChallengeIssuedEvent.

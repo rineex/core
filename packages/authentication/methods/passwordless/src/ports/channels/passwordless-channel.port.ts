@@ -1,6 +1,8 @@
-import { ChallengeDestination } from '@/domain/value-objects/challenge-destination.vo';
-import { ChallengeSecret } from '@/domain/value-objects/challenge-secret.vo';
-import { PasswordlessChannel } from '@/domain/value-objects/channel.vo';
+import {
+  ChallengeDestination,
+  ChallengeSecret,
+  PasswordlessChannel,
+} from '@/domain';
 
 /**
  * Port interface for passwordless channel implementations.

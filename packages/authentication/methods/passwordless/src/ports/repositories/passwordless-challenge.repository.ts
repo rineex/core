@@ -1,4 +1,4 @@
-import { PasswordlessChallengeAggregate } from '@/domain/aggregates/passwordless-challenge.aggregate';
+import { PasswordlessChallengeAggregate } from '@/domain';
 
 /**
  * Repository port for persisting passwordless challenge aggregates.

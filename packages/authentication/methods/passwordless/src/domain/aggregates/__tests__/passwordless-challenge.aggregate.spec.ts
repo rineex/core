@@ -1,21 +1,21 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import {
+  ChallengeDestination,
+  ChallengeSecret,
+  PasswordlessChallengeAggregate,
   PasswordlessChallengeAlreadyUsedError,
   PasswordlessChallengeChannelRequired,
   PasswordlessChallengeExpiredError,
+  PasswordlessChallengeId,
   PasswordlessChallengeInvalidExpiration,
+  PasswordlessChallengeIssuedEvent,
   PasswordlessChallengeSecretMismatchError,
   PasswordlessChallengeSecretRequired,
-} from '../../errors/passwordless-challenge.error';
-import { PasswordlessChallengeVerifiedEvent } from '../../events/passwordless-challenge-verified.event';
-import { PasswordlessChallengeIssuedEvent } from '../../events/passwordless-challenge-issued.event';
-import { PasswordlessChallengeStatus } from '../../value-objects/passwordless-challenge-status.vo';
-import { PasswordlessChallengeId } from '../../value-objects/passwordless-challenge-id.vo';
-import { PasswordlessChallengeAggregate } from '../passwordless-challenge.aggregate';
-import { ChallengeDestination } from '../../value-objects/challenge-destination.vo';
-import { ChallengeSecret } from '../../value-objects/challenge-secret.vo';
-import { PasswordlessChannel } from '../../value-objects/channel.vo';
+  PasswordlessChallengeStatus,
+  PasswordlessChallengeVerifiedEvent,
+  PasswordlessChannel,
+} from '../..';
 
 describe('passwordlessChallengeAggregate', () => {
   const VALID_UUID = '550e8400-e29b-41d4-a716-446655440000';

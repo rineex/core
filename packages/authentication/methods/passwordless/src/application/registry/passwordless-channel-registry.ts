@@ -1,10 +1,10 @@
-import { PasswordlessChannelPort } from '@/ports/channels/passwordless-channel.port';
-import { PasswordlessChannel } from '@/domain/value-objects/channel.vo';
+import { PasswordlessChannelPort } from '@/ports';
+import { PasswordlessChannel } from '@/domain';
 
 import {
   DuplicatePasswordlessChannelApplicationError,
   UnSupportedPasswordlessChannelApplicationError,
-} from '../errors/passwordless-channel.application-error';
+} from '../errors';
 
 /**
  * Runtime registry for passwordless channel implementations.
