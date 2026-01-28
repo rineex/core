@@ -245,6 +245,10 @@ type Input = {
 | `PasswordlessChallengeExpiredError`        | Challenge has expired                |
 | `PasswordlessChallengeSecretMismatchError` | Provided secret doesn't match        |
 
+Any other error thrown during execution (e.g.
+`PasswordlessChallengeAlreadyUsedError` from the aggregate, or repository
+rejections) is caught and returned as `Result.fail(error)`.
+
 ### Value Objects
 
 | Class                         | Factory Method                        | Validation                                                     |
@@ -270,23 +274,8 @@ type Input = {
 ```typescript
 type PasswordlessChallengeRepository = {
   save: (challenge: PasswordlessChallengeAggregate) => Promise<void>;
+  findById: (id: string) => Promise<PasswordlessChallengeAggregate | null>;
 };
-```
-
-#### PasswordlessSessionRepository
-
-Extended repository with query methods:
-
-```typescript
-interface PasswordlessSessionRepository {
-  save: (challenge: PasswordlessChallengeAggregate) => Promise<void>;
-  findById: (
-    id: PasswordlessChallengeId,
-  ) => Promise<PasswordlessChallengeAggregate | null>;
-  findActiveByEmail: (
-    email: Email,
-  ) => Promise<PasswordlessChallengeAggregate | null>;
-}
 ```
 
 #### PasswordlessChannelPort
@@ -311,12 +300,16 @@ type PasswordlessIdGeneratorPort = {
 
 ### PasswordlessChannelRegistry
 
-Runtime registry for channel implementations.
+Runtime registry for channel implementations. Use `init()` to create; channels
+are keyed by channel name.
 
 ```typescript
 class PasswordlessChannelRegistry {
-  register(channel: PasswordlessChannelPort): void;
-  get(channelName: PasswordlessChannel): PasswordlessChannelPort;
+  static init(
+    channels: readonly PasswordlessChannelPort[],
+  ): PasswordlessChannelRegistry;
+  resolve(key: string): PasswordlessChannelPort; // throws if channel not registered
+  supports(channel: PasswordlessChannel): boolean;
 }
 ```
 

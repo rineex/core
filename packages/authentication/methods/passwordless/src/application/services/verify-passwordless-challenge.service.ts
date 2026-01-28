@@ -37,7 +37,7 @@ export class VerifyPasswordlessChallengeService implements ApplicationServicePor
         return Result.fail(PasswordlessChallengeExpiredError.create());
       }
 
-      if (challenge.matchesSecret(secret.value)) {
+      if (!challenge.matchesSecret(secret.value)) {
         return Result.fail(PasswordlessChallengeSecretMismatchError.create());
       }
 
