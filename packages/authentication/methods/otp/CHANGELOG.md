@@ -1,5 +1,43 @@
 # @rineex/authentication-method-otp
 
+## 1.0.0
+
+### Major Changes
+
+- Passwordless architecture overhaul and error handling refactor
+  ([`4e77b3e`](https://github.com/rineex/core/commit/4e77b3e26ac827a30cf673ef6575fbbf0443ae3b))
+
+  **@rineex/ddd**
+  - Replace violations with domain errors (InternalError, InvalidStateError,
+    InvalidValueError, TimeoutError)
+  - Add Clock port export
+
+  **@rineex/auth-core**
+  - Refactor auth flow: split AuthOrchestrator into StartAuthenticationFlow and
+    VerifyAuthenticationFlow services
+  - Add AuthMethodRegistry for pluggable authentication methods
+  - Replace violations with domain errors (InvalidAuthToken, InvalidSession,
+    InvalidScope)
+  - Add authentication method resolver and new identity/aggregate support
+
+  **@rineex/authentication-method-otp**
+  - Replace OTP violations with OtpAuthenticationError
+
+  **@rineex/authentication-method-passwordless**
+  - Add PasswordlessChannelRegistry for pluggable channels (email, SMS)
+  - Add verify-passwordless-challenge service; remove issue-passwordless-session
+  - Add PasswordlessChannelApplicationError and domain error handling
+  - Add barrel exports for application, domain, and infrastructure
+  - Add DOCS.md, README improvements, and comprehensive test coverage
+  - Add infrastructure channel tests for email and SMS
+
+### Patch Changes
+
+- Updated dependencies
+  [[`4e77b3e`](https://github.com/rineex/core/commit/4e77b3e26ac827a30cf673ef6575fbbf0443ae3b)]:
+  - @rineex/ddd@3.0.0
+  - @rineex/auth-core@1.0.0
+
 ## 0.1.3
 
 ### Patch Changes

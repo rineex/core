@@ -577,6 +577,7 @@ identified in the gap analysis.
    - `sessionRepository: AuthenticationSessionRepositoryPort`
    - `policyEngine: AuthPolicyEngine` (already exists)
 2. Update `execute()` method:
+
    ```typescript
    async execute(command: StartAuthenticationCommand): Promise<AuthAttemptId> {
      // 1. Resolve or select flow (from command or policy)
@@ -597,6 +598,7 @@ identified in the gap analysis.
      return attemptId;
    }
    ```
+
 3. Add method: `selectFlow(command): Promise<AuthenticationFlow>`
    - Check if command specifies flow
    - Otherwise, use policy to select flow
