@@ -1,10 +1,10 @@
 import { ApplicationServicePort, Result } from '@rineex/ddd';
 
-import { AuthenticationAttemptNotFound } from '@/domain/identity/errors/authentication-attempt.error';
 import {
   AuthenticationAttemptRepositoryPort,
   DomainEventPublisherPort,
 } from '@/ports';
+import { AuthenticationAttemptNotFound } from '@/domain/identity/errors';
 import { AuthAttemptId, AuthenticationAttempt } from '@/domain';
 import { AuthMethodName } from '@/types';
 
@@ -18,6 +18,10 @@ type Input = {
 
 type Output = Result<void, AuthenticationAttemptNotFound>;
 
+/**
+ * Application service that starts an authentication flow for a given attempt.
+ * Resolves the auth method, invokes it, and publishes resulting domain events.
+ */
 export class StartAuthenticationFlowApplicationService implements ApplicationServicePort<
   Input,
   Output
@@ -28,6 +32,11 @@ export class StartAuthenticationFlowApplicationService implements ApplicationSer
     private readonly events: DomainEventPublisherPort,
   ) {}
 
+  /**
+   * Starts the authentication flow for the given attempt using the specified method.
+   * @param params - Contains attemptId, method name, and method-specific context
+   * @returns Ok when the flow completes; fail with {@link AuthenticationAttemptNotFound} if attempt not found
+   */
   async execute(params: Input): Promise<Output> {
     const method = this.methods.resolve(params.method);
 
