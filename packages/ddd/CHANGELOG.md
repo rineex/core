@@ -1,5 +1,13 @@
 # @rineex/ddd
 
+## 3.1.0
+
+### Minor Changes
+
+- Add DomainError.isInstance type guard for safe error narrowing from catch
+  blocks and Result types. Add JSDoc to domain.error types and getters.
+  ([#39](https://github.com/rineex/core/pull/39))
+
 ## 3.0.1
 
 ### Patch Changes
