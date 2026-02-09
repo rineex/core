@@ -231,6 +231,39 @@ export abstract class DomainError<
   }
 
   /**
+   * Type guard to check if a value is a DomainError instance.
+   *
+   * @param error - Value to check (typically from catch block or unknown source)
+   * @returns True if error is a DomainError instance, false otherwise
+   *
+   * @example
+   * try {
+   *   await userService.activate(userId);
+   * } catch (error) {
+   *   if (DomainError.isInstance(error)) {
+   *     // error is narrowed to DomainError
+   *     console.log(error.code, error.message);
+   *   } else {
+   *     throw error;
+   *   }
+   * }
+   *
+   * @example
+   * const result = await userService.findById(id);
+   * if (Result.isFailure(result)) {
+   *   const err = result.error;
+   *   if (DomainError.isInstance(err)) {
+   *     return Result.failure(err);
+   *   }
+   * }
+   */
+  public static isInstance(
+    error: unknown,
+  ): error is DomainError<Record<string, Primitive>, DomainErrorCode> {
+    return error instanceof DomainError;
+  }
+
+  /**
    * Serializes the error to a plain object for debugging, logging, or transport.
    * Does not include infrastructure concerns like stack traces or timestamps.
    *
