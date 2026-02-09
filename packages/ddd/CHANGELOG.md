@@ -1,5 +1,14 @@
 # @rineex/ddd
 
+## 3.0.1
+
+### Patch Changes
+
+- Rewrite README to reflect current implementation. Remove deprecated UUID
+  references, add OAuthAuthorization-style Entity example, use AggregateId
+  throughout.
+  ([`70e28f9`](https://github.com/rineex/core/commit/70e28f9105891a1001f0c6efae27ca59470a9cf5))
+
 ## 3.0.0
 
 ### Major Changes
