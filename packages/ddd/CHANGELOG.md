@@ -1,5 +1,12 @@
 # @rineex/ddd
 
+## 3.1.1
+
+### Patch Changes
+
+- Fix ApplicationError instanceof check by adding Object.setPrototypeOf to
+  constructor ([#41](https://github.com/rineex/core/pull/41))
+
 ## 3.1.0
 
 ### Minor Changes
