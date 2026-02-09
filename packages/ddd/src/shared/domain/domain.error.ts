@@ -1,7 +1,17 @@
 import { EmptyObject } from 'type-fest';
 
+/**
+ * Primitive types allowed in domain error metadata.
+ * Used to ensure metadata is serializable and does not contain complex objects.
+ */
 export type Primitive = boolean | number | string | null | undefined;
 
+/**
+ * Type for metadata objects. Ensures only primitive values are allowed.
+ * Falls back to EmptyObject when T is not a record of primitives.
+ *
+ * @typeParam T - Expected metadata shape
+ */
 export type Metadata<T = EmptyObject> =
   T extends Record<string, Primitive> ? T : EmptyObject;
 
@@ -17,7 +27,9 @@ export type Metadata<T = EmptyObject> =
 export type DomainErrorType = 'DOMAIN.INVALID_STATE' | 'DOMAIN.INVALID_VALUE';
 
 // ============ TYPE UTILITIES ============
+/** Extracts the union of all value types from an object type. */
 export type ValueOf<T> = T[keyof T];
+/** Converts a union type to an intersection type. */
 export type UnionToIntersection<U> = (
   U extends any ? (k: U) => void : never
 ) extends (k: infer I) => void
@@ -74,11 +86,19 @@ export type DomainErrorCode = {
   [N in Namespace]: `${Uppercase<string & N>}.${Uppercase<ErrorName<N>>}`;
 }[Namespace];
 
-// Extract namespace from code
+/**
+ * Extracts the namespace part from a domain error code.
+ *
+ * @typeParam Code - Full error code (e.g. 'USER.NOT_FOUND')
+ */
 export type ExtractNamespace<Code extends DomainErrorCode> =
   Code extends `${infer N}.${string}` ? N : never;
 
-// Extract error name from code
+/**
+ * Extracts the error name part from a domain error code.
+ *
+ * @typeParam Code - Full error code (e.g. 'USER.NOT_FOUND')
+ */
 export type ExtractErrorName<Code extends DomainErrorCode> =
   Code extends `${string}.${infer E}` ? E : never;
 
@@ -190,13 +210,17 @@ export abstract class DomainError<
    */
   public abstract readonly type: DomainErrorType;
 
-  /** Get error name from error code */
+  /**
+   * Error name portion of the code (e.g. 'NOT_FOUND' from 'USER.NOT_FOUND').
+   */
   public get errorName(): ExtractErrorName<Code> {
     return this.code.split('.')[1] as ExtractErrorName<Code>;
   }
 
   // ============ COMPUTED PROPERTIES ============
-  /** Get namespace from error code */
+  /**
+   * Namespace portion of the code (e.g. 'USER' from 'USER.NOT_FOUND').
+   */
   public get namespace(): ExtractNamespace<Code> {
     return this.code.split('.')[0] as ExtractNamespace<Code>;
   }
@@ -228,6 +252,39 @@ export abstract class DomainError<
   ) {
     this.message = message;
     this.metadata = Object.freeze(args[0] ?? {}) as Readonly<Meta>;
+  }
+
+  /**
+   * Type guard to check if a value is a DomainError instance.
+   *
+   * @param error - Value to check (typically from catch block or unknown source)
+   * @returns True if error is a DomainError instance, false otherwise
+   *
+   * @example
+   * try {
+   *   await userService.activate(userId);
+   * } catch (error) {
+   *   if (DomainError.isInstance(error)) {
+   *     // error is narrowed to DomainError
+   *     console.log(error.code, error.message);
+   *   } else {
+   *     throw error;
+   *   }
+   * }
+   *
+   * @example
+   * const result = await userService.findById(id);
+   * if (Result.isFailure(result)) {
+   *   const err = result.error;
+   *   if (DomainError.isInstance(err)) {
+   *     return Result.failure(err);
+   *   }
+   * }
+   */
+  public static isInstance(
+    error: unknown,
+  ): error is DomainError<Record<string, Primitive>, DomainErrorCode> {
+    return error instanceof DomainError;
   }
 
   /**

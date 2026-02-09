@@ -17,3 +17,5 @@ __generated__/
 # crates
 # generators
 *.hbs
+
+!.cursor/rules/*.mdc
