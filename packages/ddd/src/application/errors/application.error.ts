@@ -54,6 +54,7 @@ export abstract class ApplicationError extends Error {
     this.metadata = metadata;
     this.cause = cause;
 
+    Object.setPrototypeOf(this, new.target.prototype);
     Error.captureStackTrace(this, new.target);
   }
 }
