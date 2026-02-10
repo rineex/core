@@ -20,37 +20,44 @@ import { EntityId } from '../types';
  *   isActive: boolean;
  * }
  *
+ * // With default Event type (DomainEvent):
  * class User extends AggregateRoot<AggregateId, UserProps> {
+ *   // Implementation...
+ * }
+ *
+ * // With specific event type for stronger typing:
+ * class User extends AggregateRoot<AggregateId, UserProps, UserDomainEvent> {
  *   // Implementation...
  * }
  * ```
  */
-export abstract class AggregateRoot<ID extends EntityId, P> extends Entity<
-  ID,
-  P
-> {
+export abstract class AggregateRoot<
+  ID extends EntityId,
+  P,
+  Event extends DomainEvent = DomainEvent,
+> extends Entity<ID, P> {
   /**
    * Gets a read-only copy of the domain events.
    */
-  get domainEvents(): readonly DomainEvent[] {
+  get domainEvents(): readonly Event[] {
     return [...this._domainEvents];
   }
 
   /**
    * Internal list of domain events.
    */
-  private readonly _domainEvents: DomainEvent[] = [];
+  private readonly _domainEvents: Event[] = [];
 
   /**
    * Adds a domain event to the aggregate after validating invariants.
    * @param domainEvent The domain event to add.
    * @throws {EntityValidationError} If invariants are not met.
    */
-  addEvent(domainEvent: DomainEvent): void {
+  addEvent(domainEvent: Event): void {
     this._domainEvents.push(domainEvent);
   }
 
-  public pullDomainEvents(): readonly DomainEvent[] {
+  public pullDomainEvents(): readonly Event[] {
     const events = [...this._domainEvents];
     this._domainEvents.length = 0;
     return events;
