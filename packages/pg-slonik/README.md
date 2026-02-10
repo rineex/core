@@ -12,6 +12,7 @@
 
 - [Overview](#overview)
 - [Installation](#installation)
+  - [Slonik version and third-party interceptors](#slonik-version-and-third-party-interceptors)
 - [Quick Start](#quick-start)
 - [API Reference](#api-reference)
 - [Examples](#examples)
@@ -41,13 +42,25 @@ shutdown handling.
 
 ## Installation
 
+Install the package and its **peer dependencies** (slonik and NestJS). Using the
+same major version of slonik as this package avoids type errors with
+interceptors (see
+[Slonik version and third-party interceptors](#slonik-version-and-third-party-interceptors)).
+
 ```bash
-npm install @rineex/pg-slonik
-# or
-pnpm add @rineex/pg-slonik
-# or
-yarn add @rineex/pg-slonik
+# npm
+npm install @rineex/pg-slonik slonik@^48 @nestjs/common@^11
+
+# pnpm
+pnpm add @rineex/pg-slonik slonik@^48 @nestjs/common@^11
+
+# yarn
+yarn add @rineex/pg-slonik slonik@^48 @nestjs/common@^11
 ```
+
+If you already have `@nestjs/common` and `slonik` in your app, ensure they
+satisfy the peer ranges (`@nestjs/common` ^11.0.0, `slonik` ^48.0.0). Your
+package manager will warn if versions are incompatible.
 
 ### Requirements
 
@@ -55,6 +68,40 @@ yarn add @rineex/pg-slonik
 - **TypeScript**: 5.0 or higher (recommended: 5.9+)
 - **PostgreSQL**: 12.0 or higher
 - **@nestjs/common**: 11.0 or higher
+- **slonik**: ^48.0.0 (this package pins slonik 48.x)
+
+### Slonik version and third-party interceptors
+
+This package depends on **slonik ^48**. If you use third-party interceptors
+(e.g.
+[slonik-interceptor-field-name-transformation](https://www.npmjs.com/package/slonik-interceptor-field-name-transformation)),
+they **must** target the same slonik major version.
+
+If your app or another dependency pulls in a different slonik major (e.g. 39.x),
+you will see a TypeScript error like:
+
+```text
+Type 'Interceptor' is not assignable to type 'Interceptor'.
+  Types of property 'afterPoolConnection' are incompatible.
+  ...
+  Type 'QuerySqlToken<T>' is not assignable to type 'QuerySqlToken<ZodType<...>>'.
+```
+
+That happens because `Interceptor` and `CommonQueryMethods` changed between
+slonik 39 (Zod-based) and 48 (different schema types). Two copies of slonik
+means two incompatible `Interceptor` types.
+
+**Fix:** Use a single slonik 48 everywhere. Install slonik and any slonik-based
+interceptors with the same major as this package:
+
+```bash
+pnpm add slonik@^48 slonik-interceptor-field-name-transformation@^48
+```
+
+In a pnpm/yarn workspace, ensure the app that uses `@rineex/pg-slonik` and the
+interceptors resolves to one slonik 48 (e.g. list the example app in the
+workspace and use `slonik: "^48.0.0"` in that app’s `package.json` so the
+lockfile deduplicates to a single version).
 
 ## Quick Start
 

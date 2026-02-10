@@ -3,6 +3,7 @@ packages:
   - packages/authentication/methods/*
   - packages/*
   - packages/nest/*
+  - packages/pg-slonik/example
   - '!packages/authentication'
   - '!packages/authentication/methods'
   - '!packages/nest'

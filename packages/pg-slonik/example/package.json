@@ -1,0 +1,24 @@
+{
+  "name": "pg-slonik-example",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "nest build",
+    "start": "nest start",
+    "start:dev": "nest start --watch"
+  },
+  "dependencies": {
+    "@nestjs/common": "11.1.11",
+    "@nestjs/core": "11.1.11",
+    "@nestjs/platform-express": "11.1.11",
+    "@rineex/pg-slonik": "file:..",
+    "reflect-metadata": "0.2.2",
+    "slonik": "^48.0.0",
+    "slonik-interceptor-field-name-transformation": "^48.0.0"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "11.0.0",
+    "@types/node": "24.10.4",
+    "typescript": "5.9.3"
+  }
+}
