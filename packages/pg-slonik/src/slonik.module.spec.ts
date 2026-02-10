@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { DatabasePool } from 'slonik';
-import type { Interceptor } from 'slonik';
+import type { DatabasePool, Interceptor } from 'slonik';
+
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { SlonikModule } from './slonik.module';
 import { createSlonikConnection } from './slonik.util';
@@ -12,7 +12,7 @@ vi.mock('./slonik.util', () => ({
   createSlonikConnection: vi.fn(),
 }));
 
-describe('SlonikModule', () => {
+describe('slonikModule', () => {
   const mockPool = {
     connect: vi
       .fn()
@@ -139,6 +139,7 @@ describe('SlonikModule', () => {
         (p: any) => typeof p?.useFactory === 'function',
       ) as { useFactory: () => Promise<DatabasePool> };
       const pool = await factoryProvider.useFactory();
+
       expect(pool).toBe(mockPool);
     });
   });
@@ -146,6 +147,7 @@ describe('SlonikModule', () => {
   describe('onApplicationShutdown', () => {
     it('should implement onApplicationShutdown', () => {
       const module = new SlonikModule();
+
       expect(module.onApplicationShutdown).toBeDefined();
       expect(typeof module.onApplicationShutdown).toBe('function');
     });
@@ -163,7 +165,7 @@ describe('SlonikModule', () => {
       const module = new SlonikModule();
       await module.onApplicationShutdown();
 
-      expect(mockPool.end).toHaveBeenCalled();
+      expect(mockPool.end).toHaveBeenCalledWith();
     });
   });
 });
