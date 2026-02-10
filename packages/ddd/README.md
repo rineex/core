@@ -2,6 +2,8 @@
 
 > Domain-Driven Design (DDD) primitives for building maintainable, scalable
 > TypeScript applications.
+>
+> _(Test change for version-in-same-PR workflow verification.)_
 
 [![npm version](https://img.shields.io/npm/v/@rineex/ddd)](https://www.npmjs.com/package/@rineex/ddd)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
