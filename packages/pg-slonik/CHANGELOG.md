@@ -1,5 +1,15 @@
 # @rineex/pg-slonik
 
+## 0.4.0
+
+### Minor Changes
+
+- Add API docs, NestJS example app, and unit tests for pg-slonik
+  ([#43](https://github.com/rineex/core/pull/43))
+  - **Docs:** `docs/API.md` with module, decorator, and usage reference
+  - **Example:** runnable NestJS app under `example/` with Slonik integration
+  - **Tests:** Vitest specs for decorator, interface, module, and util
+
 ## 0.3.0
 
 ### Minor Changes

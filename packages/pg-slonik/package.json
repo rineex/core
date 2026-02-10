@@ -1,6 +1,6 @@
 {
   "name": "@rineex/pg-slonik",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "PostgreSQL adapter using Slonik for Rineex core modules",
   "author": "Rineex Team",
   "main": "./dist/index.js",
@@ -24,8 +24,12 @@
     "slonik": "^48.0.0"
   },
   "peerDependenciesMeta": {
-    "@nestjs/common": { "optional": false },
-    "slonik": { "optional": false }
+    "@nestjs/common": {
+      "optional": false
+    },
+    "slonik": {
+      "optional": false
+    }
   },
   "sideEffects": false,
   "devDependencies": {
