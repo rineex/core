@@ -5,6 +5,7 @@ import type {
   SlonikModuleOptions,
 } from './slonik.interface';
 
+/** Configurable module builder: base class, options token, and option types for register/registerAsync. */
 export const {
   ConfigurableModuleClass: SlonikCoreModule,
   MODULE_OPTIONS_TOKEN,
