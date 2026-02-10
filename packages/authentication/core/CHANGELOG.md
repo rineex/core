@@ -1,5 +1,13 @@
 # @rineex/auth-core
 
+## 1.0.4
+
+### Patch Changes
+
+- Updated dependencies
+  [[`a58f863`](https://github.com/rineex/core/commit/a58f8637039bcd2d00f2526db9434ea6f82ceee0)]:
+  - @rineex/ddd@3.1.2
+
 ## 1.0.3
 
 ### Patch Changes

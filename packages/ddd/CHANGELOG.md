@@ -1,5 +1,12 @@
 # @rineex/ddd
 
+## 3.1.2
+
+### Patch Changes
+
+- Test patch for verifying version-in-same-PR CI (README note only).
+  ([#45](https://github.com/rineex/core/pull/45))
+
 ## 3.1.1
 
 ### Patch Changes
