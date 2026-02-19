@@ -14,6 +14,7 @@
       "outputs": ["coverage/**"]
     },
     "test:types": {
+      "dependsOn": ["build"],
       "inputs": ["$TURBO_DEFAULT$", "src/**/*.test-d.ts"],
       "outputs": []
     },
