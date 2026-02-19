@@ -1,22 +1,13 @@
 import { deepFreeze } from '@/utils';
 
+import { DeepImmutable } from '../types/deep-immutable.type';
 import { EntityId } from '../types';
 
 // export type Immutable<T> = {
 //   readonly [K in keyof T]: Immutable<T[K]>;
 // };
 
-export type Immutable<T> = T extends (...args: any[]) => any
-  ? T
-  : T extends Date
-    ? T
-    : T extends Map<infer K, infer V>
-      ? ReadonlyMap<Immutable<K>, Immutable<V>>
-      : T extends Set<infer U>
-        ? ReadonlySet<Immutable<U>>
-        : T extends object
-          ? { readonly [K in keyof T]: Immutable<T[K]> }
-          : T;
+export type Immutable<T> = DeepImmutable<T>;
 
 /**
  * Configuration for the base Entity constructor.
