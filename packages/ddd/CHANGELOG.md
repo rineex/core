@@ -1,5 +1,15 @@
 # @rineex/ddd
 
+## 3.2.1
+
+### Patch Changes
+
+- ### CI and Testing Improvements ([#49](https://github.com/rineex/core/pull/49))
+  - Added a new "Type Tests" job that runs `pnpm run test:types` in the CI
+    workflow.
+  - Introduced a new script "test:types" and turbo task with inputs for
+    `src/**/*.test-d.ts` for type testing.
+
 ## 3.2.0
 
 ### Minor Changes

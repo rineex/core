@@ -1,6 +1,6 @@
 {
   "name": "@rineex/authentication-method-passwordless",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Passwordless authentication method for Rineex authentication system",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
