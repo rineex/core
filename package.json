@@ -8,6 +8,7 @@
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "test": "turbo run test",
+    "test:types": "turbo run test:types",
     "test:ci": "turbo run test build",
     "check-types": "turbo run check-types",
     "prepublish": "pnpm run build",
