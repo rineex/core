@@ -1,4 +1,11 @@
 /**
+ * Determines whether a value can be frozen.
+ */
+function isFreezable(value: unknown): value is object {
+  return typeof value === 'object' && value !== null && !Object.isFrozen(value);
+}
+
+/**
  * Deeply freezes an object graph to enforce runtime immutability.
  * - Handles arrays
  * - Handles circular references
@@ -7,41 +14,70 @@
  *
  * Intended for aggregate and value object state only.
  */
+/**
+ * Deeply freezes an object graph.
+ *
+ * Characteristics:
+ * - Handles circular references
+ * - Freezes Map and Set contents
+ * - Freezes symbol properties
+ * - Skips primitives
+ *
+ * Warning:
+ * Expensive operation. Avoid in hot paths.
+ */
 export function deepFreeze<T>(
   value: T,
   seen = new WeakSet<object>(),
 ): Readonly<T> {
-  // Primitives, null, undefined
-  if (value === null || typeof value !== 'object') {
+  if (!isFreezable(value)) {
     return value;
   }
 
-  // Functions should never be frozen
-  if (typeof value === 'function') {
-    return value;
-  }
-
-  // Avoid re-processing
-  if (Object.isFrozen(value)) {
-    return value as Readonly<T>;
-  }
-
-  // Handle circular references
   if (seen.has(value)) {
     return value as Readonly<T>;
   }
 
   seen.add(value);
 
-  if (Array.isArray(value)) {
-    for (const item of value) {
-      deepFreeze(item, seen);
-    }
-  } else {
-    for (const key of Object.keys(value)) {
-      deepFreeze((value as Record<string, unknown>)[key], seen);
+  // Handle Map
+  if (value instanceof Map) {
+    for (const [k, v] of value.entries()) {
+      deepFreeze(k, seen);
+      deepFreeze(v, seen);
     }
   }
 
-  return Object.freeze(value) as Readonly<T>;
+  // Handle Set
+  else if (value instanceof Set) {
+    for (const v of value.values()) {
+      deepFreeze(v, seen);
+    }
+  }
+
+  // Handle Array
+  else if (Array.isArray(value)) {
+    for (const item of value) {
+      deepFreeze(item, seen);
+    }
+  }
+
+  // Handle Object
+  else {
+    const keys = [
+      ...Object.getOwnPropertyNames(value),
+      ...Object.getOwnPropertySymbols(value),
+    ];
+
+    for (const key of keys) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      if (!descriptor) continue;
+
+      if ('value' in descriptor) {
+        deepFreeze(descriptor.value, seen);
+      }
+    }
+  }
+
+  return Object.freeze(value);
 }
