@@ -106,7 +106,7 @@ export type ExtractErrorName<Code extends DomainErrorCode> =
  * Base class for all domain errors in a Domain-Driven Design architecture.
  *
  * Domain errors represent violations of business rules and domain invariants.
- * They are pure value objects without infrastructure concerns like IDs or timestamps.
+ * Extends native Error for proper stack traces, serialization, and catch semantics.
  *
  * @typeParam Code - The specific error code from DomainErrorCode union
  * @typeParam Meta - Type of metadata associated with this error
@@ -153,7 +153,7 @@ export type ExtractErrorName<Code extends DomainErrorCode> =
 export abstract class DomainError<
   Meta extends Record<string, Primitive> = EmptyObject,
   Code extends DomainErrorCode = DomainErrorCode,
-> {
+> extends Error {
   /**
    * Machine-readable error code in format: NAMESPACE.ERROR_NAME
    *
@@ -166,20 +166,6 @@ export abstract class DomainError<
    * public readonly code = 'USER.NOT_FOUND' as const;
    */
   public abstract readonly code: Code;
-  /**
-   * Human-readable error message describing the domain rule violation.
-   * Should be meaningful to developers and potentially end-users.
-   *
-   * @remarks
-   * - Avoid technical implementation details
-   * - Focus on the business rule that was violated
-   * - Can include values from metadata for context
-   *
-   * @example
-   * // Good: "Order amount $150 exceeds maximum limit of $100"
-   * // Bad: "Amount validation failed: 150 > 100"
-   */
-  public readonly message: string;
 
   /**
    * Immutable structured context providing additional information about the error.
@@ -217,7 +203,6 @@ export abstract class DomainError<
     return this.code.split('.')[1] as ExtractErrorName<Code>;
   }
 
-  // ============ COMPUTED PROPERTIES ============
   /**
    * Namespace portion of the code (e.g. 'USER' from 'USER.NOT_FOUND').
    */
@@ -228,21 +213,8 @@ export abstract class DomainError<
   /**
    * Creates a new DomainError instance.
    *
-   * @param message - Human-readable description of the domain rule violation
+   * @param message - Human-readable description of the domain rule violation (inherited by Error)
    * @param metadata - Optional structured context (primitive values only)
-   *
-   * @example
-   * constructor(userId: string) {
-   *   super(`User with ID '${userId}' not found`, { userId });
-   * }
-   *
-   * @example
-   * constructor(amount: number, maxLimit: number) {
-   *   super(
-   *     `Order amount $${amount} exceeds maximum limit of $${maxLimit}`,
-   *     { amount, maxLimit }
-   *   );
-   * }
    */
   protected constructor(
     message: string,
@@ -250,36 +222,16 @@ export abstract class DomainError<
       ? [] | [metadata?: Meta]
       : [metadata: Meta]
   ) {
-    this.message = message;
+    super(message);
+    this.name = new.target.name;
     this.metadata = Object.freeze(args[0] ?? {}) as Readonly<Meta>;
+
+    // Restore prototype chain for proper instanceof in ES5/transpiled environments
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 
   /**
    * Type guard to check if a value is a DomainError instance.
-   *
-   * @param error - Value to check (typically from catch block or unknown source)
-   * @returns True if error is a DomainError instance, false otherwise
-   *
-   * @example
-   * try {
-   *   await userService.activate(userId);
-   * } catch (error) {
-   *   if (DomainError.isInstance(error)) {
-   *     // error is narrowed to DomainError
-   *     console.log(error.code, error.message);
-   *   } else {
-   *     throw error;
-   *   }
-   * }
-   *
-   * @example
-   * const result = await userService.findById(id);
-   * if (Result.isFailure(result)) {
-   *   const err = result.error;
-   *   if (DomainError.isInstance(err)) {
-   *     return Result.failure(err);
-   *   }
-   * }
    */
   public static isInstance(
     error: unknown,
@@ -289,20 +241,6 @@ export abstract class DomainError<
 
   /**
    * Serializes the error to a plain object for debugging, logging, or transport.
-   * Does not include infrastructure concerns like stack traces or timestamps.
-   *
-   * @returns Plain object with error details
-   *
-   * @example
-   * const error = new UserNotFoundError('usr_123');
-   * const json = error.toJSON();
-   * // Result:
-   * // {
-   * //   code: 'USER.NOT_FOUND',
-   * //   message: "User with ID 'usr_123' not found",
-   * //   type: 'DOMAIN.INVALID_VALUE',
-   * //   metadata: { userId: 'usr_123' }
-   * // }
    */
   public toObject() {
     return {
@@ -316,17 +254,8 @@ export abstract class DomainError<
   /**
    * Returns a string representation of the error.
    * Format: [CODE] MESSAGE
-   *
-   * @returns Human-readable string representation
-   *
-   * @example
-   * const error = new UserNotFoundError('usr_123');
-   * console.log(error.toString());
-   * // Output: [USER.NOT_FOUND] User with ID 'usr_123' not found
-   *
-   * @override
    */
-  public toString(): string {
+  public override toString(): string {
     return `[${this.code}] ${this.message}`;
   }
 }
