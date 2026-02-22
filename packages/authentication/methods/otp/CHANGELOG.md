@@ -1,5 +1,14 @@
 # @rineex/authentication-method-otp
 
+## 1.0.7
+
+### Patch Changes
+
+- Updated dependencies
+  [[`69dc686`](https://github.com/rineex/core/commit/69dc68606545d612da8dc3eb890b996a520be117)]:
+  - @rineex/ddd@3.2.2
+  - @rineex/auth-core@1.0.7
+
 ## 1.0.6
 
 ### Patch Changes

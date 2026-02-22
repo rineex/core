@@ -1,5 +1,18 @@
 # @rineex/ddd
 
+## 3.2.2
+
+### Patch Changes
+
+- Refactor DomainEvent serialization types.
+  ([`69dc686`](https://github.com/rineex/core/commit/69dc68606545d612da8dc3eb890b996a520be117))
+  - Moved `type-fest` from peerDependencies to devDependencies, as it is only
+    needed for type definitions during build.
+  - Replaced the custom `Serializable` type definition with `JsonValue` from
+    type-fest to standardize JSON serialization payloads.
+  - Removed unnecessary custom type definitions (`Primitive` and recursive
+    `Serializable`), simplifying the code structure.
+
 ## 3.2.1
 
 ### Patch Changes
