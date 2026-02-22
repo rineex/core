@@ -1,15 +1,12 @@
 import { randomUUID } from 'node:crypto';
 
+import { JsonValue } from 'type-fest';
+
 import { deepFreeze } from '@/utils';
 
 import { EntityId } from '../types';
 
-type Primitive = boolean | number | string | null;
-
-type Serializable =
-  | Primitive
-  | Serializable[]
-  | { [key: string]: Serializable };
+type Serializable = JsonValue;
 
 export type DomainEventPayload = Record<string, Serializable>;
 
