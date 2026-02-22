@@ -1,5 +1,38 @@
 # @rineex/ddd
 
+## 4.0.0
+
+### Major Changes
+
+- Breaking changes in `DomainError` class:
+  ([`8288b06`](https://github.com/rineex/core/commit/8288b066870c3773a5591d83a74cfac7ea5392f5))
+  - Now extends native `Error` for correct functionality, affecting
+    serialization and type checks.
+  - Removed custom message property; uses inherited message from `Error`.
+  - Constructor updated to call `super(message)` and set `this.name`.
+  - Added prototype chain restoration for proper `instanceof` behavior.
+  - Adjusted property order in `toObject()` method and marked `toString()` with
+    `override`.
+  - Simplified JSDoc comments.
+
+### Minor Changes
+
+- ### Enhancements to `deepFreeze` Utility ([`0c695b9`](https://github.com/rineex/core/commit/0c695b900bacb976aa3dabd053b4315f3d8bbfe3))
+  1. **New `isFreezable()` helper** – Extracted the check for whether a value
+     can be frozen (object, non-null, not already frozen). Handles primitives,
+     null, undefined, functions, and already-frozen objects.
+  2. **Map/Set support** – `deepFreeze` now recursively freezes Map keys and
+     values, and Set elements.
+  3. **Symbol property support** – Utilizes `Object.getOwnPropertyNames` and
+     `Object.getOwnPropertySymbols` to freeze symbol-keyed properties alongside
+     string keys.
+  4. **Refactored structure** – Now organized as Map → Set → Array → Object
+     branches, using `Object.getOwnPropertyDescriptor` and handling
+     `descriptor.value` when present.
+  5. **Documentation updates** – JSDoc mentions circular references, Map/Set
+     handling, symbol properties, and a performance warning about avoiding use
+     in hot paths.
+
 ## 3.2.2
 
 ### Patch Changes
