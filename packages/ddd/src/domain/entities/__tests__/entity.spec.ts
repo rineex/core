@@ -188,6 +188,27 @@ describe('entity', () => {
     });
   });
 
+  describe('toJSON', () => {
+    it('should return flattened primitive representation', () => {
+      const id = UUID.generate();
+      const createdAt = new Date('2023-01-01');
+      const user = new User({
+        props: { email: 'john@example.com', name: 'John Doe' },
+        createdAt,
+        id,
+      });
+
+      const json = user.toJSON();
+
+      expect(json).toEqual({
+        createdAt: createdAt.toISOString(),
+        email: 'john@example.com',
+        id: id.value,
+        name: 'John Doe',
+      });
+    });
+  });
+
   describe('mutate', () => {
     it('should update props and revalidate', () => {
       const id = UUID.generate();
