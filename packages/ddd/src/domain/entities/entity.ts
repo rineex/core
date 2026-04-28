@@ -59,6 +59,39 @@ export abstract class Entity<ID extends EntityId, Props> {
     this.validate();
   }
 
+  private static normalize(value: unknown): unknown {
+    if (value == null) return value;
+
+    if (value instanceof Date) {
+      return value.toISOString();
+    }
+
+    if (
+      typeof value === 'string' ||
+      typeof value === 'number' ||
+      typeof value === 'boolean'
+    ) {
+      return value;
+    }
+
+    if (Array.isArray(value)) {
+      return value.map(item => Entity.normalize(item));
+    }
+
+    if (typeof value === 'object') {
+      if ('toJSON' in value && typeof value.toJSON === 'function') {
+        return Entity.normalize(value.toJSON());
+      }
+
+      const obj = value as Record<string, unknown>;
+      return Object.fromEntries(
+        Object.entries(obj).map(([key, val]) => [key, Entity.normalize(val)]),
+      );
+    }
+
+    return String(value);
+  }
+
   /**
    * Compares entities by identity.
    * In DDD, two entities are considered equal if their IDs match,
@@ -70,6 +103,17 @@ export abstract class Entity<ID extends EntityId, Props> {
     if (other == null) return false;
     if (this === other) return true;
     return this.id.equals(other.id);
+  }
+
+  /**
+   * Converts the entity to a plain JSON-safe object with primitive values.
+   */
+  public toJSON(): Record<string, unknown> {
+    return Entity.normalize({
+      ...this.#props,
+      createdAt: this.createdAt,
+      id: this.id.value,
+    }) as Record<string, unknown>;
   }
 
   /**
