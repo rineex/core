@@ -1,5 +1,13 @@
 # @rineex/ddd
 
+## 4.1.0
+
+### Minor Changes
+
+- Add `Entity.toJSON()` to provide a single primitive-safe JSON object
+  containing `id`, `createdAt`, and entity props.
+  ([#53](https://github.com/rineex/core/pull/53))
+
 ## 4.0.0
 
 ### Major Changes
