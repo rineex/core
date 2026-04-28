@@ -1,6 +1,6 @@
 {
   "name": "@rineex/ddd",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Domain Driven Design package for Rineex core modules",
   "author": "Rineex Team",
   "main": "./dist/index.js",
