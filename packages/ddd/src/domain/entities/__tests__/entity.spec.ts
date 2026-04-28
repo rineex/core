@@ -203,8 +203,8 @@ describe('entity', () => {
       expect(json).toEqual({
         createdAt: createdAt.toISOString(),
         email: 'john@example.com',
-        id: id.value,
         name: 'John Doe',
+        id: id.value,
       });
     });
   });
