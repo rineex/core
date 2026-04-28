@@ -13,6 +13,7 @@ export * from './domain/value-objects/domain-id.vo';
 export * from './domain/value-objects/email.vo';
 export * from './domain/value-objects/id.vo';
 export * from './gateway/constants/http-code';
+export * from './infrastructure/mapper/base.mapper';
 export * from './shared';
 export { Result } from './shared/domain/result';
 export * from './utils';
