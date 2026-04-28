@@ -1,5 +1,11 @@
 # @rineex/ddd
 
+## 4.2.0
+
+### Minor Changes
+
+- ([#55](https://github.com/rineex/core/pull/55))
+
 ## 4.1.0
 
 ### Minor Changes

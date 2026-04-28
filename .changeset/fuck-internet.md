@@ -1,3 +1,0 @@
----
-'@rineex/ddd': minor
----
