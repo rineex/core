@@ -1,5 +1,12 @@
 # @rineex/ddd
 
+## 4.3.0
+
+### Minor Changes
+
+- Export `ip` value object from the public entrypoint, making it available to
+  consumers of `@rineex/ddd`. ([#57](https://github.com/rineex/core/pull/57))
+
 ## 4.2.0
 
 ### Minor Changes
