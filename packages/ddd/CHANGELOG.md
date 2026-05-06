@@ -1,5 +1,15 @@
 # @rineex/ddd
 
+## 4.3.1
+
+### Patch Changes
+
+- Add comprehensive JSDoc documentation to the `IPAddress` value object.
+  ([#59](https://github.com/rineex/core/pull/59))
+
+  This change improves developer experience and clarity by documenting
+  invariants, validation behavior, and usage, without modifying runtime logic.
+
 ## 4.3.0
 
 ### Minor Changes
