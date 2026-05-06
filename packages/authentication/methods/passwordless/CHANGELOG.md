@@ -1,5 +1,14 @@
 # @rineex/authentication-method-passwordless
 
+## 0.1.12
+
+### Patch Changes
+
+- Updated dependencies
+  [[`1c9550f`](https://github.com/rineex/core/commit/1c9550f2ee3f50422d9ec45b09094eb6140bacf3)]:
+  - @rineex/ddd@4.3.1
+  - @rineex/auth-core@1.0.12
+
 ## 0.1.11
 
 ### Patch Changes
