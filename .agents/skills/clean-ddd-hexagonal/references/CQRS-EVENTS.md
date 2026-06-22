@@ -1,17 +1,25 @@
 # CQRS & Domain Events
 
 > Sources:
+>
 > - [CQRS](https://martinfowler.com/bliki/CQRS.html) — Martin Fowler
-> - [Event Sourcing](https://martinfowler.com/eaaDev/EventSourcing.html) — Martin Fowler
-> - [CQRS Pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/cqrs) — Microsoft Azure
-> - [Transactional Outbox](https://microservices.io/patterns/data/transactional-outbox.html) — microservices.io
-> - [Domain Events – Salvation](https://udidahan.com/2009/06/14/domain-events-salvation/) — Udi Dahan
-> - [Strengthening Your Domain: Domain Events](https://lostechies.com/jimmybogard/2010/04/08/strengthening-your-domain-domain-events/) — Jimmy Bogard
-> - [Domain Events: Design and Implementation](https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/domain-events-design-implementation) — Microsoft
+> - [Event Sourcing](https://martinfowler.com/eaaDev/EventSourcing.html) —
+>   Martin Fowler
+> - [CQRS Pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/cqrs)
+>   — Microsoft Azure
+> - [Transactional Outbox](https://microservices.io/patterns/data/transactional-outbox.html)
+>   — microservices.io
+> - [Domain Events – Salvation](https://udidahan.com/2009/06/14/domain-events-salvation/)
+>   — Udi Dahan
+> - [Strengthening Your Domain: Domain Events](https://lostechies.com/jimmybogard/2010/04/08/strengthening-your-domain-domain-events/)
+>   — Jimmy Bogard
+> - [Domain Events: Design and Implementation](https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/domain-events-design-implementation)
+>   — Microsoft
 
 ## CQRS Overview
 
-**Command Query Responsibility Segregation** separates read and write operations into different models.
+**Command Query Responsibility Segregation** separates read and write operations
+into different models.
 
 ```mermaid
 flowchart TB
@@ -140,12 +148,14 @@ export class GetOrderHandler {
 export class GetOrdersByCustomerHandler {
   constructor(private readonly readDb: IOrderReadModel) {}
 
-  async handle(query: GetOrdersByCustomerQuery): Promise<PaginatedResult<OrderDTO>> {
+  async handle(
+    query: GetOrdersByCustomerQuery,
+  ): Promise<PaginatedResult<OrderDTO>> {
     return this.readDb.findByCustomer(
       query.customerId,
       query.status,
       query.page ?? 1,
-      query.pageSize ?? 20
+      query.pageSize ?? 20,
     );
   }
 }
@@ -176,13 +186,15 @@ class PostgresOrderReadModel implements IOrderReadModel:
         return row ? this.mapToDTO(row) : null
 ```
 
-Separate write and read databases (optional): write is normalized for transactions, read is denormalized for queries.
+Separate write and read databases (optional): write is normalized for
+transactions, read is denormalized for queries.
 
 ---
 
 ## Domain Events
 
 Notifications that something happened in the domain. Used for:
+
 - Updating read models
 - Cross-aggregate communication
 - Integration with other bounded contexts
@@ -332,7 +344,9 @@ class OrderItemQuantityIncreased extends DomainEvent {
     readonly productId: ProductId,
     readonly oldQuantity: number,
     readonly newQuantity: number,
-  ) { super(orderId.value); }
+  ) {
+    super(orderId.value);
+  }
 }
 ```
 
@@ -452,8 +466,14 @@ export class EventDispatcher {
 const dispatcher = new EventDispatcher();
 dispatcher.register('order.created', new OrderCreatedHandler(readDb));
 dispatcher.register('order.confirmed', new OrderConfirmedHandler(readDb));
-dispatcher.register('order.confirmed', new PublishOrderConfirmedIntegrationEvent(broker, orderRepo));
-dispatcher.register('order.shipped', new SendShippingNotificationHandler(orderRepo, notifier));
+dispatcher.register(
+  'order.confirmed',
+  new PublishOrderConfirmedIntegrationEvent(broker, orderRepo),
+);
+dispatcher.register(
+  'order.shipped',
+  new SendShippingNotificationHandler(orderRepo, notifier),
+);
 ```
 
 ---
@@ -526,7 +546,8 @@ class OutboxProcessor:
 
 ## When to Use CQRS
 
-> **Warning:** "You should be very cautious about using CQRS... the majority of cases I've run into have not been so good." — Martin Fowler
+> **Warning:** "You should be very cautious about using CQRS... the majority of
+> cases I've run into have not been so good." — Martin Fowler
 
 CQRS adds significant complexity. Most applications don't need it.
 
@@ -572,7 +593,8 @@ Evolve to separate databases only when needed.
 
 ## Event Sourcing: Critical Considerations
 
-> **Warning:** "Extremely difficult to add Event Sourcing to systems not originally designed for it." — Martin Fowler
+> **Warning:** "Extremely difficult to add Event Sourcing to systems not
+> originally designed for it." — Martin Fowler
 
 ### When Event Sourcing Makes Sense
 
@@ -590,7 +612,8 @@ Evolve to separate databases only when needed.
 
 ### Event Sourcing Requirements
 
-1. **Events must store deltas** — Not final state, but what changed (enables reversal)
+1. **Events must store deltas** — Not final state, but what changed (enables
+   reversal)
 2. **Snapshots for performance** — Rebuild from snapshots, not from event 0
 3. **External system handling:**
    - Disable notifications during replays
@@ -601,7 +624,8 @@ Evolve to separate databases only when needed.
 
 ## Saga Pattern (Cross-Aggregate Workflows)
 
-For workflows spanning multiple aggregates, use sagas instead of trying to coordinate via raw domain events.
+For workflows spanning multiple aggregates, use sagas instead of trying to
+coordinate via raw domain events.
 
 ```
 Saga: PlaceOrderSaga
@@ -612,14 +636,18 @@ Saga: PlaceOrderSaga
 ```
 
 **Saga types:**
-- **Choreography:** Each service listens/publishes events (simpler, harder to trace)
-- **Orchestration:** Central coordinator manages steps (explicit, easier to debug)
+
+- **Choreography:** Each service listens/publishes events (simpler, harder to
+  trace)
+- **Orchestration:** Central coordinator manages steps (explicit, easier to
+  debug)
 
 ---
 
 ## Idempotent Consumer Pattern
 
-**Required for reliable event processing.** Messages may be delivered more than once.
+**Required for reliable event processing.** Messages may be delivered more than
+once.
 
 ```
 class OrderConfirmedHandler:
@@ -634,6 +662,7 @@ class OrderConfirmedHandler:
 ```
 
 **Implementation options:**
+
 - Store processed message IDs in database
 - Use message broker's deduplication features
 - Design handlers to be naturally idempotent

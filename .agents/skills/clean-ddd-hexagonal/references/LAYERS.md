@@ -1,30 +1,38 @@
 # Layer Structure - Complete Reference
 
-> Sources:
-> Primary:
-> - [The Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) — Robert C. Martin
-> - [Onion Architecture](https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/) — Jeffrey Palermo
-> Implementation guide:
-> - [Designing a DDD-oriented Microservice](https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/ddd-oriented-microservice) — Microsoft
-> Supplemental synthesis:
-> - [Clean Architecture: Standing on the Shoulders of Giants](https://herbertograca.com/2017/09/28/clean-architecture-standing-on-the-shoulders-of-giants/) — Herberto Graça
+> Sources: Primary:
+>
+> - [The Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+>   — Robert C. Martin
+> - [Onion Architecture](https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/)
+>   — Jeffrey Palermo Implementation guide:
+> - [Designing a DDD-oriented Microservice](https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/ddd-oriented-microservice)
+>   — Microsoft Supplemental synthesis:
+> - [Clean Architecture: Standing on the Shoulders of Giants](https://herbertograca.com/2017/09/28/clean-architecture-standing-on-the-shoulders-of-giants/)
+>   — Herberto Graça
 
 ## The Four Layers
 
-| Layer | Responsibility | Dependencies |
-|-------|---------------|--------------|
-| **Domain** | Business logic, entities, rules | None (pure) |
-| **Application** | Use cases, orchestration | Domain |
-| **Infrastructure** | External systems, frameworks | Application, Domain |
-| **Presentation** | API/UI entry points | Application |
+| Layer              | Responsibility                  | Dependencies        |
+| ------------------ | ------------------------------- | ------------------- |
+| **Domain**         | Business logic, entities, rules | None (pure)         |
+| **Application**    | Use cases, orchestration        | Domain              |
+| **Infrastructure** | External systems, frameworks    | Application, Domain |
+| **Presentation**   | API/UI entry points             | Application         |
 
-This reference uses a DDD-centered variant: aggregate repository interfaces live in the Domain layer, while use-case ports and application-owned outbound ports live in the Application layer. A stricter Hexagonal layout may put all driven ports under `application/ports/driven/` instead. Both are acceptable when dependencies still point inward and infrastructure implements, rather than owns, the abstractions.
+This reference uses a DDD-centered variant: aggregate repository interfaces live
+in the Domain layer, while use-case ports and application-owned outbound ports
+live in the Application layer. A stricter Hexagonal layout may put all driven
+ports under `application/ports/driven/` instead. Both are acceptable when
+dependencies still point inward and infrastructure implements, rather than owns,
+the abstractions.
 
 ---
 
 ## Domain Layer (Innermost)
 
-The **heart of the system**. Contains business logic and rules with **zero external dependencies**.
+The **heart of the system**. Contains business logic and rules with **zero
+external dependencies**.
 
 ### Contents
 
@@ -110,7 +118,7 @@ export class Order extends AggregateRoot<OrderId> {
   get total(): Money {
     return this.items.reduce(
       (sum, item) => sum.add(item.subtotal),
-      Money.zero()
+      Money.zero(),
     );
   }
 }
@@ -120,7 +128,8 @@ export class Order extends AggregateRoot<OrderId> {
 
 ## Application Layer
 
-Orchestrates use cases by coordinating domain objects. Contains **application-specific business rules**.
+Orchestrates use cases by coordinating domain objects. Contains
+**application-specific business rules**.
 
 ### Contents
 
@@ -147,7 +156,8 @@ application/
 ### Rules
 
 1. **Depends only on Domain** - No infrastructure imports
-2. **Defines application ports** - Use-case interfaces and application-owned outbound dependencies
+2. **Defines application ports** - Use-case interfaces and application-owned
+   outbound dependencies
 3. **Orchestrates, doesn't implement** - Calls domain methods
 4. **Transaction boundary** - Manages unit of work
 
@@ -161,7 +171,10 @@ import { IProductRepository } from '@/domain/product/repository';
 import { IUnitOfWork } from '@/application/shared/unit_of_work';
 import { IEventPublisher } from '@/application/shared/event_publisher';
 import { PlaceOrderCommand } from './command';
-import { OrderNotFoundError, ProductNotFoundError } from '@/application/shared/errors';
+import {
+  OrderNotFoundError,
+  ProductNotFoundError,
+} from '@/application/shared/errors';
 
 export interface IPlaceOrderUseCase {
   execute(command: PlaceOrderCommand): Promise<OrderId>;
@@ -241,7 +254,8 @@ export interface OrderDTO {
 
 ## Infrastructure Layer
 
-Implements interfaces defined in Domain and Application layers. Contains **all external concerns**.
+Implements interfaces defined in Domain and Application layers. Contains **all
+external concerns**.
 
 ### Contents
 
@@ -319,7 +333,8 @@ class PostgresOrderRepository implements IOrderRepository:
 
 ## Presentation Layer
 
-Entry points to the application. Adapts external requests to application commands/queries.
+Entry points to the application. Adapts external requests to application
+commands/queries.
 
 ### Contents
 
@@ -461,11 +476,17 @@ export function configureContainer(): Container {
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
   container.bind<Pool>('Pool').toConstantValue(pool);
-  container.bind<IOrderRepository>('IOrderRepository').to(PostgresOrderRepository);
-  container.bind<IProductRepository>('IProductRepository').to(PostgresProductRepository);
+  container
+    .bind<IOrderRepository>('IOrderRepository')
+    .to(PostgresOrderRepository);
+  container
+    .bind<IProductRepository>('IProductRepository')
+    .to(PostgresProductRepository);
   container.bind<IUnitOfWork>('IUnitOfWork').to(PostgresUnitOfWork);
   container.bind<IEventPublisher>('IEventPublisher').to(RabbitMQEventPublisher);
-  container.bind<IPlaceOrderUseCase>('IPlaceOrderUseCase').to(PlaceOrderHandler);
+  container
+    .bind<IPlaceOrderUseCase>('IPlaceOrderUseCase')
+    .to(PlaceOrderHandler);
   container.bind<OrderController>(OrderController).toSelf();
 
   return container;
@@ -479,6 +500,7 @@ export function configureContainer(): Container {
 The same layered structure applies to any language:
 
 ### Go
+
 ```
 internal/
 ├── domain/
@@ -488,6 +510,7 @@ internal/
 ```
 
 ### Rust
+
 ```
 src/
 ├── domain/
@@ -497,6 +520,7 @@ src/
 ```
 
 ### Python
+
 ```
 src/
 ├── domain/
@@ -505,4 +529,5 @@ src/
 └── presentation/
 ```
 
-The key is **dependency direction**: outer layers import inner layers, never the reverse.
+The key is **dependency direction**: outer layers import inner layers, never the
+reverse.
