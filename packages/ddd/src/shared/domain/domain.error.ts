@@ -137,11 +137,11 @@ export type ExtractErrorName<Code extends DomainErrorCode> =
  *     const user = await this.repository.findById(userId);
  *
  *     if (!user) {
- *       return Result.failure(new UserNotFoundError(userId));
+ *       return Result.err(new UserNotFoundError(userId));
  *     }
  *
  *     if (user.isSuspended) {
- *       return Result.failure(new UserSuspendedError(userId));
+ *       return Result.err(new UserSuspendedError(userId));
  *     }
  *
  *     // Business logic...

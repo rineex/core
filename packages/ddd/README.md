@@ -524,72 +524,72 @@ class UserNotFoundError extends ApplicationError {
 
 ## Result Type
 
-`Result<T, E>` for explicit success/failure without throwing. Default error type
-is `DomainError`.
+`Result<T, E extends UseCaseError>` models **application use-case outcomes** —
+return expected failures instead of throwing. Domain entities and value objects
+**throw** `DomainError` on invariant violations; application services return
+`Result`.
 
-### Example (from `result.spec.ts`)
+`E` is a per-use-case error union (`ApplicationError`, `DomainError`, etc.) —
+there is no `DomainError` default.
+
+### Layer contract
+
+| Layer                            | Mechanism                       |
+| -------------------------------- | ------------------------------- |
+| Domain (entity, VO, aggregate)   | Throw on invariant violation    |
+| Application (use case)           | Return `Result<O, E>`           |
+| Infrastructure (HTTP, messaging) | Unwrap `Result` at the boundary |
+
+### Example
 
 ```typescript
-import {
-  Result,
-  InvalidValueError,
-  InvalidStateError,
-  DomainError,
-} from '@rineex/ddd';
+import { Result, UseCaseError, InvalidValueError } from '@rineex/ddd';
 
 // Creation
 const ok = Result.ok(42);
-const fail = Result.fail(new InvalidValueError('Invalid'));
+const failed = Result.err(new InvalidValueError('Invalid'));
 
-// Checks
-ok.isSuccess; // true
-fail.isFailure; // true
-
-// Extraction
-ok.getValue(); // 42
-fail.getError(); // InvalidValueError
-
-// Type guards
-if (result.isSuccessResult()) {
-  const v = result.getValue(); // T
+// Narrowing
+if (Result.isOk(ok)) {
+  const value = ok.value; // number
 }
-if (result.isFailureResult()) {
-  const e = result.getError(); // E
+if (Result.isErr(failed)) {
+  const error = failed.error; // InvalidValueError
 }
+
+// match
+const message = Result.match(failed, {
+  ok: v => `ok ${v}`,
+  err: e => e.message,
+});
 ```
 
-### Validation pattern
+### Validation + chaining
 
 ```typescript
-function validateAge(age: number): Result<number, DomainError> {
-  if (age < 0) {
-    return Result.fail(new InvalidValueError('Age cannot be negative'));
-  }
-  if (age > 150) {
-    return Result.fail(new InvalidValueError('Age seems unrealistic'));
-  }
-  return Result.ok(age);
-}
-```
-
-### Chaining
-
-```typescript
-function validateEmail(email: string): Result<string, DomainError> {
+function validateEmail(email: string): Result<string, InvalidValueError> {
   if (!email.includes('@')) {
-    return Result.fail(new InvalidValueError('Invalid email format'));
+    return Result.err(new InvalidValueError('Invalid email format'));
   }
   return Result.ok(email);
 }
 
-function createAccount(email: string): Result<{ email: string }, DomainError> {
-  const emailResult = validateEmail(email);
-  if (emailResult.isFailureResult()) return emailResult;
-
-  const validated = emailResult.getValue()!;
-  return Result.ok({ email: validated });
+function createAccount(
+  email: string,
+): Result<{ email: string }, InvalidValueError> {
+  return Result.flatMap(validateEmail(email), validated =>
+    Result.ok({ email: validated }),
+  );
 }
 ```
+
+### v4 → v5 migration
+
+| v4                                 | v5                                             |
+| ---------------------------------- | ---------------------------------------------- |
+| `Result.fail(e)`                   | `Result.err(e)`                                |
+| `result.isSuccess` / `isFailure`   | `Result.isOk(result)` / `Result.isErr(result)` |
+| `result.getValue()` / `getError()` | `result.value` / `result.error` (after narrow) |
 
 ---
 
@@ -735,15 +735,17 @@ Extends `Entity`. Adds:
 | `eventName`      | Abstract            |
 | `toPrimitives()` | Plain object        |
 
-### Result\<T, E\>
+### Result\<T, E extends UseCaseError\>
 
-| Member                                   | Description    |
-| ---------------------------------------- | -------------- |
-| `Result.ok(value)`                       | Success        |
-| `Result.fail(err)`                       | Failure        |
-| `isSuccess`, `isFailure`                 | Booleans       |
-| `getValue()`, `getError()`               | Value or error |
-| `isSuccessResult()`, `isFailureResult()` | Type guards    |
+| Member                                         | Description                               |
+| ---------------------------------------------- | ----------------------------------------- |
+| `Result.ok(value)`                             | Success (`{ kind: 'ok', value }`)         |
+| `Result.err(error)`                            | Failure (`{ kind: 'err', error }`)        |
+| `Result.isOk(r)` / `Result.isErr(r)`           | Type guards                               |
+| `Result.match(r, { ok, err })`                 | Exhaustive fold                           |
+| `Result.flatMap(r, fn)`                        | Chain use cases; forwards err             |
+| `Result.map(r, fn)` / `Result.mapError(r, fn)` | Transform value or error                  |
+| `UseCaseError`                                 | `{ code: string }` seam for error channel |
 
 ---
 
