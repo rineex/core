@@ -27,7 +27,7 @@ export type Err<E extends UseCaseError> = Readonly<{
  * @template T Success value type
  * @template E Per-use-case error union (`ApplicationError`, `DomainError`, etc.)
  */
-export type Result<T, E extends UseCaseError> = Ok<T> | Err<E>;
+export type Result<T, E extends UseCaseError> = Err<E> | Ok<T>;
 
 function freeze<R extends Result<unknown, UseCaseError>>(result: R): R {
   return Object.freeze(result);
@@ -47,22 +47,6 @@ function freeze<R extends Result<unknown, UseCaseError>>(result: R): R {
  * ```
  */
 export const Result = {
-  ok<T>(value: T): Ok<T> {
-    return freeze({ kind: 'ok', value });
-  },
-
-  err<E extends UseCaseError>(error: E): Err<E> {
-    return freeze({ kind: 'err', error });
-  },
-
-  isOk<T, E extends UseCaseError>(result: Result<T, E>): result is Ok<T> {
-    return result.kind === 'ok';
-  },
-
-  isErr<T, E extends UseCaseError>(result: Result<T, E>): result is Err<E> {
-    return result.kind === 'err';
-  },
-
   match<T, E extends UseCaseError, U>(
     result: Result<T, E>,
     handlers: {
@@ -75,17 +59,6 @@ export const Result = {
     }
 
     return handlers.ok(result.value);
-  },
-
-  map<T, E extends UseCaseError, U>(
-    result: Result<T, E>,
-    fn: (value: T) => U,
-  ): Result<U, E> {
-    if (result.kind === 'err') {
-      return result;
-    }
-
-    return Result.ok(fn(result.value));
   },
 
   mapError<T, E extends UseCaseError, F extends UseCaseError>(
@@ -108,5 +81,32 @@ export const Result = {
     }
 
     return fn(result.value);
+  },
+
+  map<T, E extends UseCaseError, U>(
+    result: Result<T, E>,
+    fn: (value: T) => U,
+  ): Result<U, E> {
+    if (result.kind === 'err') {
+      return result;
+    }
+
+    return Result.ok(fn(result.value));
+  },
+
+  isErr<T, E extends UseCaseError>(result: Result<T, E>): result is Err<E> {
+    return result.kind === 'err';
+  },
+
+  isOk<T, E extends UseCaseError>(result: Result<T, E>): result is Ok<T> {
+    return result.kind === 'ok';
+  },
+
+  err<E extends UseCaseError>(error: E): Err<E> {
+    return freeze({ kind: 'err', error });
+  },
+
+  ok<T>(value: T): Ok<T> {
+    return freeze({ kind: 'ok', value });
   },
 } as const;
