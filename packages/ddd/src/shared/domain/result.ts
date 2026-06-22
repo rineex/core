@@ -1,372 +1,112 @@
-import { DomainError } from './domain.error';
+import type { UseCaseError } from '../use-case.error';
+
+export type { UseCaseError } from '../use-case.error';
 
 /**
- * Represents the result of an operation, which can be either a success or a failure.
+ * Successful outcome of an application use case.
+ */
+export type Ok<T> = Readonly<{
+  kind: 'ok';
+  value: T;
+}>;
+
+/**
+ * Failed outcome of an application use case.
+ */
+export type Err<E extends UseCaseError> = Readonly<{
+  kind: 'err';
+  error: E;
+}>;
+
+/**
+ * Explicit success/failure for application-layer use cases.
  *
- * This is a functional programming pattern that helps avoid throwing exceptions
- * and makes error handling explicit in the type system. It's commonly used in
- * Domain-Driven Design (DDD) to represent domain operation outcomes.
+ * Domain entities and value objects throw on invariant violations;
+ * application services return Result instead of throwing expected failures.
  *
- * @template T The type of a successful result.
- * @template E The type of the error in case of failure (defaults to DomainError).
- *
- * @example
- * ```typescript
- * // Creating a successful result
- * const success = Result.ok({ id: 1, name: 'John' });
- * if (success.isSuccess) {
- *   const user = success.getValue(); // { id: 1, name: 'John' }
- * }
- *
- * // Creating a failed result
- * const failure = Result.fail(new InvalidUserError('User not found'));
- * if (failure.isFailure) {
- *   const error = failure.getError(); // InvalidUserError instance
- * }
- * ```
- *
- * @example
- * ```typescript
- * // Using in a domain service
- * function createUser(name: string): Result<User, DomainError> {
- *   if (!name || name.trim().length === 0) {
- *     return Result.fail(new InvalidValueError('Name cannot be empty'));
- *   }
- *
- *   const user = new User(name);
- *   return Result.ok(user);
- * }
- *
- * const result = createUser('John Doe');
- * if (result.isSuccess) {
- *   console.log('User created:', result.getValue());
- * } else {
- *   console.error('Failed:', result.getError()?.message);
- * }
- * ```
+ * @template T Success value type
+ * @template E Per-use-case error union (`ApplicationError`, `DomainError`, etc.)
+ */
+export type Result<T, E extends UseCaseError> = Ok<T> | Err<E>;
+
+function freeze<R extends Result<unknown, UseCaseError>>(result: R): R {
+  return Object.freeze(result);
+}
+
+/**
+ * Factory and combinators for {@link Result}.
  *
  * @example
  * ```typescript
- * // Chaining operations
- * function validateEmail(email: string): Result<string, DomainError> {
- *   if (!email.includes('@')) {
- *     return Result.fail(new InvalidValueError('Invalid email format'));
- *   }
- *   return Result.ok(email);
+ * function login(id: string): Result<Session, AuthInvalidCredentialsError> {
+ *   if (!valid) return Result.err(new AuthInvalidCredentialsError(id));
+ *   return Result.ok(session);
  * }
  *
- * function createAccount(email: string): Result<Account, DomainError> {
- *   const emailResult = validateEmail(email);
- *   if (emailResult.isFailure) {
- *     return emailResult; // Forward the error
- *   }
- *
- *   const account = new Account(emailResult.getValue()!);
- *   return Result.ok(account);
- * }
- * ```
- *
- * @example
- * ```typescript
- * // Working with async operations
- * async function fetchUser(id: number): Promise<Result<User, DomainError>> {
- *   try {
- *     const user = await userRepository.findById(id);
- *     if (!user) {
- *       return Result.fail(new NotFoundError(`User ${id} not found`));
- *     }
- *     return Result.ok(user);
- *   } catch (error) {
- *     return Result.fail(new SystemError('Database connection failed'));
- *   }
- * }
- *
- * const result = await fetchUser(123);
- * if (result.isSuccess) {
- *   // Handle success
- * } else {
- *   // Handle failure
- * }
+ * return Result.flatMap(loadUser(id), (user) => issueSession(user));
  * ```
  */
-export class Result<T, E> {
-  /**
-   * Indicates if the result is a failure.
-   *
-   * @example
-   * ```typescript
-   * const result = Result.fail(new Error('Something went wrong'));
-   * if (result.isFailure) {
-   *   // Handle error case
-   *   console.error(result.getError());
-   * }
-   * ```
-   */
-  public readonly isFailure: boolean;
+export const Result = {
+  ok<T>(value: T): Ok<T> {
+    return freeze({ kind: 'ok', value });
+  },
 
-  /**
-   * Indicates if the result is a success.
-   *
-   * @example
-   * ```typescript
-   * const result = Result.ok(42);
-   * if (result.isSuccess) {
-   *   // Handle success case
-   *   const value = result.getValue(); // 42
-   * }
-   * ```
-   */
-  public readonly isSuccess: boolean;
+  err<E extends UseCaseError>(error: E): Err<E> {
+    return freeze({ kind: 'err', error });
+  },
 
-  /**
-   * The error, if any.
-   * @private
-   */
-  private readonly _error?: E;
+  isOk<T, E extends UseCaseError>(result: Result<T, E>): result is Ok<T> {
+    return result.kind === 'ok';
+  },
 
-  /**
-   * The value, if any.
-   * @private
-   */
-  private readonly _value?: T;
+  isErr<T, E extends UseCaseError>(result: Result<T, E>): result is Err<E> {
+    return result.kind === 'err';
+  },
 
-  /**
-   * Private constructor to enforce the use of static methods.
-   * @param params.value The value on success.
-   * @param params.error The error on failure.
-   * @private
-   */
-  private constructor(params: { value?: T; error?: E }) {
-    const hasError = params.error !== undefined;
-    this.isFailure = hasError;
-    this.isSuccess = !hasError;
+  match<T, E extends UseCaseError, U>(
+    result: Result<T, E>,
+    handlers: {
+      ok: (value: T) => U;
+      err: (error: E) => U;
+    },
+  ): U {
+    if (result.kind === 'err') {
+      return handlers.err(result.error);
+    }
 
-    this._value = params.value;
-    this._error = params.error;
-    Object.freeze(this);
-  }
+    return handlers.ok(result.value);
+  },
 
-  /**
-   * Creates a failed result.
-   *
-   * @template T The type of a successful result (never for failure).
-   * @template E The type of the error (defaults to DomainError).
-   * @param error The error object.
-   * @returns {Result<T, E>} A failed Result instance.
-   *
-   * @example
-   * ```typescript
-   * // With DomainError
-   * class InvalidValueError extends DomainError {
-   *   public readonly code = 'DOMAIN.INVALID_VALUE' as const;
-   *   constructor(message: string) {
-   *     super({ message });
-   *   }
-   * }
-   *
-   * const result = Result.fail(new InvalidValueError('Value must be positive'));
-   * // result.isFailure === true
-   * // result.getError() === InvalidValueError instance
-   * ```
-   *
-   * @example
-   * ```typescript
-   * // With custom error type
-   * interface ValidationError {
-   *   field: string;
-   *   message: string;
-   * }
-   *
-   * const result = Result.fail<never, ValidationError>({
-   *   field: 'email',
-   *   message: 'Invalid email format'
-   * });
-   * ```
-   *
-   * @example
-   * ```typescript
-   * // In a validation function
-   * function validateAge(age: number): Result<number, DomainError> {
-   *   if (age < 0) {
-   *     return Result.fail(new InvalidValueError('Age cannot be negative'));
-   *   }
-   *   if (age > 150) {
-   *     return Result.fail(new InvalidValueError('Age seems unrealistic'));
-   *   }
-   *   return Result.ok(age);
-   * }
-   * ```
-   */
-  public static fail<T = never, E = DomainError>(error: E): Result<T, E> {
-    return new Result({ error });
-  }
+  map<T, E extends UseCaseError, U>(
+    result: Result<T, E>,
+    fn: (value: T) => U,
+  ): Result<U, E> {
+    if (result.kind === 'err') {
+      return result;
+    }
 
-  /**
-   * Creates a successful result.
-   *
-   * @template T The type of the successful result.
-   * @template E The type of the error (never for success).
-   * @param value The success value.
-   * @returns {Result<T, E>} A successful Result instance.
-   *
-   * @example
-   * ```typescript
-   * // With primitive value
-   * const result = Result.ok(42);
-   * // result.isSuccess === true
-   * // result.getValue() === 42
-   * ```
-   *
-   * @example
-   * ```typescript
-   * // With object
-   * const user = { id: 1, name: 'John', email: 'john@example.com' };
-   * const result = Result.ok(user);
-   * if (result.isSuccess) {
-   *   const savedUser = result.getValue(); // { id: 1, name: 'John', ... }
-   * }
-   * ```
-   *
-   * @example
-   * ```typescript
-   * // With domain entity
-   * class User {
-   *   constructor(public readonly id: number, public readonly name: string) {}
-   * }
-   *
-   * function createUser(name: string): Result<User, DomainError> {
-   *   const user = new User(Date.now(), name);
-   *   return Result.ok(user);
-   * }
-   *
-   * const result = createUser('Alice');
-   * if (result.isSuccess) {
-   *   console.log(`Created user: ${result.getValue()?.name}`);
-   * }
-   * ```
-   *
-   * @example
-   * ```typescript
-   * // With void/undefined (for operations that don't return a value)
-   * function deleteUser(id: number): Result<void, DomainError> {
-   *   // ... deletion logic ...
-   *   return Result.ok(undefined);
-   * }
-   *
-   * const result = deleteUser(123);
-   * if (result.isSuccess) {
-   *   console.log('User deleted successfully');
-   * }
-   * ```
-   */
-  public static ok<T, E = never>(value: T): Result<T, E> {
-    return new Result({ value });
-  }
+    return Result.ok(fn(result.value));
+  },
 
-  /**
-   * Returns the error if present, otherwise undefined.
-   *
-   * **Note:** Always check `isFailure` before calling this method to ensure
-   * the result is actually a failure. This method will return `undefined` for
-   * successful results.
-   *
-   * @returns {E | undefined} The error or undefined if successful.
-   *
-   * @example
-   * ```typescript
-   * const result = Result.fail(new InvalidValueError('Invalid input'));
-   *
-   * if (result.isFailure) {
-   *   const error = result.getError();
-   *   if (error) {
-   *     console.error(`Error code: ${error.code}, Message: ${error.message}`);
-   *   }
-   * }
-   * ```
-   *
-   * @example
-   * ```typescript
-   * // Safe error handling pattern
-   * function handleResult<T>(result: Result<T, DomainError>): void {
-   *   if (result.isFailure) {
-   *     const error = result.getError();
-   *     if (error) {
-   *       // Log error with metadata
-   *       console.error({
-   *         code: error.code,
-   *         message: error.message,
-   *         metadata: error.metadata
-   *       });
-   *     }
-   *   }
-   * }
-   * ```
-   */
-  public getError(): E | undefined {
-    return this._error;
-  }
+  mapError<T, E extends UseCaseError, F extends UseCaseError>(
+    result: Result<T, E>,
+    fn: (error: E) => F,
+  ): Result<T, F> {
+    if (result.kind === 'ok') {
+      return result;
+    }
 
-  /**
-   * Returns the value if present, otherwise undefined.
-   *
-   * **Note:** Always check `isSuccess` before calling this method to ensure
-   * the result is actually a success. This method will return `undefined` for
-   * failed results.
-   *
-   * @returns {T | undefined} The value or undefined if failed.
-   *
-   * @example
-   * ```typescript
-   * const result = Result.ok({ id: 1, name: 'John' });
-   *
-   * if (result.isSuccess) {
-   *   const user = result.getValue();
-   *   if (user) {
-   *     console.log(`User: ${user.name} (ID: ${user.id})`);
-   *   }
-   * }
-   * ```
-   *
-   * @example
-   * ```typescript
-   * // Type-safe value extraction
-   * function processUser(result: Result<User, DomainError>): void {
-   *   if (result.isSuccess) {
-   *     const user = result.getValue();
-   *     // TypeScript knows user is User | undefined here
-   *     if (user) {
-   *       // Process the user
-   *       userRepository.save(user);
-   *     }
-   *   }
-   * }
-   * ```
-   *
-   * @example
-   * ```typescript
-   * // Using non-null assertion (use with caution)
-   * const result = Result.ok(42);
-   * if (result.isSuccess) {
-   *   const value = result.getValue()!; // Safe because we checked isSuccess
-   *   console.log(value * 2); // 84
-   * }
-   * ```
-   */
-  public getValue(): T | undefined {
-    return this._value;
-  }
+    return Result.err(fn(result.error));
+  },
 
-  /**
-   * Type guard for failure.
-   */
-  public isFailureResult(): this is Result<never, E> {
-    return this.isFailure;
-  }
+  flatMap<T, E extends UseCaseError, U>(
+    result: Result<T, E>,
+    fn: (value: T) => Result<U, E>,
+  ): Result<U, E> {
+    if (result.kind === 'err') {
+      return result;
+    }
 
-  /**
-   * Type guard for success.
-   */
-  public isSuccessResult(): this is Result<T, never> {
-    return this.isSuccess;
-  }
-}
+    return fn(result.value);
+  },
+} as const;

@@ -16,5 +16,11 @@ export * from './domain/value-objects/ip.vo';
 export * from './gateway/constants/http-code';
 export * from './infrastructure/mapper/base.mapper';
 export * from './shared';
-export { Result } from './shared/domain/result';
+export {
+  Result,
+  type Err,
+  type Ok,
+  type Result as ResultType,
+  type UseCaseError,
+} from './shared/domain/result';
 export * from './utils';
