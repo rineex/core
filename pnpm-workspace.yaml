@@ -7,4 +7,11 @@ packages:
   - '!packages/authentication/methods'
   - '!packages/nest'
 
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - esbuild
+  - multiline-ts
+  - simple-git-hooks
+  - unrs-resolver
+
 updateNotifier: false
