@@ -1,10 +1,15 @@
 # DDD Tactical Patterns
 
 > Sources:
-> - [Domain-Driven Design: The Blue Book](https://www.domainlanguage.com/ddd/blue-book/) — Eric Evans (2003)
-> - [Implementing Domain-Driven Design](https://openlibrary.org/works/OL17392277W) — Vaughn Vernon (2013)
-> - [Effective Aggregate Design](https://www.dddcommunity.org/library/vernon_2011/) — Vaughn Vernon
-> - [Repository Pattern](https://martinfowler.com/eaaCatalog/repository.html) — Martin Fowler (PoEAA)
+>
+> - [Domain-Driven Design: The Blue Book](https://www.domainlanguage.com/ddd/blue-book/)
+>   — Eric Evans (2003)
+> - [Implementing Domain-Driven Design](https://openlibrary.org/works/OL17392277W)
+>   — Vaughn Vernon (2013)
+> - [Effective Aggregate Design](https://www.dddcommunity.org/library/vernon_2011/)
+>   — Vaughn Vernon
+> - [Repository Pattern](https://martinfowler.com/eaaCatalog/repository.html) —
+>   Martin Fowler (PoEAA)
 
 ## Building Blocks Overview
 
@@ -31,7 +36,8 @@ flowchart TB
 
 ## Entity
 
-An object with **identity** that persists through time. Two entities are equal if they have the same identity, regardless of attribute values.
+An object with **identity** that persists through time. Two entities are equal
+if they have the same identity, regardless of attribute values.
 
 ### Characteristics
 
@@ -73,7 +79,8 @@ class OrderItem extends Entity<OrderItemId>:
 
 ## Value Object
 
-An object defined by its **attributes**, not identity. Two value objects are equal if all their attributes are equal.
+An object defined by its **attributes**, not identity. Two value objects are
+equal if all their attributes are equal.
 
 ### Characteristics
 
@@ -85,13 +92,13 @@ An object defined by its **attributes**, not identity. Two value objects are equ
 
 ### Common Value Objects
 
-| Value Object | Attributes | Validation |
-|--------------|-----------|------------|
-| Money | amount, currency | amount >= 0 |
-| Email | address | valid email format |
-| Address | street, city, zip, country | required fields |
-| DateRange | start, end | start <= end |
-| Quantity | value | value > 0 |
+| Value Object | Attributes                 | Validation         |
+| ------------ | -------------------------- | ------------------ |
+| Money        | amount, currency           | amount >= 0        |
+| Email        | address                    | valid email format |
+| Address      | street, city, zip, country | required fields    |
+| DateRange    | start, end                 | start <= end       |
+| Quantity     | value                      | value > 0          |
 
 ### Pattern
 
@@ -147,26 +154,30 @@ class OrderId extends ValueObject<{value}>:
 
 ## Aggregate
 
-A cluster of entities and value objects treated as a single unit for data changes. Has a **consistency boundary**.
+A cluster of entities and value objects treated as a single unit for data
+changes. Has a **consistency boundary**.
 
 ### Rules
 
 1. **One aggregate root** - Single entry point for all modifications
-2. **Reference by ID only** - Aggregates reference others by identity, never by direct object reference
-3. **Transaction boundary** - One aggregate per transaction (eventual consistency between aggregates)
+2. **Reference by ID only** - Aggregates reference others by identity, never by
+   direct object reference
+3. **Transaction boundary** - One aggregate per transaction (eventual
+   consistency between aggregates)
 4. **Invariants within boundary** - Aggregate ensures its own consistency
 5. **Small aggregates** - Prefer smaller over larger
 
 ### Aggregate Sizing Heuristics
 
-| Metric | Healthy | Warning | Action |
-|--------|---------|---------|--------|
-| Entities per aggregate | 1-5 | 6-10 | >10: Split |
-| Lines of code (root) | <500 | 500-1000 | >1000: Split |
-| Transaction lock time | <100ms | 100-500ms | >500ms: Split |
-| Concurrent modification conflicts | Rare | Occasional | Frequent: Split |
+| Metric                            | Healthy | Warning    | Action          |
+| --------------------------------- | ------- | ---------- | --------------- |
+| Entities per aggregate            | 1-5     | 6-10       | >10: Split      |
+| Lines of code (root)              | <500    | 500-1000   | >1000: Split    |
+| Transaction lock time             | <100ms  | 100-500ms  | >500ms: Split   |
+| Concurrent modification conflicts | Rare    | Occasional | Frequent: Split |
 
 **Questions to ask:**
+
 - Can parts be eventually consistent? → Separate aggregates
 - Do all parts change together? → Same aggregate
 - Are there independent lifecycles? → Separate aggregates
@@ -196,7 +207,7 @@ flowchart LR
     style Product fill:#3b82f6,stroke:#2563eb,color:white
 ```
 
-*Reference by ID only*
+_Reference by ID only_
 
 **Bad: God Aggregate**
 
@@ -212,7 +223,7 @@ flowchart TB
     style GodOrder fill:#ef4444,stroke:#dc2626,color:white
 ```
 
-*Too large, too many reasons to change, contention issues*
+_Too large, too many reasons to change, contention issues_
 
 ### Pattern
 

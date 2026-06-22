@@ -1,10 +1,14 @@
 # Testing Patterns
 
 > Sources:
-> - [The Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) — Robert C. Martin
-> - [Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture/) — Alistair Cockburn
+>
+> - [The Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+>   — Robert C. Martin
+> - [Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture/)
+>   — Alistair Cockburn
 > - [Unit Testing](https://martinfowler.com/bliki/UnitTest.html) — Martin Fowler
-> - [Test Pyramid](https://martinfowler.com/bliki/TestPyramid.html) — Martin Fowler
+> - [Test Pyramid](https://martinfowler.com/bliki/TestPyramid.html) — Martin
+>   Fowler
 
 Testing strategies for Clean Architecture + DDD + Hexagonal systems.
 
@@ -33,7 +37,8 @@ flowchart TB
 
 ### Domain Layer Tests
 
-Test business logic in isolation. **No mocks needed**—domain has no dependencies.
+Test business logic in isolation. **No mocks needed**—domain has no
+dependencies.
 
 ```typescript
 // tests/domain/order/order.test.ts
@@ -64,7 +69,7 @@ describe('Order', () => {
       const order = createDraftOrder();
       const productId = ProductId.from('prod-123');
       const quantity = Quantity.create(2);
-      const price = Money.create(10.00, 'USD');
+      const price = Money.create(10.0, 'USD');
 
       order.addItem(productId, quantity, price);
 
@@ -76,7 +81,7 @@ describe('Order', () => {
     it('increases quantity for existing product', () => {
       const order = createDraftOrder();
       const productId = ProductId.from('prod-123');
-      const price = Money.create(10.00, 'USD');
+      const price = Money.create(10.0, 'USD');
 
       order.addItem(productId, Quantity.create(2), price);
       order.addItem(productId, Quantity.create(3), price);
@@ -89,7 +94,11 @@ describe('Order', () => {
       const order = createCancelledOrder();
 
       expect(() => {
-        order.addItem(ProductId.from('prod-123'), Quantity.create(1), Money.create(10, 'USD'));
+        order.addItem(
+          ProductId.from('prod-123'),
+          Quantity.create(1),
+          Money.create(10, 'USD'),
+        );
       }).toThrow(InvalidOrderStateError);
     });
 
@@ -97,7 +106,11 @@ describe('Order', () => {
       const order = createDraftOrder();
 
       expect(() => {
-        order.addItem(ProductId.from('prod-123'), Quantity.create(0), Money.create(10, 'USD'));
+        order.addItem(
+          ProductId.from('prod-123'),
+          Quantity.create(0),
+          Money.create(10, 'USD'),
+        );
       }).toThrow(InvalidQuantityError);
     });
   });
@@ -116,7 +129,9 @@ describe('Order', () => {
 
       order.confirm();
 
-      const events = order.domainEvents.filter(e => e instanceof OrderConfirmed);
+      const events = order.domainEvents.filter(
+        e => e instanceof OrderConfirmed,
+      );
       expect(events).toHaveLength(1);
     });
 
@@ -136,8 +151,16 @@ describe('Order', () => {
   describe('total', () => {
     it('calculates total from all items', () => {
       const order = createDraftOrder();
-      order.addItem(ProductId.from('p1'), Quantity.create(2), Money.create(10, 'USD'));
-      order.addItem(ProductId.from('p2'), Quantity.create(1), Money.create(25, 'USD'));
+      order.addItem(
+        ProductId.from('p1'),
+        Quantity.create(2),
+        Money.create(10, 'USD'),
+      );
+      order.addItem(
+        ProductId.from('p2'),
+        Quantity.create(1),
+        Money.create(25, 'USD'),
+      );
 
       expect(order.total.amount).toBe(45); // 2*10 + 1*25
     });
@@ -157,7 +180,11 @@ function createDraftOrder(): Order {
 
 function createOrderWithItems(): Order {
   const order = createDraftOrder();
-  order.addItem(ProductId.from('prod-123'), Quantity.create(1), Money.create(10, 'USD'));
+  order.addItem(
+    ProductId.from('prod-123'),
+    Quantity.create(1),
+    Money.create(10, 'USD'),
+  );
   return order;
 }
 
@@ -182,9 +209,9 @@ function createCancelledOrder(): Order {
 describe('Money', () => {
   describe('create', () => {
     it('creates money with valid amount', () => {
-      const money = Money.create(10.50, 'USD');
+      const money = Money.create(10.5, 'USD');
 
-      expect(money.amount).toBe(10.50);
+      expect(money.amount).toBe(10.5);
       expect(money.currency).toBe('USD');
     });
 
@@ -251,8 +278,8 @@ describe('PlaceOrderHandler', () => {
   });
 
   it('creates order with items and saves', async () => {
-    productRepo.addProduct(createTestProduct('prod-1', 10.00));
-    productRepo.addProduct(createTestProduct('prod-2', 20.00));
+    productRepo.addProduct(createTestProduct('prod-1', 10.0));
+    productRepo.addProduct(createTestProduct('prod-2', 20.0));
 
     const command: PlaceOrderCommand = {
       customerId: 'cust-123',
@@ -273,7 +300,7 @@ describe('PlaceOrderHandler', () => {
   });
 
   it('publishes domain events', async () => {
-    productRepo.addProduct(createTestProduct('prod-1', 10.00));
+    productRepo.addProduct(createTestProduct('prod-1', 10.0));
 
     const command: PlaceOrderCommand = {
       customerId: 'cust-123',
@@ -296,7 +323,7 @@ describe('PlaceOrderHandler', () => {
   });
 
   it('rolls back on error', async () => {
-    productRepo.addProduct(createTestProduct('prod-1', 10.00));
+    productRepo.addProduct(createTestProduct('prod-1', 10.0));
     orderRepo.simulateErrorOnSave();
 
     const command: PlaceOrderCommand = {
@@ -378,7 +405,11 @@ describe('PostgresOrderRepository', () => {
   describe('save and findById', () => {
     it('persists and retrieves order', async () => {
       const order = Order.create(CustomerId.from('cust-123'));
-      order.addItem(ProductId.from('prod-1'), Quantity.create(2), Money.create(10, 'USD'));
+      order.addItem(
+        ProductId.from('prod-1'),
+        Quantity.create(2),
+        Money.create(10, 'USD'),
+      );
 
       await repository.save(order);
       const retrieved = await repository.findById(order.id);
@@ -391,10 +422,18 @@ describe('PostgresOrderRepository', () => {
 
     it('updates existing order', async () => {
       const order = Order.create(CustomerId.from('cust-123'));
-      order.addItem(ProductId.from('prod-1'), Quantity.create(1), Money.create(10, 'USD'));
+      order.addItem(
+        ProductId.from('prod-1'),
+        Quantity.create(1),
+        Money.create(10, 'USD'),
+      );
       await repository.save(order);
 
-      order.addItem(ProductId.from('prod-2'), Quantity.create(3), Money.create(20, 'USD'));
+      order.addItem(
+        ProductId.from('prod-2'),
+        Quantity.create(3),
+        Money.create(20, 'USD'),
+      );
       await repository.save(order);
 
       const retrieved = await repository.findById(order.id);
@@ -436,10 +475,10 @@ describe('Orders API', () => {
   });
 
   beforeEach(async () => {
-    await db.truncate("orders", "order_items", "products");
+    await db.truncate('orders', 'order_items', 'products');
     await db.products.insertMany([
-      { id: "prod-1", name: "Product 1", price: 1000 },
-      { id: "prod-2", name: "Product 2", price: 2000 }
+      { id: 'prod-1', name: 'Product 1', price: 1000 },
+      { id: 'prod-2', name: 'Product 2', price: 2000 },
     ]);
   });
 
@@ -569,7 +608,9 @@ describe('Architecture', () => {
       const rule = filesOfProject()
         .inFolder('domain/**/events')
         .should()
-        .matchPattern('.*(Created|Updated|Deleted|Confirmed|Shipped|Cancelled)\\.ts$');
+        .matchPattern(
+          '.*(Created|Updated|Deleted|Confirmed|Shipped|Cancelled)\\.ts$',
+        );
 
       await expect(rule).toPassAsync();
     });
@@ -624,7 +665,11 @@ tests/
 // tests/fixtures/order_fixtures.ts
 export class OrderBuilder {
   private customerId: CustomerId = CustomerId.from('default-customer');
-  private items: Array<{ productId: ProductId; quantity: Quantity; price: Money }> = [];
+  private items: Array<{
+    productId: ProductId;
+    quantity: Quantity;
+    price: Money;
+  }> = [];
   private status: 'draft' | 'confirmed' | 'shipped' | 'cancelled' = 'draft';
 
   withCustomer(id: string): this {
@@ -666,8 +711,8 @@ export class OrderBuilder {
 // Usage
 const order = new OrderBuilder()
   .withCustomer('cust-123')
-  .withItem('prod-1', 2, 10.00)
-  .withItem('prod-2', 1, 25.00)
+  .withItem('prod-1', 2, 10.0)
+  .withItem('prod-2', 1, 25.0)
   .confirmed()
   .build();
 ```
