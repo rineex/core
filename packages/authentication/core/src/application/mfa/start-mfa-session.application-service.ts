@@ -85,7 +85,7 @@ export class StartMfaSessionApplicationService implements ApplicationServicePort
       );
 
       this.logger.error('Error starting MFA session', { violation, ...args });
-      return Result.fail(violation as never);
+      return Result.err(violation as never);
     }
   }
 }

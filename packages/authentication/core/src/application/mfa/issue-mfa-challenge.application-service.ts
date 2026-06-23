@@ -70,7 +70,7 @@ export class IssueMfaChallengeApplicationService implements ApplicationServicePo
         sessionId: sessionId.toString(),
         error,
       });
-      return Result.fail(error as never);
+      return Result.err(error as never);
     }
   }
 }

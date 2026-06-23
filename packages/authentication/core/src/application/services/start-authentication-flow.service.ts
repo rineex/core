@@ -43,14 +43,14 @@ export class StartAuthenticationFlowApplicationService implements ApplicationSer
     const attempt = await this.attempts.findById(params.attemptId);
 
     if (!attempt) {
-      return Result.fail(
+      return Result.err(
         new AuthenticationAttemptNotFound({
           attemptId: params.attemptId.toString(),
         }),
       );
     }
 
-    const outcome = method.start({
+    const outcome = await method.start({
       authAttemptId: params.attemptId,
       ctx: params.ctx,
     });

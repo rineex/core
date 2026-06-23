@@ -1,4 +1,4 @@
-import { ClockPort } from '@rineex/ddd';
+import { ClockPort, Result } from '@rineex/ddd';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -42,6 +42,7 @@ describe('issuePasswordlessChallengeService', () => {
 
     mockRepository = {
       save: vi.fn().mockResolvedValue(undefined),
+      findById: vi.fn(),
     };
 
     mockIdGenerator = {
@@ -67,7 +68,7 @@ describe('issuePasswordlessChallengeService', () => {
         secret: validSecret,
       });
 
-      expect(result.isSuccess).toBe(true);
+      expect(Result.isOk(result)).toBe(true);
       expect(mockIdGenerator.generate).toHaveBeenCalledOnce();
       expect(mockClock.now).toHaveBeenCalledOnce();
       expect(mockRepository.save).toHaveBeenCalledOnce();
@@ -80,12 +81,16 @@ describe('issuePasswordlessChallengeService', () => {
         secret: validSecret,
       });
 
-      expect(result.isSuccess).toBe(true);
+      expect(Result.isOk(result)).toBe(true);
       expect(mockIdGenerator.generate).toHaveBeenCalledOnce();
       expect(mockClock.now).toHaveBeenCalledOnce();
       expect(mockRepository.save).toHaveBeenCalledOnce();
 
-      const challenge = result.getValue();
+      if (!Result.isOk(result)) {
+        throw new Error('expected ok');
+      }
+
+      const challenge = result.value;
 
       expect(challenge).toBeInstanceOf(PasswordlessChallengeAggregate);
       expect(challenge.id).toBe(validId);
@@ -109,9 +114,13 @@ describe('issuePasswordlessChallengeService', () => {
         secret: validSecret,
       });
 
-      expect(result.isSuccess).toBe(true);
+      expect(Result.isOk(result)).toBe(true);
 
-      const challenge = result.getValue();
+      if (!Result.isOk(result)) {
+        throw new Error('expected ok');
+      }
+
+      const challenge = result.value;
       const expectedExpiresAt = new Date(issuedAt.getTime() + 600 * 1000);
 
       // @ts-expect-error - props is protected, but needed for testing
@@ -127,9 +136,13 @@ describe('issuePasswordlessChallengeService', () => {
         secret: validSecret,
       });
 
-      expect(result.isSuccess).toBe(true);
+      expect(Result.isOk(result)).toBe(true);
 
-      const challenge = result.getValue();
+      if (!Result.isOk(result)) {
+        throw new Error('expected ok');
+      }
+
+      const challenge = result.value;
 
       // @ts-expect-error - props is protected, but needed for testing
       expect(challenge.props.status).toEqual(
@@ -144,9 +157,13 @@ describe('issuePasswordlessChallengeService', () => {
         secret: validSecret,
       });
 
-      expect(result.isSuccess).toBe(true);
+      expect(Result.isOk(result)).toBe(true);
 
-      const challenge = result.getValue();
+      if (!Result.isOk(result)) {
+        throw new Error('expected ok');
+      }
+
+      const challenge = result.value;
       const events = challenge.domainEvents;
 
       expect(events).toHaveLength(1);
@@ -163,9 +180,13 @@ describe('issuePasswordlessChallengeService', () => {
         secret: validSecret,
       });
 
-      expect(result.isSuccess).toBe(true);
+      expect(Result.isOk(result)).toBe(true);
 
-      const challenge = result.getValue();
+      if (!Result.isOk(result)) {
+        throw new Error('expected ok');
+      }
+
+      const challenge = result.value;
 
       // @ts-expect-error - props is protected, but needed for testing
       expect(challenge.props.channel.value).toBe('sms');
@@ -173,7 +194,7 @@ describe('issuePasswordlessChallengeService', () => {
       expect(challenge.props.destination.value).toBe('+1234567890');
     });
 
-    it('should return Result.fail when repository save fails', async () => {
+    it('should return Result.err when repository save fails', async () => {
       const error = new Error('Database error');
       vi.spyOn(mockRepository, 'save').mockRejectedValue(error);
 
@@ -183,13 +204,16 @@ describe('issuePasswordlessChallengeService', () => {
         secret: validSecret,
       });
 
-      expect(result.isFailure).toBe(true);
-      expect(result.getError()).toBe(error);
+      expect(Result.isErr(result)).toBe(true);
+
+      if (!Result.isErr(result)) {
+        throw new Error('expected err');
+      }
+
+      expect(result.error).toBe(error);
     });
 
-    it('should return Result.fail when aggregate creation fails', async () => {
-      // Test with a scenario that will cause an error
-      // by making the repository throw an error during save
+    it('should return Result.err when aggregate creation fails', async () => {
       const error = new Error('Aggregate validation failed');
       vi.spyOn(mockRepository, 'save').mockRejectedValue(error);
 
@@ -199,8 +223,7 @@ describe('issuePasswordlessChallengeService', () => {
         secret: validSecret,
       });
 
-      // The service catches errors and returns Result.fail
-      expect(result.isFailure).toBe(true);
+      expect(Result.isErr(result)).toBe(true);
       expect(mockRepository.save).toHaveBeenCalledOnce();
     });
 
@@ -214,9 +237,13 @@ describe('issuePasswordlessChallengeService', () => {
         secret: validSecret,
       });
 
-      expect(result.isSuccess).toBe(true);
+      expect(Result.isOk(result)).toBe(true);
 
-      const challenge = result.getValue();
+      if (!Result.isOk(result)) {
+        throw new Error('expected ok');
+      }
+
+      const challenge = result.value;
 
       // @ts-expect-error - props is protected, but needed for testing
       expect(challenge.props.issuedAt).toEqual(customTime);
@@ -231,7 +258,7 @@ describe('issuePasswordlessChallengeService', () => {
 
       expect(mockRepository.save).toHaveBeenCalledOnce();
 
-      const savedChallenge = (mockRepository.save as any).mock.calls[0][0];
+      const savedChallenge = vi.mocked(mockRepository.save).mock.calls[0][0];
 
       expect(savedChallenge).toBeInstanceOf(PasswordlessChallengeAggregate);
       expect(savedChallenge.id).toBe(validId);

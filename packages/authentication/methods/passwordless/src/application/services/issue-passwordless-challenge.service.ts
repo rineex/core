@@ -70,7 +70,7 @@ export class IssuePasswordlessChallengeService implements ApplicationServicePort
       await this.repository.save(challenge);
       return Result.ok(challenge);
     } catch (error) {
-      return Result.fail(error);
+      return Result.err(error);
     }
   }
 }

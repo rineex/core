@@ -1,4 +1,4 @@
-import { DomainError } from '@rineex/ddd';
+import { UseCaseError } from '@rineex/ddd';
 
 import { AuthAttemptId } from '@/domain/identity/value-objects';
 import { AuthMethodName } from '@/types';
@@ -13,7 +13,7 @@ import { AuthMethodName } from '@/types';
  * Result is application-level.
  */
 export type AuthMethodOutcome =
-  | { readonly ok: false; readonly violation: DomainError }
+  | { readonly ok: false; readonly violation: UseCaseError }
   | { readonly ok: true };
 
 /**
@@ -54,7 +54,7 @@ export type AuthMethodPort = {
   start: (params: {
     authAttemptId: AuthAttemptId;
     ctx: unknown;
-  }) => AuthMethodOutcome;
+  }) => AuthMethodOutcome | Promise<AuthMethodOutcome>;
 
   /**
    * Verifies a response for this method.
@@ -67,5 +67,5 @@ export type AuthMethodPort = {
   verify: (params: {
     authAttemptId: AuthAttemptId;
     payload: unknown;
-  }) => AuthMethodOutcome;
+  }) => AuthMethodOutcome | Promise<AuthMethodOutcome>;
 };

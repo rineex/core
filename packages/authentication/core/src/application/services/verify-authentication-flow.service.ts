@@ -30,14 +30,17 @@ export class VerifyAuthenticationFlowApplicationService implements ApplicationSe
     const attempt = await this.attempts.findById(attemptId);
 
     if (!attempt) {
-      return Result.fail(
+      return Result.err(
         new AuthenticationAttemptNotFound({ attemptId: attemptId.value }),
       );
     }
 
     const method = this.methods.resolve(attempt.methodValue);
 
-    const outcome = method.verify({ authAttemptId: attempt.id, payload });
+    const outcome = await method.verify({
+      authAttemptId: attempt.id,
+      payload,
+    });
 
     if (!outcome.ok) {
       attempt.fail(outcome.violation.toString());

@@ -56,7 +56,7 @@ export class VerifyMfaApplicationService implements ApplicationServicePort<
         ),
       );
       this.logger?.error('Error verifying MFA session', { sessionId, error });
-      return Result.fail(error as never);
+      return Result.err(error as never);
     }
   }
 }

@@ -1,3 +1,5 @@
+import { Result } from '@rineex/ddd';
+
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
@@ -73,45 +75,46 @@ describe('verifyPasswordlessChallengeService', () => {
 
   describe('execute', () => {
     it('should successfully verify a valid challenge', async () => {
-      // Arrange
       const challenge = createIssuedChallenge();
       vi.mocked(mockRepository.findById).mockResolvedValue(challenge);
 
-      // Act
       const result = await service.execute({
         secret: validSecret,
         id: validId,
       });
 
-      // Assert
-      expect(result.isSuccess).toBe(true);
-      expect(result.getValue()).toBe(challenge);
+      expect(Result.isOk(result)).toBe(true);
+
+      if (!Result.isOk(result)) {
+        throw new Error('expected ok');
+      }
+
+      expect(result.value).toBeInstanceOf(PasswordlessChallengeAggregate);
       expect(mockRepository.findById).toHaveBeenCalledWith(VALID_UUID);
       expect(mockRepository.save).toHaveBeenCalledOnce();
       expect(mockRepository.save).toHaveBeenCalledWith(challenge);
     });
 
-    it('should return Result.fail with PasswordlessChallengeNotFoundError when challenge is not found', async () => {
-      // Arrange
+    it('should return Result.err with PasswordlessChallengeNotFoundError when challenge is not found', async () => {
       vi.mocked(mockRepository.findById).mockResolvedValue(null);
 
-      // Act
       const result = await service.execute({
         secret: validSecret,
         id: validId,
       });
 
-      // Assert
-      expect(result.isFailure).toBe(true);
-      expect(result.getError()).toBeInstanceOf(
-        PasswordlessChallengeNotFoundError,
-      );
+      expect(Result.isErr(result)).toBe(true);
+
+      if (!Result.isErr(result)) {
+        throw new Error('expected err');
+      }
+
+      expect(result.error).toBeInstanceOf(PasswordlessChallengeNotFoundError);
       expect(mockRepository.findById).toHaveBeenCalledWith(VALID_UUID);
       expect(mockRepository.save).not.toHaveBeenCalled();
     });
 
-    it('should return Result.fail with PasswordlessChallengeExpiredError when challenge is expired', async () => {
-      // Arrange: challenge with expiresAt in the past so isExpired() is true when service runs
+    it('should return Result.err with PasswordlessChallengeExpiredError when challenge is expired', async () => {
       const pastIssuedAt = new Date('2020-01-01T10:00:00Z');
       const pastExpiresAt = new Date('2020-01-01T10:00:01Z');
       const expiredChallenge = PasswordlessChallengeAggregate.issue({
@@ -129,107 +132,113 @@ describe('verifyPasswordlessChallengeService', () => {
 
       vi.mocked(mockRepository.findById).mockResolvedValue(expiredChallenge);
 
-      // Act
       const result = await service.execute({
         secret: validSecret,
         id: validId,
       });
 
-      // Assert
-      expect(result.isFailure).toBe(true);
-      expect(result.getError()).toBeInstanceOf(
-        PasswordlessChallengeExpiredError,
-      );
+      expect(Result.isErr(result)).toBe(true);
+
+      if (!Result.isErr(result)) {
+        throw new Error('expected err');
+      }
+
+      expect(result.error).toBeInstanceOf(PasswordlessChallengeExpiredError);
       expect(mockRepository.save).not.toHaveBeenCalled();
     });
 
-    it('should return Result.fail with PasswordlessChallengeSecretMismatchError when secret does not match', async () => {
-      // Arrange
+    it('should return Result.err with PasswordlessChallengeSecretMismatchError when secret does not match', async () => {
       const challenge = createIssuedChallenge();
       vi.mocked(mockRepository.findById).mockResolvedValue(challenge);
 
-      // Act
       const result = await service.execute({
         secret: wrongSecret,
         id: validId,
       });
 
-      // Assert
-      expect(result.isFailure).toBe(true);
-      expect(result.getError()).toBeInstanceOf(
+      expect(Result.isErr(result)).toBe(true);
+
+      if (!Result.isErr(result)) {
+        throw new Error('expected err');
+      }
+
+      expect(result.error).toBeInstanceOf(
         PasswordlessChallengeSecretMismatchError,
       );
       expect(mockRepository.save).not.toHaveBeenCalled();
     });
 
-    it('should return Result.fail when challenge is already verified (verify throws)', async () => {
-      // Arrange: create issued challenge, then verify it so it becomes "already used"
+    it('should return Result.err when challenge is already verified (verify throws)', async () => {
       const challenge = createIssuedChallenge();
       challenge.verify(validSecret.value, new Date());
       vi.mocked(mockRepository.findById).mockResolvedValue(challenge);
 
-      // Act
       const result = await service.execute({
         secret: validSecret,
         id: validId,
       });
 
-      // Assert
-      expect(result.isFailure).toBe(true);
-      expect(result.getError()).toBeInstanceOf(
+      expect(Result.isErr(result)).toBe(true);
+
+      if (!Result.isErr(result)) {
+        throw new Error('expected err');
+      }
+
+      expect(result.error).toBeInstanceOf(
         PasswordlessChallengeAlreadyUsedError,
       );
       expect(mockRepository.save).not.toHaveBeenCalled();
     });
 
-    it('should return Result.fail when repository findById throws', async () => {
-      // Arrange
+    it('should return Result.err when repository findById throws', async () => {
       const error = new Error('Database connection failed');
       vi.mocked(mockRepository.findById).mockRejectedValue(error);
 
-      // Act
       const result = await service.execute({
         secret: validSecret,
         id: validId,
       });
 
-      // Assert
-      expect(result.isFailure).toBe(true);
-      expect(result.getError()).toBe(error);
+      expect(Result.isErr(result)).toBe(true);
+
+      if (!Result.isErr(result)) {
+        throw new Error('expected err');
+      }
+
+      expect(result.error).toBe(error);
       expect(mockRepository.save).not.toHaveBeenCalled();
     });
 
-    it('should return Result.fail when repository save throws', async () => {
-      // Arrange
+    it('should return Result.err when repository save throws', async () => {
       const challenge = createIssuedChallenge();
       vi.mocked(mockRepository.findById).mockResolvedValue(challenge);
       const error = new Error('Save failed');
       vi.mocked(mockRepository.save).mockRejectedValue(error);
 
-      // Act
       const result = await service.execute({
         secret: validSecret,
         id: validId,
       });
 
-      // Assert
-      expect(result.isFailure).toBe(true);
-      expect(result.getError()).toBe(error);
+      expect(Result.isErr(result)).toBe(true);
+
+      if (!Result.isErr(result)) {
+        throw new Error('expected err');
+      }
+
+      expect(result.error).toBe(error);
       expect(mockRepository.save).toHaveBeenCalledWith(challenge);
     });
 
     it('should persist the verified challenge via repository', async () => {
-      // Arrange
       const challenge = createIssuedChallenge();
       vi.mocked(mockRepository.findById).mockResolvedValue(challenge);
 
-      // Act
       await service.execute({
         secret: validSecret,
         id: validId,
       });
 
-      // Assert
       expect(mockRepository.save).toHaveBeenCalledOnce();
 
       const savedChallenge = vi.mocked(mockRepository.save).mock.calls[0][0];
@@ -243,17 +252,14 @@ describe('verifyPasswordlessChallengeService', () => {
     });
 
     it('should call findById with id value', async () => {
-      // Arrange
       const challenge = createIssuedChallenge();
       vi.mocked(mockRepository.findById).mockResolvedValue(challenge);
 
-      // Act
       await service.execute({
         secret: validSecret,
         id: validId,
       });
 
-      // Assert
       expect(mockRepository.findById).toHaveBeenCalledWith(validId.value);
     });
   });
