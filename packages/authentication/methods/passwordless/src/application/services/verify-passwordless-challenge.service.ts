@@ -30,15 +30,15 @@ export class VerifyPasswordlessChallengeService implements ApplicationServicePor
       const challenge = await this.repository.findById(id.value);
 
       if (!challenge) {
-        return Result.fail(PasswordlessChallengeNotFoundError.create());
+        return Result.err(PasswordlessChallengeNotFoundError.create());
       }
 
       if (challenge.isExpired()) {
-        return Result.fail(PasswordlessChallengeExpiredError.create());
+        return Result.err(PasswordlessChallengeExpiredError.create());
       }
 
       if (!challenge.matchesSecret(secret.value)) {
-        return Result.fail(PasswordlessChallengeSecretMismatchError.create());
+        return Result.err(PasswordlessChallengeSecretMismatchError.create());
       }
 
       challenge.verify(secret.value, new Date());
@@ -46,7 +46,7 @@ export class VerifyPasswordlessChallengeService implements ApplicationServicePor
       await this.repository.save(challenge);
       return Result.ok(challenge);
     } catch (error) {
-      return Result.fail(error);
+      return Result.err(error);
     }
   }
 }
