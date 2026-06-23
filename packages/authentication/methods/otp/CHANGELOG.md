@@ -1,5 +1,18 @@
 # @rineex/authentication-method-otp
 
+## 1.1.0
+
+### Minor Changes
+
+- Migrate OTP domain errors to `@rineex/ddd@6` with `OtpErrorRegistry`
+  ([#64](https://github.com/rineex/core/issues/64))
+
+### Patch Changes
+
+- Updated dependencies
+  - @rineex/ddd@6.0.0
+  - @rineex/auth-core@1.1.0
+
 ## 1.0.13
 
 ### Patch Changes

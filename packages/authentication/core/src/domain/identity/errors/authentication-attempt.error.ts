@@ -1,9 +1,4 @@
-import {
-  DomainError,
-  DomainErrorCode,
-  DomainErrorType,
-  Metadata,
-} from '@rineex/ddd';
+import { DomainError, Metadata } from '@rineex/ddd';
 
 type ExtraProps = {
   attemptId?: string;
@@ -15,10 +10,11 @@ type ExtraProps = {
 
 type Props = Metadata<ExtraProps>;
 
-export class AuthenticationAttemptError extends DomainError<Props> {
-  public readonly code: DomainErrorCode =
-    'AUTH_CORE_ATTEMPT.AUTHENTICATION_FAILED';
-  public readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
+export class AuthenticationAttemptError extends DomainError<
+  'AUTH_CORE_ATTEMPT.AUTHENTICATION_FAILED',
+  Props
+> {
+  public readonly code = 'AUTH_CORE_ATTEMPT.AUTHENTICATION_FAILED' as const;
 
   public constructor(message: string, props: Props) {
     super(message, { ...props });
@@ -92,8 +88,11 @@ export class AuthenticationAttemptExceeded extends AuthenticationAttemptError {
   }
 }
 
-export class AuthenticationAttemptNotFound extends AuthenticationAttemptError {
-  public readonly code: DomainErrorCode = 'AUTH_CORE_ATTEMPT.NOT_FOUND';
+export class AuthenticationAttemptNotFound extends DomainError<
+  'AUTH_CORE_ATTEMPT.NOT_FOUND',
+  Props
+> {
+  public readonly code = 'AUTH_CORE_ATTEMPT.NOT_FOUND' as const;
 
   public constructor({ attemptId }: Pick<Props, 'attemptId'>) {
     super('Authentication attempt does not exist or is no longer valid', {

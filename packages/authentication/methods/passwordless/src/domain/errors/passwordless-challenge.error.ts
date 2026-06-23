@@ -1,4 +1,6 @@
-import { DomainError, DomainErrorCode, DomainErrorType } from '@rineex/ddd';
+import { DomainError } from '@rineex/ddd';
+
+import type { PasswordlessDomainErrorCode } from './passwordless-error.registry';
 
 /**
  * Base class for all passwordless challenge domain errors.
@@ -7,10 +9,7 @@ import { DomainError, DomainErrorCode, DomainErrorType } from '@rineex/ddd';
  * This abstract class provides a common foundation for passwordless challenge-related errors.
  * All specific passwordless challenge errors should extend this class.
  */
-export abstract class PasswordlessChallengeError extends DomainError {
-  abstract readonly code: DomainErrorCode;
-  abstract readonly type: DomainErrorType;
-}
+export abstract class PasswordlessChallengeError extends DomainError<PasswordlessDomainErrorCode> {}
 
 /**
  * Raised when a passwordless challenge has expired.
@@ -28,9 +27,7 @@ export abstract class PasswordlessChallengeError extends DomainError {
  * ```
  */
 export class PasswordlessChallengeExpiredError extends PasswordlessChallengeError {
-  readonly code: DomainErrorCode = 'AUTH_PASSWORDLESS.CHALLENGE_EXPIRED';
-  readonly message = 'Passwordless challenge has expired';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
+  public readonly code = 'AUTH_PASSWORDLESS.CHALLENGE_EXPIRED' as const;
 
   /**
    * Creates a new PasswordlessChallengeExpired instance.
@@ -40,8 +37,11 @@ export class PasswordlessChallengeExpiredError extends PasswordlessChallengeErro
   static create(): PasswordlessChallengeExpiredError {
     return new PasswordlessChallengeExpiredError(
       'Passwordless challenge has expired',
-      {},
     );
+  }
+
+  private constructor(message: string) {
+    super(message);
   }
 }
 
@@ -61,9 +61,7 @@ export class PasswordlessChallengeExpiredError extends PasswordlessChallengeErro
  * ```
  */
 export class PasswordlessChallengeAlreadyUsedError extends PasswordlessChallengeError {
-  readonly code: DomainErrorCode = 'AUTH_PASSWORDLESS.CHALLENGE_ALREADY_USED';
-  readonly message = 'Passwordless challenge has already been used';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
+  public readonly code = 'AUTH_PASSWORDLESS.CHALLENGE_ALREADY_USED' as const;
 
   /**
    * Creates a new PasswordlessChallengeAlreadyUsedErr instance.
@@ -73,8 +71,11 @@ export class PasswordlessChallengeAlreadyUsedError extends PasswordlessChallenge
   static create(): PasswordlessChallengeAlreadyUsedError {
     return new PasswordlessChallengeAlreadyUsedError(
       'Passwordless challenge has already been used',
-      {},
     );
+  }
+
+  private constructor(message: string) {
+    super(message);
   }
 }
 
@@ -94,9 +95,7 @@ export class PasswordlessChallengeAlreadyUsedError extends PasswordlessChallenge
  * ```
  */
 export class PasswordlessChallengeSecretMismatchError extends PasswordlessChallengeError {
-  readonly code: DomainErrorCode = 'AUTH_PASSWORDLESS.SECRET_MISMATCH';
-  readonly message = 'Passwordless challenge secret does not match';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_VALUE';
+  public readonly code = 'AUTH_PASSWORDLESS.SECRET_MISMATCH' as const;
 
   /**
    * Creates a new PasswordlessChallengeSecretMismatch instance.
@@ -106,8 +105,11 @@ export class PasswordlessChallengeSecretMismatchError extends PasswordlessChalle
   static create(): PasswordlessChallengeSecretMismatchError {
     return new PasswordlessChallengeSecretMismatchError(
       'Passwordless challenge secret does not match',
-      {},
     );
+  }
+
+  private constructor(message: string) {
+    super(message);
   }
 }
 
@@ -127,9 +129,7 @@ export class PasswordlessChallengeSecretMismatchError extends PasswordlessChalle
  * ```
  */
 export class PasswordlessChallengeChannelRequired extends PasswordlessChallengeError {
-  readonly code: DomainErrorCode = 'AUTH_PASSWORDLESS.CHANNEL_REQUIRED';
-  readonly message = 'Channel is required';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_VALUE';
+  public readonly code = 'AUTH_PASSWORDLESS.CHANNEL_REQUIRED' as const;
 
   /**
    * Creates a new PasswordlessChallengeChannelRequired instance.
@@ -137,7 +137,11 @@ export class PasswordlessChallengeChannelRequired extends PasswordlessChallengeE
    * @returns New PasswordlessChallengeChannelRequired instance
    */
   static create(): PasswordlessChallengeChannelRequired {
-    return new PasswordlessChallengeChannelRequired('Channel is required', {});
+    return new PasswordlessChallengeChannelRequired('Channel is required');
+  }
+
+  private constructor(message: string) {
+    super(message);
   }
 }
 
@@ -157,9 +161,7 @@ export class PasswordlessChallengeChannelRequired extends PasswordlessChallengeE
  * ```
  */
 export class PasswordlessChallengeSecretRequired extends PasswordlessChallengeError {
-  readonly code: DomainErrorCode = 'AUTH_PASSWORDLESS.SECRET_REQUIRED';
-  readonly message = 'Secret hash is required';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_VALUE';
+  public readonly code = 'AUTH_PASSWORDLESS.SECRET_REQUIRED' as const;
 
   /**
    * Creates a new PasswordlessChallengeSecretRequired instance.
@@ -167,10 +169,11 @@ export class PasswordlessChallengeSecretRequired extends PasswordlessChallengeEr
    * @returns New PasswordlessChallengeSecretRequired instance
    */
   static create(): PasswordlessChallengeSecretRequired {
-    return new PasswordlessChallengeSecretRequired(
-      'Secret hash is required',
-      {},
-    );
+    return new PasswordlessChallengeSecretRequired('Secret hash is required');
+  }
+
+  private constructor(message: string) {
+    super(message);
   }
 }
 
@@ -190,9 +193,7 @@ export class PasswordlessChallengeSecretRequired extends PasswordlessChallengeEr
  * ```
  */
 export class PasswordlessChallengeInvalidExpiration extends PasswordlessChallengeError {
-  readonly code: DomainErrorCode = 'AUTH_PASSWORDLESS.INVALID_EXPIRATION';
-  readonly message = 'Challenge expiration must be after issuedAt';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_VALUE';
+  public readonly code = 'AUTH_PASSWORDLESS.INVALID_EXPIRATION' as const;
 
   /**
    * Creates a new PasswordlessChallengeInvalidExpiration instance.
@@ -202,8 +203,11 @@ export class PasswordlessChallengeInvalidExpiration extends PasswordlessChalleng
   static create(): PasswordlessChallengeInvalidExpiration {
     return new PasswordlessChallengeInvalidExpiration(
       'Challenge expiration must be after issuedAt',
-      {},
     );
+  }
+
+  private constructor(message: string) {
+    super(message);
   }
 }
 
@@ -224,8 +228,7 @@ export class PasswordlessChallengeInvalidExpiration extends PasswordlessChalleng
  * ```
  */
 export class PasswordlessChallengeNotFoundError extends PasswordlessChallengeError {
-  readonly code: DomainErrorCode = 'AUTH_PASSWORDLESS.CHALLENGE_NOT_FOUND';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
+  public readonly code = 'AUTH_PASSWORDLESS.CHALLENGE_NOT_FOUND' as const;
 
   /**
    * Creates a new PasswordlessChallengeNotFOuntError instance.
@@ -235,7 +238,10 @@ export class PasswordlessChallengeNotFoundError extends PasswordlessChallengeErr
   static create(): PasswordlessChallengeNotFoundError {
     return new PasswordlessChallengeNotFoundError(
       'Passwordless challenge not found',
-      {},
     );
+  }
+
+  private constructor(message: string) {
+    super(message);
   }
 }

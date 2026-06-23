@@ -1,9 +1,4 @@
-import {
-  DomainError,
-  DomainErrorCode,
-  DomainErrorType,
-  Metadata,
-} from '@rineex/ddd';
+import { DomainError, Metadata } from '@rineex/ddd';
 
 type ExtraProps = {
   status: string;
@@ -11,10 +6,11 @@ type ExtraProps = {
 
 type Props = Metadata<ExtraProps>;
 
-export class InvalidAuthenticationTransitionError extends DomainError<Props> {
-  public readonly code: DomainErrorCode =
-    'AUTH_CORE_IDENTITY.INVALID_TRANSITION';
-  public readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
+export class InvalidAuthenticationTransitionError extends DomainError<
+  'AUTH_CORE_IDENTITY.INVALID_TRANSITION',
+  Props
+> {
+  public readonly code = 'AUTH_CORE_IDENTITY.INVALID_TRANSITION' as const;
 
   private constructor(msg: string, meta: Props) {
     super(msg, meta);

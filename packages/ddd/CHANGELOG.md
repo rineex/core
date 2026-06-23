@@ -1,5 +1,30 @@
 # @rineex/ddd
 
+## 6.0.0
+
+### Major Changes
+
+- Refactor `DomainError` to a code-first, registry-backed API
+  ([#64](https://github.com/rineex/core/issues/64))
+
+  **Breaking changes:**
+  - `DomainError<Meta, Code>` → `DomainError<Code, Meta>`
+  - Removed `DomainErrorType` and the `type` field on domain errors
+  - Removed `DomainErrorNamespaces` module augmentation; use
+    `CoreDomainErrorRegistry` + `InferErrorCodes<typeof Registry>` per bounded
+    context
+  - `toObject()` no longer includes `type` (returns `code`, `message`,
+    `metadata`)
+  - `UseCaseError` is now generic: `UseCaseError<Code extends string>`
+
+  **Migration:**
+  - Replace `declare module '@rineex/ddd' { interface DomainErrorNamespaces … }`
+    with a const registry and `InferErrorCodes`
+  - Update subclasses: `extends DomainError<'NAMESPACE.NAME', Props>` with
+    `readonly code = 'NAMESPACE.NAME' as const`
+  - Remove `type` field and `DomainErrorType` imports
+  - Update consumers of `error.type` or `toObject().type`
+
 ## 5.0.0
 
 ### Major Changes

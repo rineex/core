@@ -12,7 +12,6 @@ describe('mfaAttemptsExceededError', () => {
     );
     expect(error.message).toContain('5/3');
     expect(error.code).toBe('AUTH_CORE_MFA.ATTEMPTS_EXCEEDED');
-    expect(error.type).toBe('DOMAIN.INVALID_STATE');
     expect(error.metadata.attemptsUsed).toBe(5);
     expect(error.metadata.maxAttempts).toBe(3);
   });
@@ -31,7 +30,6 @@ describe('mfaAttemptsExceededError', () => {
         maxAttempts: 5,
       },
       code: 'AUTH_CORE_MFA.ATTEMPTS_EXCEEDED',
-      type: 'DOMAIN.INVALID_STATE',
     });
   });
 

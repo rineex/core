@@ -1,9 +1,4 @@
-import {
-  DomainError,
-  DomainErrorCode,
-  DomainErrorType,
-  Metadata,
-} from '@rineex/ddd';
+import { DomainError, Metadata } from '@rineex/ddd';
 
 type ExtraProps = {
   redirectUri: string;
@@ -27,10 +22,12 @@ type Props = Metadata<ExtraProps>;
  * throw InvalidRedirectUriError.create({ redirectUri: 'http://insecure.com' });
  * ```
  */
-export class InvalidRedirectUriError extends DomainError<Props> {
-  readonly code: DomainErrorCode = 'AUTH_CORE_OAUTH.INVALID_REDIRECT_URI';
+export class InvalidRedirectUriError extends DomainError<
+  'AUTH_CORE_OAUTH.INVALID_REDIRECT_URI',
+  Props
+> {
+  readonly code = 'AUTH_CORE_OAUTH.INVALID_REDIRECT_URI' as const;
   readonly message = 'Redirect URI is invalid or insecure';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_VALUE';
 
   /**
    * Creates a new InvalidRedirectUriError instance.

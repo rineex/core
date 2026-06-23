@@ -1,19 +1,16 @@
-import {
-  DomainError,
-  DomainErrorCode,
-  DomainErrorType,
-  Metadata,
-} from '@rineex/ddd';
+import { DomainError, Metadata } from '@rineex/ddd';
 
 type ExtraProps = {
   identityId: string;
 };
 type Props = Metadata<ExtraProps>;
 
-export class IdentityDisabledError extends DomainError<Props> {
-  readonly code: DomainErrorCode = 'AUTH_CORE_IDENTITY.DISABLED_ERROR';
+export class IdentityDisabledError extends DomainError<
+  'AUTH_CORE_IDENTITY.DISABLED_ERROR',
+  Props
+> {
+  readonly code = 'AUTH_CORE_IDENTITY.DISABLED_ERROR' as const;
   readonly message = 'Identity is disabled';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
 
   private constructor(message: string, props: Props) {
     super(message, props);

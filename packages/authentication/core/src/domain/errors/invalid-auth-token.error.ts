@@ -1,9 +1,4 @@
-import {
-  DomainError,
-  DomainErrorCode,
-  DomainErrorType,
-  Metadata,
-} from '@rineex/ddd';
+import { DomainError, Metadata } from '@rineex/ddd';
 
 type ExtraProps = {
   actualLength: number;
@@ -30,9 +25,11 @@ type Props = Metadata<ExtraProps>;
  * );
  * ```
  */
-export class InvalidAuthTokenError extends DomainError<Props> {
-  readonly code: DomainErrorCode = 'AUTH_CORE_TOKEN.INVALID';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_VALUE';
+export class InvalidAuthTokenError extends DomainError<
+  'AUTH_CORE_TOKEN.INVALID',
+  Props
+> {
+  readonly code = 'AUTH_CORE_TOKEN.INVALID' as const;
 
   /**
    * Creates a new InvalidAuthTokenError instance.

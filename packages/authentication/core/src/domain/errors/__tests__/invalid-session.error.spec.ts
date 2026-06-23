@@ -9,7 +9,6 @@ describe('invalidSessionError', () => {
     expect(error).toBeInstanceOf(InvalidSessionError);
     expect(error.message).toBe('Session state is invalid');
     expect(error.code).toBe('AUTH_CORE_SESSION.INVALID');
-    expect(error.type).toBe('DOMAIN.INVALID_STATE');
   });
 
   it('should serialize to object correctly', () => {
@@ -20,7 +19,6 @@ describe('invalidSessionError', () => {
     expect(serialized).toEqual({
       message: 'Session state is invalid',
       code: 'AUTH_CORE_SESSION.INVALID',
-      type: 'DOMAIN.INVALID_STATE',
       metadata: {},
     });
   });

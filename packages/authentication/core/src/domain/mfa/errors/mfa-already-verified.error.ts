@@ -1,4 +1,4 @@
-import { DomainError, DomainErrorCode, DomainErrorType } from '@rineex/ddd';
+import { DomainError } from '@rineex/ddd';
 
 /**
  * Raised when an MFA session is already verified.
@@ -15,10 +15,9 @@ import { DomainError, DomainErrorCode, DomainErrorType } from '@rineex/ddd';
  * }
  * ```
  */
-export class MfaAlreadyVerifiedError extends DomainError {
-  readonly code: DomainErrorCode = 'AUTH_CORE_MFA.ALREADY_VERIFIED';
+export class MfaAlreadyVerifiedError extends DomainError<'AUTH_CORE_MFA.ALREADY_VERIFIED'> {
+  readonly code = 'AUTH_CORE_MFA.ALREADY_VERIFIED' as const;
   readonly message = 'MFA session is already verified';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
 
   /**
    * Creates a new MfaAlreadyVerifiedError instance.

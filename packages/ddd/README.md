@@ -437,48 +437,49 @@ event.toPrimitives();
 
 ### Base DomainError
 
-Extend `DomainError<Meta, Code>` with `code`, `type`, and constructor
-`super(message, metadata)`.
+Extend `DomainError<Code, Meta>` with an explicit code literal and optional
+primitive metadata. Register codes in a bounded-context registry const.
 
 ```typescript
-import {
-  DomainError,
-  DomainErrorCode,
-  DomainErrorType,
-  Metadata,
-} from '@rineex/ddd';
+import { DomainError, InferErrorCodes, Metadata } from '@rineex/ddd';
+
+export const UserErrorRegistry = {
+  USER: ['NOT_FOUND', 'INVALID_EMAIL'],
+} as const;
+
+export type UserDomainErrorCode = InferErrorCodes<typeof UserErrorRegistry>;
 
 type Props = Metadata<{ identityId: string }>;
 
-class IdentityDisabledError extends DomainError<Props> {
-  readonly code: DomainErrorCode = 'AUTH_CORE_IDENTITY.DISABLED_ERROR';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
+class IdentityDisabledError extends DomainError<'USER.NOT_FOUND', Props> {
+  readonly code = 'USER.NOT_FOUND' as const;
 
-  private constructor(message: string, props: Props) {
+  constructor(message: string, props: Props) {
     super(message, props);
   }
-
-  static create(message: string, props: Props) {
-    return new IdentityDisabledError(message, props);
-  }
 }
 ```
 
-### Extending Error Namespaces
+### Core error registry
 
-Declare namespaces via module augmentation for type-safe codes:
+`@rineex/ddd` ships `CoreDomainErrorRegistry` and `InferErrorCodes` for built-in
+codes (`DOMAIN.*`, `CORE.*`, `SYSTEM.*`). Each bounded context defines its own
+registry:
 
 ```typescript
-// your-module.d.ts
-import '@rineex/ddd';
+import type { InferErrorCodes } from '@rineex/ddd';
 
-declare module '@rineex/ddd' {
-  interface DomainErrorNamespaces {
-    USER: ['NOT_FOUND', 'INVALID_EMAIL'];
-    ORDER: ['NOT_FOUND', 'INVALID_STATUS'];
-  }
-}
+export const MyModuleErrorRegistry = {
+  MY_MODULE: ['NOT_FOUND', 'INVALID_INPUT'],
+} as const;
+
+export type MyModuleDomainErrorCode = InferErrorCodes<
+  typeof MyModuleErrorRegistry
+>;
 ```
+
+Use `registryErrorCodes(registry)` in architecture tests to verify every error
+class code is registered.
 
 ### Built-in Errors
 
@@ -659,15 +660,8 @@ const frozen = deepFreeze({ a: 1, nested: { b: 2 } });
 
 1. **Add dependency:** `pnpm add @rineex/ddd`
 
-2. **Extend `DomainErrorNamespaces`** in a `.d.ts` file:
-
-```typescript
-declare module '@rineex/ddd' {
-  interface DomainErrorNamespaces {
-    MY_MODULE: ['NOT_FOUND', 'INVALID_INPUT'];
-  }
-}
-```
+2. **Define an error registry** per bounded context (see
+   [Domain Errors](#domain-errors)).
 
 3. **Custom IDs:** Extend `DomainID` and use `generate()` / `fromString()`.
 

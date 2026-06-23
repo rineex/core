@@ -1,4 +1,4 @@
-import { DomainError, DomainErrorCode, DomainErrorType } from '@rineex/ddd';
+import { DomainError } from '@rineex/ddd';
 
 /**
  * Raised when a session invariant is violated.
@@ -19,10 +19,9 @@ import { DomainError, DomainErrorCode, DomainErrorType } from '@rineex/ddd';
  * }
  * ```
  */
-export class InvalidSessionError extends DomainError {
-  readonly code: DomainErrorCode = 'AUTH_CORE_SESSION.INVALID';
+export class InvalidSessionError extends DomainError<'AUTH_CORE_SESSION.INVALID'> {
+  readonly code = 'AUTH_CORE_SESSION.INVALID' as const;
   readonly message = 'Session state is invalid';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
 
   /**
    * Creates a new InvalidSessionError instance.

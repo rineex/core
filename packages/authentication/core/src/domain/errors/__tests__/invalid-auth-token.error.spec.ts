@@ -15,7 +15,6 @@ describe('invalidAuthTokenError', () => {
     expect(error).toBeInstanceOf(InvalidAuthTokenError);
     expect(error.message).toBe('Authentication token is invalid');
     expect(error.code).toBe('AUTH_CORE_TOKEN.INVALID');
-    expect(error.type).toBe('DOMAIN.INVALID_VALUE');
     expect(error.metadata.actualLength).toBe(20);
     expect(error.metadata.minLength).toBe(32);
   });
@@ -34,7 +33,6 @@ describe('invalidAuthTokenError', () => {
         minLength: 32,
       },
       code: 'AUTH_CORE_TOKEN.INVALID',
-      type: 'DOMAIN.INVALID_VALUE',
       message: 'Token too short',
     });
   });

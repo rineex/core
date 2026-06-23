@@ -1,4 +1,4 @@
-import { DomainError, DomainErrorCode, DomainErrorType } from '@rineex/ddd';
+import { DomainError } from '@rineex/ddd';
 
 /**
  * Raised when an MFA challenge or session has expired.
@@ -15,10 +15,9 @@ import { DomainError, DomainErrorCode, DomainErrorType } from '@rineex/ddd';
  * }
  * ```
  */
-export class MfaExpiredError extends DomainError {
-  readonly code: DomainErrorCode = 'AUTH_CORE_MFA.EXPIRED';
+export class MfaExpiredError extends DomainError<'AUTH_CORE_MFA.EXPIRED'> {
+  readonly code = 'AUTH_CORE_MFA.EXPIRED' as const;
   readonly message = 'MFA challenge or session has expired';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
 
   /**
    * Creates a new MfaExpiredError instance.

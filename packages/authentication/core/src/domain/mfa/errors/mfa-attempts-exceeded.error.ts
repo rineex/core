@@ -1,9 +1,4 @@
-import {
-  DomainError,
-  DomainErrorCode,
-  DomainErrorType,
-  Metadata,
-} from '@rineex/ddd';
+import { DomainError, Metadata } from '@rineex/ddd';
 
 type ExtraProps = {
   attemptsUsed: number;
@@ -27,9 +22,11 @@ type Props = Metadata<ExtraProps>;
  * }
  * ```
  */
-export class MfaAttemptsExceededError extends DomainError<Props> {
-  readonly code: DomainErrorCode = 'AUTH_CORE_MFA.ATTEMPTS_EXCEEDED';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
+export class MfaAttemptsExceededError extends DomainError<
+  'AUTH_CORE_MFA.ATTEMPTS_EXCEEDED',
+  Props
+> {
+  readonly code = 'AUTH_CORE_MFA.ATTEMPTS_EXCEEDED' as const;
 
   /**
    * Creates a new MfaAttemptsExceededError instance.
