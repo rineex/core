@@ -29,6 +29,10 @@ export abstract class PasswordlessChallengeError extends DomainError<Passwordles
 export class PasswordlessChallengeExpiredError extends PasswordlessChallengeError {
   public readonly code = 'AUTH_PASSWORDLESS.CHALLENGE_EXPIRED' as const;
 
+  private constructor(message: string) {
+    super(message);
+  }
+
   /**
    * Creates a new PasswordlessChallengeExpired instance.
    *
@@ -38,10 +42,6 @@ export class PasswordlessChallengeExpiredError extends PasswordlessChallengeErro
     return new PasswordlessChallengeExpiredError(
       'Passwordless challenge has expired',
     );
-  }
-
-  private constructor(message: string) {
-    super(message);
   }
 }
 
@@ -63,6 +63,10 @@ export class PasswordlessChallengeExpiredError extends PasswordlessChallengeErro
 export class PasswordlessChallengeAlreadyUsedError extends PasswordlessChallengeError {
   public readonly code = 'AUTH_PASSWORDLESS.CHALLENGE_ALREADY_USED' as const;
 
+  private constructor(message: string) {
+    super(message);
+  }
+
   /**
    * Creates a new PasswordlessChallengeAlreadyUsedErr instance.
    *
@@ -72,10 +76,6 @@ export class PasswordlessChallengeAlreadyUsedError extends PasswordlessChallenge
     return new PasswordlessChallengeAlreadyUsedError(
       'Passwordless challenge has already been used',
     );
-  }
-
-  private constructor(message: string) {
-    super(message);
   }
 }
 
@@ -97,6 +97,10 @@ export class PasswordlessChallengeAlreadyUsedError extends PasswordlessChallenge
 export class PasswordlessChallengeSecretMismatchError extends PasswordlessChallengeError {
   public readonly code = 'AUTH_PASSWORDLESS.SECRET_MISMATCH' as const;
 
+  private constructor(message: string) {
+    super(message);
+  }
+
   /**
    * Creates a new PasswordlessChallengeSecretMismatch instance.
    *
@@ -106,10 +110,6 @@ export class PasswordlessChallengeSecretMismatchError extends PasswordlessChalle
     return new PasswordlessChallengeSecretMismatchError(
       'Passwordless challenge secret does not match',
     );
-  }
-
-  private constructor(message: string) {
-    super(message);
   }
 }
 
@@ -131,6 +131,10 @@ export class PasswordlessChallengeSecretMismatchError extends PasswordlessChalle
 export class PasswordlessChallengeChannelRequired extends PasswordlessChallengeError {
   public readonly code = 'AUTH_PASSWORDLESS.CHANNEL_REQUIRED' as const;
 
+  private constructor(message: string) {
+    super(message);
+  }
+
   /**
    * Creates a new PasswordlessChallengeChannelRequired instance.
    *
@@ -138,10 +142,6 @@ export class PasswordlessChallengeChannelRequired extends PasswordlessChallengeE
    */
   static create(): PasswordlessChallengeChannelRequired {
     return new PasswordlessChallengeChannelRequired('Channel is required');
-  }
-
-  private constructor(message: string) {
-    super(message);
   }
 }
 
@@ -163,6 +163,10 @@ export class PasswordlessChallengeChannelRequired extends PasswordlessChallengeE
 export class PasswordlessChallengeSecretRequired extends PasswordlessChallengeError {
   public readonly code = 'AUTH_PASSWORDLESS.SECRET_REQUIRED' as const;
 
+  private constructor(message: string) {
+    super(message);
+  }
+
   /**
    * Creates a new PasswordlessChallengeSecretRequired instance.
    *
@@ -170,10 +174,6 @@ export class PasswordlessChallengeSecretRequired extends PasswordlessChallengeEr
    */
   static create(): PasswordlessChallengeSecretRequired {
     return new PasswordlessChallengeSecretRequired('Secret hash is required');
-  }
-
-  private constructor(message: string) {
-    super(message);
   }
 }
 
@@ -195,6 +195,10 @@ export class PasswordlessChallengeSecretRequired extends PasswordlessChallengeEr
 export class PasswordlessChallengeInvalidExpiration extends PasswordlessChallengeError {
   public readonly code = 'AUTH_PASSWORDLESS.INVALID_EXPIRATION' as const;
 
+  private constructor(message: string) {
+    super(message);
+  }
+
   /**
    * Creates a new PasswordlessChallengeInvalidExpiration instance.
    *
@@ -204,10 +208,6 @@ export class PasswordlessChallengeInvalidExpiration extends PasswordlessChalleng
     return new PasswordlessChallengeInvalidExpiration(
       'Challenge expiration must be after issuedAt',
     );
-  }
-
-  private constructor(message: string) {
-    super(message);
   }
 }
 
@@ -230,6 +230,10 @@ export class PasswordlessChallengeInvalidExpiration extends PasswordlessChalleng
 export class PasswordlessChallengeNotFoundError extends PasswordlessChallengeError {
   public readonly code = 'AUTH_PASSWORDLESS.CHALLENGE_NOT_FOUND' as const;
 
+  private constructor(message: string) {
+    super(message);
+  }
+
   /**
    * Creates a new PasswordlessChallengeNotFOuntError instance.
    *
@@ -239,9 +243,5 @@ export class PasswordlessChallengeNotFoundError extends PasswordlessChallengeErr
     return new PasswordlessChallengeNotFoundError(
       'Passwordless challenge not found',
     );
-  }
-
-  private constructor(message: string) {
-    super(message);
   }
 }

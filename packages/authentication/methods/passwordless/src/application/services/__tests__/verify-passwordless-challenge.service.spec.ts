@@ -39,16 +39,16 @@ describe('verifyPasswordlessChallengeService', () => {
     secret?: ChallengeSecret;
   }): PasswordlessChallengeAggregate {
     return PasswordlessChallengeAggregate.issue({
-      id: validId,
-      createdAt: issuedAt,
       props: {
-        channel: validChannel,
-        destination: validDestination,
-        secret: overrides?.secret ?? validSecret,
-        issuedAt,
         expiresAt: overrides?.expiresAt ?? expiresAt,
         status: PasswordlessChallengeStatus.issued(),
+        secret: overrides?.secret ?? validSecret,
+        destination: validDestination,
+        channel: validChannel,
+        issuedAt,
       },
+      createdAt: issuedAt,
+      id: validId,
     });
   }
 
@@ -64,8 +64,8 @@ describe('verifyPasswordlessChallengeService', () => {
     expiresAt = new Date(now.getTime() + 600_000); // 10 min from now
 
     mockRepository = {
-      findById: vi.fn(),
       save: vi.fn().mockResolvedValue(undefined),
+      findById: vi.fn(),
     };
 
     service = new VerifyPasswordlessChallengeService(mockRepository);
@@ -79,8 +79,8 @@ describe('verifyPasswordlessChallengeService', () => {
 
       // Act
       const result = await service.execute({
-        id: validId,
         secret: validSecret,
+        id: validId,
       });
 
       // Assert
@@ -97,8 +97,8 @@ describe('verifyPasswordlessChallengeService', () => {
 
       // Act
       const result = await service.execute({
-        id: validId,
         secret: validSecret,
+        id: validId,
       });
 
       // Assert
@@ -115,24 +115,24 @@ describe('verifyPasswordlessChallengeService', () => {
       const pastIssuedAt = new Date('2020-01-01T10:00:00Z');
       const pastExpiresAt = new Date('2020-01-01T10:00:01Z');
       const expiredChallenge = PasswordlessChallengeAggregate.issue({
-        id: validId,
-        createdAt: pastIssuedAt,
         props: {
-          channel: validChannel,
-          destination: validDestination,
-          secret: validSecret,
-          issuedAt: pastIssuedAt,
-          expiresAt: pastExpiresAt,
           status: PasswordlessChallengeStatus.issued(),
+          destination: validDestination,
+          expiresAt: pastExpiresAt,
+          issuedAt: pastIssuedAt,
+          channel: validChannel,
+          secret: validSecret,
         },
+        createdAt: pastIssuedAt,
+        id: validId,
       });
 
       vi.mocked(mockRepository.findById).mockResolvedValue(expiredChallenge);
 
       // Act
       const result = await service.execute({
-        id: validId,
         secret: validSecret,
+        id: validId,
       });
 
       // Assert
@@ -150,8 +150,8 @@ describe('verifyPasswordlessChallengeService', () => {
 
       // Act
       const result = await service.execute({
-        id: validId,
         secret: wrongSecret,
+        id: validId,
       });
 
       // Assert
@@ -170,8 +170,8 @@ describe('verifyPasswordlessChallengeService', () => {
 
       // Act
       const result = await service.execute({
-        id: validId,
         secret: validSecret,
+        id: validId,
       });
 
       // Assert
@@ -189,8 +189,8 @@ describe('verifyPasswordlessChallengeService', () => {
 
       // Act
       const result = await service.execute({
-        id: validId,
         secret: validSecret,
+        id: validId,
       });
 
       // Assert
@@ -208,8 +208,8 @@ describe('verifyPasswordlessChallengeService', () => {
 
       // Act
       const result = await service.execute({
-        id: validId,
         secret: validSecret,
+        id: validId,
       });
 
       // Assert
@@ -225,13 +225,15 @@ describe('verifyPasswordlessChallengeService', () => {
 
       // Act
       await service.execute({
-        id: validId,
         secret: validSecret,
+        id: validId,
       });
 
       // Assert
       expect(mockRepository.save).toHaveBeenCalledOnce();
+
       const savedChallenge = vi.mocked(mockRepository.save).mock.calls[0][0];
+
       expect(savedChallenge).toBe(challenge);
       expect(
         savedChallenge.domainEvents.some(
@@ -247,8 +249,8 @@ describe('verifyPasswordlessChallengeService', () => {
 
       // Act
       await service.execute({
-        id: validId,
         secret: validSecret,
+        id: validId,
       });
 
       // Assert

@@ -8,10 +8,6 @@ class SampleDomainError extends DomainError<
   { field: string }
 > {
   readonly code = 'DOMAIN.INVALID_VALUE' as const;
-
-  constructor(message: string, metadata: { field: string }) {
-    super(message, metadata);
-  }
 }
 
 describe('domainError', () => {

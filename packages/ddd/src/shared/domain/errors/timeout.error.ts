@@ -7,8 +7,4 @@ export class TimeoutError<
   T extends Record<string, Primitive> = Record<string, Primitive>,
 > extends DomainError<'SYSTEM.TIMEOUT', Metadata<T>> {
   public readonly code = 'SYSTEM.TIMEOUT' as const;
-
-  constructor(message: string, metadata?: Metadata<T>) {
-    super(message, metadata);
-  }
 }
