@@ -134,9 +134,9 @@ export abstract class DomainError<
    */
   public toObject() {
     return {
-      code: this.code,
-      message: this.message,
       metadata: this.metadata,
+      message: this.message,
+      code: this.code,
     };
   }
 

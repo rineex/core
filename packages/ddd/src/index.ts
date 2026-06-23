@@ -17,9 +17,9 @@ export * from './gateway/constants/http-code';
 export * from './infrastructure/mapper/base.mapper';
 export * from './shared';
 export {
-  Result,
   type Err,
   type Ok,
+  Result,
   type Result as ResultType,
   type UseCaseError,
 } from './shared/domain/result';
