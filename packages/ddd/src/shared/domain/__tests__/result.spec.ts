@@ -7,8 +7,8 @@ import { Result } from '../result';
 class TestApplicationError extends ApplicationError {
   constructor() {
     super({
-      code: 'TEST.APP_ERROR',
       message: 'application failure',
+      code: 'TEST.APP_ERROR',
       isOperational: true,
     });
   }
@@ -83,8 +83,8 @@ describe('result', () => {
       const result = Result.err(error);
 
       const out = Result.match(result, {
-        ok: () => 'ok',
         err: e => `err:${e.message}`,
+        ok: () => 'ok',
       });
 
       expect(out).toBe('err:nope');
@@ -105,6 +105,7 @@ describe('result', () => {
       const chained = Result.flatMap(failed, age => Result.ok(age * 2));
 
       expect(Result.isErr(chained)).toBe(true);
+
       if (Result.isErr(chained)) {
         expect(chained.error.message).toBe('Age cannot be negative');
       }
@@ -116,6 +117,7 @@ describe('result', () => {
       );
 
       expect(Result.isOk(chained)).toBe(true);
+
       if (Result.isOk(chained)) {
         expect(chained.value).toBe(20);
       }
@@ -139,13 +141,17 @@ describe('result', () => {
       }
 
       const valid = createAccount('a@b.com');
+
       expect(Result.isOk(valid)).toBe(true);
+
       if (Result.isOk(valid)) {
         expect(valid.value).toEqual({ email: 'a@b.com' });
       }
 
       const invalid = createAccount('bad');
+
       expect(Result.isErr(invalid)).toBe(true);
+
       if (Result.isErr(invalid)) {
         expect(invalid.error.message).toBe('Invalid email format');
       }
@@ -157,6 +163,7 @@ describe('result', () => {
       const result = Result.map(Result.ok(2), n => n * 3);
 
       expect(Result.isOk(result)).toBe(true);
+
       if (Result.isOk(result)) {
         expect(result.value).toBe(6);
       }
@@ -167,6 +174,7 @@ describe('result', () => {
       const result = Result.map(Result.err(error), (n: number) => n * 3);
 
       expect(Result.isErr(result)).toBe(true);
+
       if (Result.isErr(result)) {
         expect(result.error).toBe(error);
       }
@@ -181,6 +189,7 @@ describe('result', () => {
       );
 
       expect(Result.isErr(result)).toBe(true);
+
       if (Result.isErr(result)) {
         expect(result.error.message).toBe('a!');
       }
@@ -190,6 +199,7 @@ describe('result', () => {
       const result = Result.mapError(Result.ok(1), e => e);
 
       expect(Result.isOk(result)).toBe(true);
+
       if (Result.isOk(result)) {
         expect(result.value).toBe(1);
       }

@@ -3,7 +3,6 @@
  * Bounded contexts define their own registries using the same shape.
  */
 export const CoreDomainErrorRegistry = {
-  DOMAIN: ['INVALID_VALUE', 'INVALID_STATE'],
   CORE: [
     'INTERNAL_ERROR',
     'VALIDATION_FAILED',
@@ -11,15 +10,16 @@ export const CoreDomainErrorRegistry = {
     'NOT_IMPLEMENTED',
   ],
   SYSTEM: ['UNEXPECTED', 'TIMEOUT', 'NETWORK_ERROR', 'DEPENDENCY_ERROR'],
+  DOMAIN: ['INVALID_VALUE', 'INVALID_STATE'],
 } as const;
 
 /**
  * Derives a union of `NAMESPACE.ERROR_NAME` literals from a registry const.
  */
 export type InferErrorCodes<R extends Record<string, readonly string[]>> = {
-  [NS in keyof R &
-    string]: `${Uppercase<NS>}.${Uppercase<R[NS][number] & string>}`;
-}[keyof R & string];
+  [NS in string &
+    keyof R]: `${Uppercase<NS>}.${Uppercase<string & R[NS][number]>}`;
+}[string & keyof R];
 
 export type CoreDomainErrorCode = InferErrorCodes<
   typeof CoreDomainErrorRegistry

@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-import { EntityValidationError } from '../../../domain/errors/entity-validation.error';
-import { InvalidValueObjectError } from '../../../domain/errors/invalid-vo.error';
 import {
   CoreDomainErrorRegistry,
   registryErrorCodes,
 } from '../domain-error.registry';
-import { InternalError } from '../errors/internal.error';
+import { EntityValidationError } from '../../../domain/errors/entity-validation.error';
+import { InvalidValueObjectError } from '../../../domain/errors/invalid-vo.error';
 import { InvalidStateError } from '../errors/invalid-state.error';
 import { InvalidValueError } from '../errors/invalid-value.error';
+import { InternalError } from '../errors/internal.error';
 import { TimeoutError } from '../errors/timeout.error';
 
 const coreCodes = registryErrorCodes(CoreDomainErrorRegistry);

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { DomainError } from '../domain.error';
 import { InvalidValueError } from '../errors/invalid-value.error';
+import { DomainError } from '../domain.error';
 
 class SampleDomainError extends DomainError<
   'DOMAIN.INVALID_VALUE',
@@ -54,8 +54,8 @@ describe('domainError', () => {
 
       expect(error.toObject()).toEqual({
         code: 'DOMAIN.INVALID_VALUE',
-        message: 'bad',
         metadata: { field: 'email' },
+        message: 'bad',
       });
     });
   });

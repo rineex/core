@@ -1,11 +1,11 @@
 import { expectType } from 'tsd';
 
-import { ApplicationError } from '../../../application/errors/application.error';
 import { EntityValidationError } from '../../../domain/errors/entity-validation.error';
-import { DomainError } from '../domain.error';
+import { ApplicationError } from '../../../application/errors/application.error';
 import { InvalidStateError } from '../errors/invalid-state.error';
 import type { Err, Ok, Result } from '../result';
 import { Result as ResultNs } from '../result';
+import { DomainError } from '../domain.error';
 
 class SampleAppError extends ApplicationError {
   constructor() {
