@@ -1,5 +1,18 @@
 # @rineex/auth-core
 
+## 1.1.0
+
+### Minor Changes
+
+- Migrate domain errors to `@rineex/ddd@6` code-first API: explicit code
+  generics, `AuthCoreErrorRegistry`, remove module augmentation
+  ([#64](https://github.com/rineex/core/issues/64))
+
+### Patch Changes
+
+- Updated dependencies
+  - @rineex/ddd@6.0.0
+
 ## 1.0.13
 
 ### Patch Changes

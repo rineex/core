@@ -9,7 +9,6 @@ describe('mfaChallengeExpiredError', () => {
     expect(error).toBeInstanceOf(MfaChallengeExpiredError);
     expect(error.message).toBe('MFA challenge has expired');
     expect(error.code).toBe('AUTH_CORE_MFA.CHALLENGE_EXPIRED');
-    expect(error.type).toBe('DOMAIN.INVALID_STATE');
   });
 
   it('should serialize to object correctly', () => {
@@ -20,7 +19,6 @@ describe('mfaChallengeExpiredError', () => {
     expect(serialized).toEqual({
       code: 'AUTH_CORE_MFA.CHALLENGE_EXPIRED',
       message: 'MFA challenge has expired',
-      type: 'DOMAIN.INVALID_STATE',
       metadata: {},
     });
   });

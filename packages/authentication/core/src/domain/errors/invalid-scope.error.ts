@@ -1,9 +1,4 @@
-import {
-  DomainError,
-  DomainErrorCode,
-  DomainErrorType,
-  Metadata,
-} from '@rineex/ddd';
+import { DomainError, Metadata } from '@rineex/ddd';
 
 type Scope = string;
 
@@ -27,10 +22,12 @@ type M = Metadata<ExtraProps>;
  * );
  * ```
  */
-export class InvalidScopeError extends DomainError<M> {
-  public readonly code: DomainErrorCode = 'AUTH_CORE_SCOPE.INVALID';
+export class InvalidScopeError extends DomainError<
+  'AUTH_CORE_SCOPE.INVALID',
+  M
+> {
+  public readonly code = 'AUTH_CORE_SCOPE.INVALID' as const;
   public readonly message = 'Scope format is invalid';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_VALUE';
 
   /**
    * Creates a new InvalidScopeError instance.

@@ -1,4 +1,4 @@
-import { DomainError, DomainErrorCode, DomainErrorType } from '@rineex/ddd';
+import { DomainError } from '@rineex/ddd';
 
 /**
  * Raised when user consent is required for an OAuth authorization.
@@ -18,10 +18,9 @@ import { DomainError, DomainErrorCode, DomainErrorType } from '@rineex/ddd';
  * }
  * ```
  */
-export class ConsentRequiredError extends DomainError {
-  readonly code: DomainErrorCode = 'AUTH_CORE_OAUTH.CONSENT_REQUIRED';
+export class ConsentRequiredError extends DomainError<'AUTH_CORE_OAUTH.CONSENT_REQUIRED'> {
+  readonly code = 'AUTH_CORE_OAUTH.CONSENT_REQUIRED' as const;
   readonly message = 'User consent is required for this OAuth authorization';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
 
   /**
    * Creates a new ConsentRequiredError instance.

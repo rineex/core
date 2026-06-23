@@ -1,9 +1,4 @@
-import {
-  DomainError,
-  DomainErrorCode,
-  DomainErrorType,
-  Metadata,
-} from '@rineex/ddd';
+import { DomainError, Metadata } from '@rineex/ddd';
 
 type Props = Metadata<Record<string, unknown>>;
 
@@ -23,10 +18,12 @@ type Props = Metadata<Record<string, unknown>>;
  * throw InvalidPkceError.create({ reason: 'code_verifier_mismatch' });
  * ```
  */
-export class InvalidPkceError extends DomainError<Props> {
-  readonly code: DomainErrorCode = 'AUTH_CORE_OAUTH.INVALID_PKCE';
+export class InvalidPkceError extends DomainError<
+  'AUTH_CORE_OAUTH.INVALID_PKCE',
+  Props
+> {
+  readonly code = 'AUTH_CORE_OAUTH.INVALID_PKCE' as const;
   readonly message = 'PKCE parameters are invalid';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_VALUE';
 
   /**
    * Creates a new InvalidPkceError instance.

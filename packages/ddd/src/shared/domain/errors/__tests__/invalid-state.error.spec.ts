@@ -10,7 +10,6 @@ describe('invalidStateError', () => {
 
       expect(error.message).toBe('invalid state');
       expect(error.code).toBe('DOMAIN.INVALID_STATE');
-      expect(error.type).toBe('DOMAIN.INVALID_STATE');
     });
 
     it('should create an invalid state error with custom message', () => {
@@ -34,7 +33,6 @@ describe('invalidStateError', () => {
 
       expect(obj).toEqual({
         code: 'DOMAIN.INVALID_STATE',
-        type: 'DOMAIN.INVALID_STATE',
         message: 'Test error',
         metadata: {},
       });

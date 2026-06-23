@@ -1,4 +1,4 @@
-import { DomainError, DomainErrorCode, DomainErrorType } from '@rineex/ddd';
+import { DomainError } from '@rineex/ddd';
 
 /**
  * Raised when an OAuth authorization has expired.
@@ -16,10 +16,9 @@ import { DomainError, DomainErrorCode, DomainErrorType } from '@rineex/ddd';
  * }
  * ```
  */
-export class AuthorizationExpiredError extends DomainError {
-  readonly code: DomainErrorCode = 'AUTH_CORE_OAUTH.AUTHORIZATION_EXPIRED';
+export class AuthorizationExpiredError extends DomainError<'AUTH_CORE_OAUTH.AUTHORIZATION_EXPIRED'> {
+  readonly code = 'AUTH_CORE_OAUTH.AUTHORIZATION_EXPIRED' as const;
   readonly message = 'The OAuth authorization has expired';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
 
   /**
    * Creates a new AuthorizationExpiredError instance.

@@ -1,9 +1,4 @@
-import {
-  DomainError,
-  DomainErrorCode,
-  DomainErrorType,
-  Metadata,
-} from '@rineex/ddd';
+import { DomainError, Metadata } from '@rineex/ddd';
 
 type ExtraProps = {
   attemptsUsed?: number;
@@ -31,9 +26,11 @@ type Props = Metadata<ExtraProps>;
  * });
  * ```
  */
-export class OtpAuthenticationError extends DomainError<Props> {
-  public readonly code: DomainErrorCode = 'AUTH_OTP.AUTHENTICATION_FAILED';
-  public readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
+export class OtpAuthenticationError extends DomainError<
+  'AUTH_OTP.AUTHENTICATION_FAILED',
+  Props
+> {
+  public readonly code = 'AUTH_OTP.AUTHENTICATION_FAILED' as const;
 
   /**
    * Creates a new OtpAuthenticationError instance.

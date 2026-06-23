@@ -10,7 +10,6 @@ describe('invalidValueError', () => {
 
       expect(error.message).toBe('invalid value');
       expect(error.code).toBe('DOMAIN.INVALID_VALUE');
-      expect(error.type).toBe('DOMAIN.INVALID_VALUE');
     });
 
     it('should create an invalid value error with custom message', () => {
@@ -42,7 +41,6 @@ describe('invalidValueError', () => {
 
       expect(obj).toEqual({
         code: 'DOMAIN.INVALID_VALUE',
-        type: 'DOMAIN.INVALID_VALUE',
         metadata: { field: 'email' },
         message: 'Test error',
       });

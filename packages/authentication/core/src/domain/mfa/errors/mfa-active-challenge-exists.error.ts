@@ -1,4 +1,4 @@
-import { DomainError, DomainErrorCode, DomainErrorType } from '@rineex/ddd';
+import { DomainError } from '@rineex/ddd';
 
 /**
  * Raised when attempting to create a new MFA challenge while an active one already exists.
@@ -16,10 +16,9 @@ import { DomainError, DomainErrorCode, DomainErrorType } from '@rineex/ddd';
  * }
  * ```
  */
-export class MfaActiveChallengeExistsError extends DomainError {
-  readonly code: DomainErrorCode = 'AUTH_CORE_MFA.ACTIVE_CHALLENGE_EXISTS';
+export class MfaActiveChallengeExistsError extends DomainError<'AUTH_CORE_MFA.ACTIVE_CHALLENGE_EXISTS'> {
+  readonly code = 'AUTH_CORE_MFA.ACTIVE_CHALLENGE_EXISTS' as const;
   readonly message = 'An active MFA challenge already exists';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
 
   /**
    * Creates a new MfaActiveChallengeExistsError instance.

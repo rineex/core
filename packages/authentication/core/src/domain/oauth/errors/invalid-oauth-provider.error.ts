@@ -1,9 +1,4 @@
-import {
-  DomainError,
-  DomainErrorCode,
-  DomainErrorType,
-  Metadata,
-} from '@rineex/ddd';
+import { DomainError, Metadata } from '@rineex/ddd';
 
 type ExtraProps = {
   value: string;
@@ -24,10 +19,12 @@ type Props = Metadata<ExtraProps>;
  * throw InvalidOAuthProviderError.create({ value: 'invalid_provider' });
  * ```
  */
-export class InvalidOAuthProviderError extends DomainError<Props> {
-  readonly code: DomainErrorCode = 'AUTH_CORE_OAUTH.INVALID_PROVIDER';
+export class InvalidOAuthProviderError extends DomainError<
+  'AUTH_CORE_OAUTH.INVALID_PROVIDER',
+  Props
+> {
+  readonly code = 'AUTH_CORE_OAUTH.INVALID_PROVIDER' as const;
   readonly message = 'OAuth provider identifier is invalid';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_VALUE';
 
   /**
    * Creates a new InvalidOAuthProviderError instance.

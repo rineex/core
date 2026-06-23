@@ -10,7 +10,6 @@ describe('entityValidationError', () => {
 
       expect(error.message).toBe('Validation failed');
       expect(error.code).toBe('CORE.VALIDATION_FAILED');
-      expect(error.type).toBe('DOMAIN.INVALID_STATE');
     });
 
     it('should be instance of DomainError', () => {
@@ -38,7 +37,6 @@ describe('entityValidationError', () => {
       expect(obj).toEqual({
         code: 'CORE.VALIDATION_FAILED',
         message: 'Validation failed',
-        type: 'DOMAIN.INVALID_STATE',
         metadata: {},
       });
     });

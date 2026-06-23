@@ -1,9 +1,4 @@
-import {
-  DomainError,
-  DomainErrorCode,
-  DomainErrorType,
-  Metadata,
-} from '@rineex/ddd';
+import { DomainError, Metadata } from '@rineex/ddd';
 
 type Props = Metadata<Record<string, unknown>>;
 
@@ -23,10 +18,12 @@ type Props = Metadata<Record<string, unknown>>;
  * throw InvalidAuthorizationCodeError.create({ code: 'invalid_code' });
  * ```
  */
-export class InvalidAuthorizationCodeError extends DomainError<Props> {
-  readonly code: DomainErrorCode = 'AUTH_CORE_OAUTH.INVALID_AUTHORIZATION_CODE';
+export class InvalidAuthorizationCodeError extends DomainError<
+  'AUTH_CORE_OAUTH.INVALID_AUTHORIZATION_CODE',
+  Props
+> {
+  readonly code = 'AUTH_CORE_OAUTH.INVALID_AUTHORIZATION_CODE' as const;
   readonly message = 'Authorization code is invalid';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_VALUE';
 
   /**
    * Creates a new InvalidAuthorizationCodeError instance.

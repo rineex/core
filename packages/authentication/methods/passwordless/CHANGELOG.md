@@ -1,5 +1,18 @@
 # @rineex/authentication-method-passwordless
 
+## 0.2.0
+
+### Minor Changes
+
+- Migrate passwordless domain errors to `@rineex/ddd@6` with
+  `PasswordlessErrorRegistry` ([#64](https://github.com/rineex/core/issues/64))
+
+### Patch Changes
+
+- Updated dependencies
+  - @rineex/ddd@6.0.0
+  - @rineex/auth-core@1.1.0
+
 ## 0.1.13
 
 ### Patch Changes

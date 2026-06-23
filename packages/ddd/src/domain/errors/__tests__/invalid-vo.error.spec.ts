@@ -12,7 +12,6 @@ describe('invalidValueObjectError', () => {
 
       expect(error.message).toBe('Invalid value');
       expect(error.code).toBe('DOMAIN.INVALID_VALUE');
-      expect(error.type).toBe('DOMAIN.INVALID_VALUE');
       expect(error.metadata).toEqual({ value: 'test' });
     });
 
@@ -51,7 +50,6 @@ describe('invalidValueObjectError', () => {
 
       expect(obj).toEqual({
         code: 'DOMAIN.INVALID_VALUE',
-        type: 'DOMAIN.INVALID_VALUE',
         metadata: { value: 'test' },
         message: 'Invalid value',
       });

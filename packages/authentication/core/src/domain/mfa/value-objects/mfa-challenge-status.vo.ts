@@ -1,10 +1,4 @@
-import {
-  DomainError,
-  DomainErrorCode,
-  DomainErrorType,
-  Metadata,
-  PrimitiveValueObject,
-} from '@rineex/ddd';
+import { DomainError, Metadata, PrimitiveValueObject } from '@rineex/ddd';
 
 const AllowedStatuses = ['pending', 'verified', 'expired', 'failed'] as const;
 
@@ -23,9 +17,11 @@ type Meta = Metadata<MetaProps>;
  * This error is thrown when a status value does not match the allowed values:
  * 'pending', 'verified', 'expired', or 'failed'.
  */
-class InvalidMfaChallengeStatusError extends DomainError<Meta> {
-  readonly code: DomainErrorCode = 'AUTH_CORE_MFA.CHALLENGE_STATUS_INVALID';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_VALUE';
+class InvalidMfaChallengeStatusError extends DomainError<
+  'AUTH_CORE_MFA.CHALLENGE_STATUS_INVALID',
+  Meta
+> {
+  readonly code = 'AUTH_CORE_MFA.CHALLENGE_STATUS_INVALID' as const;
 
   constructor(message: string, metadata: Meta) {
     super(message, { ...metadata });

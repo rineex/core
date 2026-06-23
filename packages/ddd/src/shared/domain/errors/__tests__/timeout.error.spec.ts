@@ -10,7 +10,6 @@ describe('timeoutError', () => {
 
       expect(error.message).toBe('Operation timed out');
       expect(error.code).toBe('SYSTEM.TIMEOUT');
-      expect(error.type).toBe('DOMAIN.INVALID_STATE');
     });
 
     it('should create a timeout error with metadata', () => {
@@ -35,7 +34,6 @@ describe('timeoutError', () => {
 
       expect(obj).toEqual({
         metadata: { url: 'test.com' },
-        type: 'DOMAIN.INVALID_STATE',
         message: 'Test timeout',
         code: 'SYSTEM.TIMEOUT',
       });

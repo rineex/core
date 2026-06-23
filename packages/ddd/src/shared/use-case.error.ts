@@ -4,6 +4,6 @@
  * Both {@link DomainError} and {@link ApplicationError} satisfy this interface.
  * Domain entities and value objects throw instead of returning Result.
  */
-export interface UseCaseError extends Error {
-  readonly code: string;
+export interface UseCaseError<Code extends string = string> extends Error {
+  readonly code: Code;
 }

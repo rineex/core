@@ -1,4 +1,4 @@
-import { DomainError, DomainErrorCode, DomainErrorType } from '@rineex/ddd';
+import { DomainError } from '@rineex/ddd';
 
 /**
  * Raised when an OAuth authorization has already been used.
@@ -16,10 +16,9 @@ import { DomainError, DomainErrorCode, DomainErrorType } from '@rineex/ddd';
  * }
  * ```
  */
-export class AuthorizationAlreadyUsedError extends DomainError {
-  readonly code: DomainErrorCode = 'AUTH_CORE_OAUTH.AUTHORIZATION_ALREADY_USED';
+export class AuthorizationAlreadyUsedError extends DomainError<'AUTH_CORE_OAUTH.AUTHORIZATION_ALREADY_USED'> {
+  readonly code = 'AUTH_CORE_OAUTH.AUTHORIZATION_ALREADY_USED' as const;
   readonly message = 'The OAuth authorization has already been used';
-  readonly type: DomainErrorType = 'DOMAIN.INVALID_STATE';
 
   /**
    * Creates a new AuthorizationAlreadyUsedError instance.
