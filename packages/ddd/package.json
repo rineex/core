@@ -8,7 +8,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "test": "vitest run",
-    "test:types": "tsd -f 'src/domain/types/__tests__/*.test-d.ts' -f 'src/shared/domain/__tests__/*.test-d.ts'",
+    "test:types": "tsd -f 'src/domain/types/__tests__/*.test-d.ts' -f 'src/shared/domain/__tests__/*.test-d.ts' -f 'src/application/__tests__/*.test-d.ts'",
     "lint": "eslint 'src/**/*.ts'",
     "lint:fix": "eslint 'src/**/*.ts' --fix",
     "check-types": "tsc --noEmit",

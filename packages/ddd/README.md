@@ -596,10 +596,17 @@ function createAccount(
 
 ## Application Services
 
-Use `ApplicationServicePort<I, O>` for use-case orchestration.
+Use `ApplicationServicePort<I, O>` for use-case orchestration. `execute` may
+return `O` synchronously or `Promise<O>` for async orchestration — use
+`resolveExecuteResult()` at infrastructure boundaries when you need a single
+async call site.
 
 ```typescript
-import { ApplicationServicePort, Result } from '@rineex/ddd';
+import {
+  ApplicationServicePort,
+  resolveExecuteResult,
+  Result,
+} from '@rineex/ddd';
 
 interface CreateUserInput {
   name: string;
@@ -620,6 +627,19 @@ class CreateUserService implements ApplicationServicePort<
     return { id: '...', name: args.name };
   }
 }
+
+// Sync hot-path service (no Promise allocation)
+class GetActiveSigningKeyService implements ApplicationServicePort<
+  { keyType: string },
+  { kid: string; privateKeyPem: string }
+> {
+  execute(): { kid: string; privateKeyPem: string } {
+    return { kid: '...', privateKeyPem: '...' };
+  }
+}
+
+// Boundary: normalize sync | async execute results
+const output = await resolveExecuteResult(service.execute(input));
 ```
 
 ---
