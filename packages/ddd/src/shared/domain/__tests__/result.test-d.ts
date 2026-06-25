@@ -12,10 +12,12 @@ class SampleAppError extends ApplicationError {
 }
 
 const okNumber = ResultNs.ok(42);
+const okVoid = ResultNs.ok();
 const errDomain = ResultNs.err(new InvalidStateError('bad'));
 const errApp = ResultNs.err(new SampleAppError());
 
 expectType<Ok<number>>(okNumber);
+expectType<Ok<void>>(okVoid);
 expectType<Err<InvalidStateError>>(errDomain);
 expectType<Err<SampleAppError>>(errApp);
 

@@ -25,6 +25,14 @@ describe('result', () => {
       expect(result.value).toBe(value);
     });
 
+    it('creates a frozen ok result without a value', () => {
+      const result = Result.ok();
+
+      expect(result).toEqual({ value: undefined, kind: 'ok' });
+      expect(Object.isFrozen(result)).toBe(true);
+      expect(Result.isOk(result)).toBe(true);
+    });
+
     it('creates a frozen err result with the given error', () => {
       const error = new InvalidValueError('invalid');
       const result = Result.err(error);

@@ -5,7 +5,7 @@ export type { UseCaseError } from '../use-case.error';
 /**
  * Successful outcome of an application use case.
  */
-export type Ok<T> = Readonly<{
+export type Ok<T = void> = Readonly<{
   kind: 'ok';
   value: T;
 }>;
@@ -21,32 +21,30 @@ export type Err<E extends UseCaseError> = Readonly<{
 /**
  * Explicit success/failure for application-layer use cases.
  *
- * Domain entities and value objects throw on invariant violations;
- * application services return Result instead of throwing expected failures.
+ * Domain entities and value objects may throw on invariant violations.
+ * Application services should return Result for expected use-case failures.
  *
- * @template T Success value type
- * @template E Per-use-case error union (`ApplicationError`, `DomainError`, etc.)
+ * @template T Success value type. Defaults to void for command use cases.
+ * @template E Per-use-case error union.
  */
-export type Result<T, E extends UseCaseError> = Err<E> | Ok<T>;
+export type Result<T = void, E extends UseCaseError = UseCaseError> =
+  | Err<E>
+  | Ok<T>;
 
 function freeze<R extends Result<unknown, UseCaseError>>(result: R): R {
   return Object.freeze(result);
 }
 
-/**
- * Factory and combinators for {@link Result}.
- *
- * @example
- * ```typescript
- * function login(id: string): Result<Session, AuthInvalidCredentialsError> {
- *   if (!valid) return Result.err(new AuthInvalidCredentialsError(id));
- *   return Result.ok(session);
- * }
- *
- * return Result.flatMap(loadUser(id), (user) => issueSession(user));
- * ```
- */
+function ok(): Ok<void>;
+function ok<T>(value: T): Ok<T>;
+function ok<T>(value?: T): Ok<T | void> {
+  return freeze({ kind: 'ok', value });
+}
+
 export const Result = {
+  /**
+   * Pattern-matches a Result into a single output value.
+   */
   match<T, E extends UseCaseError, U>(
     result: Result<T, E>,
     handlers: {
@@ -54,44 +52,39 @@ export const Result = {
       err: (error: E) => U;
     },
   ): U {
-    if (result.kind === 'err') {
-      return handlers.err(result.error);
-    }
-
-    return handlers.ok(result.value);
+    return result.kind === 'err'
+      ? handlers.err(result.error)
+      : handlers.ok(result.value);
   },
 
+  /**
+   * Chains another Result-producing operation.
+   */
+  flatMap<T, E extends UseCaseError, U, F extends UseCaseError = E>(
+    result: Result<T, E>,
+    fn: (value: T) => Result<U, F>,
+  ): Result<U, E | F> {
+    return result.kind === 'err' ? result : fn(result.value);
+  },
+
+  /**
+   * Transforms the error value.
+   */
   mapError<T, E extends UseCaseError, F extends UseCaseError>(
     result: Result<T, E>,
     fn: (error: E) => F,
   ): Result<T, F> {
-    if (result.kind === 'ok') {
-      return result;
-    }
-
-    return Result.err(fn(result.error));
+    return result.kind === 'ok' ? result : Result.err(fn(result.error));
   },
 
-  flatMap<T, E extends UseCaseError, U>(
-    result: Result<T, E>,
-    fn: (value: T) => Result<U, E>,
-  ): Result<U, E> {
-    if (result.kind === 'err') {
-      return result;
-    }
-
-    return fn(result.value);
-  },
-
+  /**
+   * Transforms the success value.
+   */
   map<T, E extends UseCaseError, U>(
     result: Result<T, E>,
     fn: (value: T) => U,
   ): Result<U, E> {
-    if (result.kind === 'err') {
-      return result;
-    }
-
-    return Result.ok(fn(result.value));
+    return result.kind === 'err' ? result : Result.ok(fn(result.value));
   },
 
   isErr<T, E extends UseCaseError>(result: Result<T, E>): result is Err<E> {
@@ -106,7 +99,5 @@ export const Result = {
     return freeze({ kind: 'err', error });
   },
 
-  ok<T>(value: T): Ok<T> {
-    return freeze({ kind: 'ok', value });
-  },
+  ok,
 } as const;
