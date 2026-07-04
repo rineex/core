@@ -1,7 +1,7 @@
 import { deepFreeze } from '@/utils';
 
+import { DeepPrimitive, EntityId, EntityJson } from '../types';
 import { DeepImmutable } from '../types/deep-immutable.type';
-import { EntityId } from '../types';
 
 // export type Immutable<T> = {
 //   readonly [K in keyof T]: Immutable<T[K]>;
@@ -59,11 +59,11 @@ export abstract class Entity<ID extends EntityId, Props> {
     this.validate();
   }
 
-  private static normalize(value: unknown): unknown {
-    if (value == null) return value;
+  private static normalize<T>(value: T): DeepPrimitive<T> {
+    if (value == null) return value as DeepPrimitive<T>;
 
     if (value instanceof Date) {
-      return value.toISOString();
+      return value.toISOString() as DeepPrimitive<T>;
     }
 
     if (
@@ -71,25 +71,25 @@ export abstract class Entity<ID extends EntityId, Props> {
       typeof value === 'number' ||
       typeof value === 'boolean'
     ) {
-      return value;
+      return value as DeepPrimitive<T>;
     }
 
     if (Array.isArray(value)) {
-      return value.map(item => Entity.normalize(item));
+      return value.map(item => Entity.normalize(item)) as DeepPrimitive<T>;
     }
 
     if (typeof value === 'object') {
       if ('toJSON' in value && typeof value.toJSON === 'function') {
-        return Entity.normalize(value.toJSON());
+        return Entity.normalize(value.toJSON()) as DeepPrimitive<T>;
       }
 
       const obj = value as Record<string, unknown>;
       return Object.fromEntries(
         Object.entries(obj).map(([key, val]) => [key, Entity.normalize(val)]),
-      );
+      ) as DeepPrimitive<T>;
     }
 
-    return String(value);
+    return String(value) as DeepPrimitive<T>;
   }
 
   /**
@@ -108,12 +108,12 @@ export abstract class Entity<ID extends EntityId, Props> {
   /**
    * Converts the entity to a plain JSON-safe object with primitive values.
    */
-  public toJSON(): Record<string, unknown> {
+  public toJSON(): EntityJson<ID, Props> {
     return Entity.normalize({
       ...this.#props,
       createdAt: this.createdAt,
       id: this.id.value,
-    }) as Record<string, unknown>;
+    });
   }
 
   /**
