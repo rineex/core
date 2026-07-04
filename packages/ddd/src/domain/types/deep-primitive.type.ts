@@ -2,7 +2,7 @@ import type { ValueObject } from '../base/vo';
 
 import type { EntityId } from './entity-id.type';
 
-type JsonPrimitive = string | number | boolean;
+type JsonPrimitive = boolean | number | string;
 
 type JsonIdValue<T> = T extends string
   ? string
@@ -38,7 +38,7 @@ export type DeepPrimitive<T> = T extends null
                     ? JsonIdValue<T['value']>
                     : T extends ValueObject<infer P>
                       ? DeepPrimitive<P>
-                      : T extends { toJSON(): infer J }
+                      : T extends { toJSON: () => infer J }
                         ? DeepPrimitive<J>
                         : T extends readonly (infer U)[]
                           ? DeepPrimitive<U>[]
