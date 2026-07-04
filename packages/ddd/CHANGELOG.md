@@ -1,5 +1,18 @@
 # @rineex/ddd
 
+## 6.2.0
+
+### Minor Changes
+
+- Add `DeepPrimitive<T>` and type-safe `Entity.toJSON()` return types.
+  ([#73](https://github.com/rineex/core/pull/73))
+  - `DeepPrimitive<T>` recursively maps domain values to JSON-safe primitives
+    (`Date` → ISO string, `EntityId` → `value`, `ValueObject` unwrap,
+    arrays/objects)
+  - `EntityJson<ID, Props>` is the structural shape returned by `toJSON()`
+  - `Entity.toJSON()` is typed as `EntityJson<ID, Props>` instead of
+    `Record<string, unknown>`
+
 ## 6.1.0
 
 ### Minor Changes
