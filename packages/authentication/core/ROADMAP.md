@@ -1,293 +1,38 @@
-# Implementation Roadmap: Visual Overview
+# Auth Core — Roadmap
 
-## 🗺️ High-Level Roadmap
+Phased plan from current state. Timelines are indicative.
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    PHASE 1: Foundation                           │
-│  Flow DSL + Proof System (Critical Path)                         │
-│  Duration: 2-3 weeks                                              │
-│                                                                   │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐      │
-│  │ Flow VOs │→ │ Flow Agg │→ │  Proof   │→ │  Attempt  │      │
-│  │          │  │          │  │  System   │  │  Update   │      │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────┘      │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                    PHASE 2: Trust & Session                      │
-│  Duration: 1-2 weeks                                             │
-│                                                                   │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐                     │
-│  │  Trust   │→ │ Context  │→ │ Session  │                     │
-│  │  Level   │  │ Snapshot  │  │  Agg     │                     │
-│  └──────────┘  └──────────┘  └──────────┘                     │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                    PHASE 3: Credentials                          │
-│  Duration: 1-2 weeks                                             │
-│                                                                   │
-│  ┌──────────┐  ┌──────────┐                                    │
-│  │Credential│→ │Credential│                                    │
-│  │   VOs    │  │  Entity   │                                    │
-│  └──────────┘  └──────────┘                                    │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                    PHASE 4: Orchestration                       │
-│  Duration: 1 week                                                │
-│                                                                   │
-│  ┌──────────────────────────────────────┐                       │
-│  │   Update AuthOrchestratorService     │                       │
-│  │   Execute flows, collect proofs      │                       │
-│  └──────────────────────────────────────┘                       │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                    PHASE 5: Policies                             │
-│  Duration: 1 week                                                │
-│                                                                   │
-│  ┌──────────────────────────────────────┐                       │
-│  │   Policy Domain Objects              │                       │
-│  │   Declarative, Serializable          │                       │
-│  └──────────────────────────────────────┘                       │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                    PHASE 6: Integration                         │
-│  Duration: 1 week                                                │
-│                                                                   │
-│  ┌──────────────────────────────────────┐                       │
-│  │   Tests + Documentation             │                       │
-│  └──────────────────────────────────────┘                       │
-└─────────────────────────────────────────────────────────────────┘
-```
+## Phase 1 — Integration consistency (current focus)
 
----
+- Export passwordless runtime API from package entry
+- Add `PasswordlessAuthMethod` implementing `AuthMethodPort`
+- Wire passwordless into flow orchestration services
+- Implement email/SMS channel adapters (or document consumer responsibility)
 
-## 📅 Timeline View
+## Phase 2 — Publish in-tree domains
 
-```
-Week 1:  [════════════════════════════════════════════════════════]
-         Phase 1: Flow Value Objects + Flow Aggregate
+- Export MFA session domain + services (or subpath `@rineex/auth-core/mfa`)
+- Complete `OAuthAuthorizeService` and export OAuth domain
+- Export session and token domains with clear stability tiers
+- Resolve `Identity` entity vs aggregate naming
 
-Week 2:  [════════════════════════════════════════════════════════]
-         Phase 1: Proof System + Attempt Update
+## Phase 3 — Policy and risk
 
-Week 3:  [════════════════════════════════════════════════════════]
-         Phase 2: Trust Level + Session Aggregate
+- Expand `AuthPolicyRegistry` beyond `base`
+- Populate `RiskSignalRegistry` and wire evaluators
+- Step-up MFA flow end-to-end through policy engine
 
-Week 4:  [════════════════════════════════════════════════════════]
-         Phase 3: Credential Lifecycle
+## Phase 4 — Platform features (from FUTURE.md)
 
-Week 5:  [════════════════════════════════════════════════════════]
-         Phase 4: Orchestration Update
+- Flow DSL (data-driven authentication flows)
+- Credential lifecycle
+- Trust levels on sessions
+- Additional methods: password, passkeys, social, API tokens
 
-Week 6:  [════════════════════════════════════════════════════════]
-         Phase 5: Policy Domain Objects
+## Completed (documentation sync)
 
-Week 7:  [════════════════════════════════════════════════════════]
-         Phase 6: Integration & Testing
-```
+- Rewrote Architecture, Definition, RULES to match implementation
+- Synced docs with `@rineex/ddd` v5/v6 (Result union, registry errors)
+- Created FUTURE.md preserving aspirational design
 
----
-
-## 🔗 Dependency Graph
-
-```
-                    ┌─────────────┐
-                    │  Flow VOs   │
-                    └──────┬──────┘
-                           │
-                    ┌──────▼──────┐
-                    │  Flow Agg   │
-                    └──────┬──────┘
-                           │
-                    ┌──────▼──────┐
-                    │   Proof     │
-                    │   System    │
-                    └──────┬──────┘
-                           │
-        ┌──────────────────┼──────────────────┐
-        │                  │                  │
-┌───────▼──────┐  ┌────────▼────────┐  ┌─────▼──────┐
-│   Attempt    │  │  Trust Level    │  │ Credential │
-│   Update     │  │  + Session     │  │  Entity    │
-└───────┬──────┘  └────────┬────────┘  └─────┬──────┘
-        │                  │                  │
-        └──────────────────┼──────────────────┘
-                           │
-                    ┌──────▼──────┐
-                    │Orchestrator │
-                    │   Update    │
-                    └──────┬──────┘
-                           │
-                    ┌──────▼──────┐
-                    │  Policies   │
-                    │  Domain Obj │
-                    └──────┬──────┘
-                           │
-                    ┌──────▼──────┐
-                    │Integration  │
-                    │  & Tests    │
-                    └─────────────┘
-```
-
----
-
-## 🎯 Milestones
-
-### Milestone 1: Flow System Complete ✅
-
-**Target:** End of Week 2  
-**Deliverables:**
-
-- ✅ Flow DSL implemented
-- ✅ Proofs collected
-- ✅ Attempts track flow progress
-
-**Definition of Done:**
-
-- Can define multi-step flows
-- Attempts execute flows step-by-step
-- Proofs collected per step
-- Unit tests passing
-
----
-
-### Milestone 2: Trust & Session Complete ✅
-
-**Target:** End of Week 3  
-**Deliverables:**
-
-- ✅ Trust levels computed
-- ✅ Sessions created from attempts
-- ✅ Context snapshots captured
-
-**Definition of Done:**
-
-- Trust computed from proofs
-- Sessions have trust levels
-- Can create session from attempt
-- Unit tests passing
-
----
-
-### Milestone 3: Credentials Complete ✅
-
-**Target:** End of Week 4  
-**Deliverables:**
-
-- ✅ Credential lifecycle
-- ✅ Status checks during auth
-
-**Definition of Done:**
-
-- Credentials can be created/revoked
-- Status checked during authentication
-- Unit tests passing
-
----
-
-### Milestone 4: End-to-End Flow ✅
-
-**Target:** End of Week 5  
-**Deliverables:**
-
-- ✅ Orchestrator executes flows
-- ✅ Multi-step auth works
-
-**Definition of Done:**
-
-- Can authenticate with multi-step flow
-- Proofs collected correctly
-- Session created successfully
-- Integration tests passing
-
----
-
-### Milestone 5: Production Ready ✅
-
-**Target:** End of Week 7  
-**Deliverables:**
-
-- ✅ All features implemented
-- ✅ Tests passing
-- ✅ Documentation updated
-
-**Definition of Done:**
-
-- All phases complete
-- Integration tests passing
-- Documentation updated
-- Examples provided
-
----
-
-## 📊 Progress Tracking
-
-### Phase 1: Foundation
-
-- [ ] Task 1.1: Flow Value Objects
-- [ ] Task 1.2: Flow Aggregate
-- [ ] Task 1.3: Proof System
-- [ ] Task 1.4: Attempt Update
-- [ ] Task 1.5: Flow Repository Port
-
-### Phase 2: Trust & Session
-
-- [ ] Task 2.1: Trust Level VO
-- [ ] Task 2.2: Context Snapshot VO
-- [ ] Task 2.3: Session Aggregate
-- [ ] Task 2.4: Session Repository Port
-
-### Phase 3: Credentials
-
-- [ ] Task 3.1: Credential VOs
-- [ ] Task 3.2: Credential Entity
-- [ ] Task 3.3: Credential Repository Port
-
-### Phase 4: Orchestration
-
-- [ ] Task 4.1: Orchestrator Update
-- [ ] Task 4.2: Flow Execution Service (Optional)
-
-### Phase 5: Policies
-
-- [ ] Task 5.1: Policy Domain Objects
-- [ ] Task 5.2: Policy Engine Update
-
-### Phase 6: Integration
-
-- [ ] Task 6.1: Domain Exports
-- [ ] Task 6.2: Integration Tests
-- [ ] Task 6.3: Documentation
-
----
-
-## 🚦 Status Legend
-
-- 🔴 **Not Started** - Task not begun
-- 🟡 **In Progress** - Actively working
-- 🟢 **Complete** - Done and tested
-- ⚠️ **Blocked** - Waiting on dependency
-
----
-
-## 💡 Quick Reference
-
-**Start Here:** Task 1.1 (Flow Value Objects)  
-**Critical Path:** Phase 1 → Phase 4  
-**Can Parallelize:** Phase 2 & 3 (after Phase 1)  
-**Final Step:** Phase 6 (Integration)
-
----
-
-## 📝 Notes
-
-- Each task should have tests written first (TDD)
-- Review code after each phase
-- Update documentation as you go
-- Don't skip validation logic
-- Keep architecture pure (no infra leaks)
+See [GAP_ANALYSIS.md](./GAP_ANALYSIS.md) for detailed gap list.

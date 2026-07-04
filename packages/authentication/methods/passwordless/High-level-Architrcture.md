@@ -1,17 +1,45 @@
-+--------------------------+ | Application Service Layer|
-+--------------------------+ | IssuePasswordlessService | |
------------------------- | | Responsibilities: | | - Orchestrates aggregate |
-| - Uses ports | | - Returns Result | +-----------+--------------+ | v
-+-------------------------------+ | PasswordlessChallengeAggregate|
-+-------------------------------+ | Properties: | | - id | | - channel | | -
-destination | | - secret | | - status | | - issuedAt / expiresAt | | Methods: |
-| - issue() | | - verify() | | - isExpired() | +-----------+-------------------+
-| v +-------------------+ +--------------------+ | Ports: | | Value Objects |
-+-------------------+ +--------------------+ | -
-PasswordlessChallengeRepositoryPort | - PasswordlessChallengeId | | -
-PasswordlessIdGeneratorPort | - PasswordlessChannel | | - PasswordlessClockPort
-| - ChallengeDestination | | - PasswordlessChannelPort (channel) | -
-ChallengeSecret | | | - PasswordlessChallengeStatus | +-------------------+
-+--------------------+ | v +----------------------+ | Infrastructure Layer |
-+----------------------+ | - DB Repository | | - Clock Adapter | | - Channel
-Adapter | | (Email, SMS, Push, Auth App) | +----------------------+
+# Passwordless — High-Level Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                  Application Service Layer                  │
+├─────────────────────────────────────────────────────────────┤
+│  IssuePasswordlessChallengeService                          │
+│  VerifyPasswordlessChallengeService                         │
+│  • Orchestrate aggregate                                    │
+│  • Coordinate ports                                         │
+│  • Return Result<T, E> (v5 API: Result.err, not Result.fail) │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│              PasswordlessChallengeAggregate                 │
+│  issue() · verify() · isExpired() · matchesSecret()          │
+│  Events: Issued · Verified                                  │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+         ┌─────────────────┴─────────────────┐
+         ▼                                   ▼
+┌─────────────────────┐           ┌─────────────────────┐
+│ Ports               │           │ Value Objects        │
+├─────────────────────┤           ├─────────────────────┤
+│ PasswordlessChallenge│           │ PasswordlessChallengeId│
+│   Repository        │           │ PasswordlessChannel    │
+│ PasswordlessId      │           │ ChallengeDestination   │
+│   GeneratorPort     │           │ ChallengeSecret        │
+│ PasswordlessChannel │           │ PasswordlessChallenge  │
+│   Port              │           │   Status               │
+│ ClockPort (@rineex/ │           │ OtpCode                │
+│   ddd)              │           └─────────────────────┘
+└──────────┬──────────┘
+           ▼
+┌─────────────────────────────────────────────────────────────┐
+│ Infrastructure (consumer-provided)                          │
+│ DB repository · Clock adapter · Email/SMS/Push channels     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Integration note
+
+Passwordless is **not** on `AuthMethodPort` yet. OTP uses the port; passwordless
+uses standalone services. See `@rineex/auth-core` GAP_ANALYSIS.md.
