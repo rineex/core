@@ -1,6 +1,6 @@
 import { deepFreeze } from '@/utils';
 
-import { DeepPrimitive, EntityId, EntityJson } from '../types';
+import { EntityId, EntityJson } from '../types';
 import { DeepImmutable } from '../types/deep-immutable.type';
 
 // export type Immutable<T> = {
@@ -59,11 +59,11 @@ export abstract class Entity<ID extends EntityId, Props> {
     this.validate();
   }
 
-  private static normalize<T>(value: T): DeepPrimitive<T> {
-    if (value == null) return value as DeepPrimitive<T>;
+  private static normalize(value: unknown): unknown {
+    if (value == null) return value;
 
     if (value instanceof Date) {
-      return value.toISOString() as DeepPrimitive<T>;
+      return value.toISOString();
     }
 
     if (
@@ -71,25 +71,25 @@ export abstract class Entity<ID extends EntityId, Props> {
       typeof value === 'number' ||
       typeof value === 'boolean'
     ) {
-      return value as DeepPrimitive<T>;
+      return value;
     }
 
     if (Array.isArray(value)) {
-      return value.map(item => Entity.normalize(item)) as DeepPrimitive<T>;
+      return value.map(item => Entity.normalize(item));
     }
 
     if (typeof value === 'object') {
       if ('toJSON' in value && typeof value.toJSON === 'function') {
-        return Entity.normalize(value.toJSON()) as DeepPrimitive<T>;
+        return Entity.normalize(value.toJSON());
       }
 
       const obj = value as Record<string, unknown>;
       return Object.fromEntries(
         Object.entries(obj).map(([key, val]) => [key, Entity.normalize(val)]),
-      ) as DeepPrimitive<T>;
+      );
     }
 
-    return String(value) as DeepPrimitive<T>;
+    return String(value);
   }
 
   /**
@@ -113,7 +113,7 @@ export abstract class Entity<ID extends EntityId, Props> {
       ...this.#props,
       createdAt: this.createdAt,
       id: this.id.value,
-    });
+    }) as EntityJson<ID, Props>;
   }
 
   /**
