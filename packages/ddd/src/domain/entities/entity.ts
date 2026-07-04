@@ -1,7 +1,7 @@
 import { deepFreeze } from '@/utils';
 
-import { EntityId, EntityJson } from '../types';
 import { DeepImmutable } from '../types/deep-immutable.type';
+import { EntityId, EntityJson } from '../types';
 
 // export type Immutable<T> = {
 //   readonly [K in keyof T]: Immutable<T[K]>;
