@@ -1,6 +1,10 @@
-# libs
+# @rineex/libs
 
-libs package for Rineex core modules
+Shared utility libraries for Rineex core modules.
+
+> **Note:** This package is published but most utilities are not yet exported
+> from the public entry. `src/index.ts` currently exports an empty object.
+> Internal utilities (e.g. `default-if-blank`) exist in source for monorepo use.
 
 ## Installation
 
@@ -11,16 +15,9 @@ pnpm add @rineex/libs
 ## Development
 
 ```bash
-# Build the package
 pnpm build
-
-# Run tests
 pnpm test
-
-# Lint code
 pnpm lint
-
-# Check types
 pnpm check-types
 ```
 

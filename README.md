@@ -107,21 +107,20 @@ For in-depth guidance, examples, and best practices, see the
   Objects, Entities, Aggregates, Events
 - 🔧 [Complete API Reference](./packages/ddd/README.md#api-reference) - All
   classes, interfaces, and methods
-- 💡 [Real-World Examples](./packages/ddd/README.md#examples) - Full order
-  management system implementation
-- ✅ [Best Practices](./packages/ddd/README.md#best-practices) - FAANG-level
-  patterns and principles
-- 🚨 [Error Handling](./packages/ddd/README.md#error-handling) - Proper error
-  management strategies
+- 💡 [Examples](./packages/ddd/README.md#examples) - Order aggregate and
+  integration patterns
+- ✅ [Best Practices](./packages/ddd/README.md#best-practices) - DDD patterns
+  and principles
+- 🚨 [Error Handling](./packages/ddd/README.md#error-handling) - Registry-backed
+  domain errors and Result
 - 🤝 [Contributing Guide](./packages/ddd/README.md#contributing) - Development
   setup and guidelines
 
 #### Included Value Objects
 
 - `AggregateId` - Unique identifier for aggregates
+- `Email` - Email address validation
 - `IPAddress` - IPv4/IPv6 validation
-- `URL` - Web URL validation
-- `UserAgent` - User agent string parsing
 
 ---
 
@@ -254,10 +253,13 @@ multiple authentication methods.
 
 - **Domain-Driven Design** - Built on `@rineex/ddd` for maintainable
   authentication logic
-- **Extensible Architecture** - Support for OTP, passwordless, and social login
-  methods
+- **Extensible Architecture** - OTP and passwordless method packages;
+  `AuthMethodPort` plugin model
 - **Type-Safe** - Full TypeScript support with strict typing
 - **Framework Agnostic** - Core domain logic independent of framework specifics
+
+See [Architecture.md](./packages/authentication/core/Architecture.md) for what
+is implemented vs in-tree.
 
 For complete documentation, see the
 [@rineex/auth-core README](./packages/authentication/core/README.md).
@@ -354,11 +356,8 @@ TypeScript compiler settings.
 │   ├── pg-slonik/              # PostgreSQL adapter using Slonik
 │   ├── libs/                   # Utility libraries
 │   ├── authentication/         # Authentication packages
-│   │   ├── core/              # Core authentication abstractions
-│   │   ├── methods/           # Authentication methods (OTP, passwordless)
-│   │   ├── adapters/          # Framework adapters
-│   │   ├── orchestration/     # Authentication orchestration
-│   │   └── policies/         # Authentication policies
+│   │   ├── core/              # @rineex/auth-core
+│   │   └── methods/           # OTP, passwordless method packages
 │   ├── nest/                  # NestJS middleware modules
 │   │   ├── helmet-middleware-module/
 │   │   ├── cors-middleware-module/
@@ -377,8 +376,8 @@ TypeScript compiler settings.
 
 ### Prerequisites
 
-- **Node.js**: 18.0 or higher
-- **pnpm**: 8.0 or higher (npm/yarn supported but not recommended)
+- **Node.js**: 18.0 or higher (Volta pins Node 24 in this repo)
+- **pnpm**: 10.0 or higher (workspace uses pnpm 10.22)
 - **TypeScript**: 5.9 or higher
 
 ### Getting Started
@@ -488,6 +487,19 @@ pnpm g:pkg <package-name> [description]
 ```
 
 For more details, see [PACKAGE_GENERATOR.md](./PACKAGE_GENERATOR.md).
+
+## Documentation Map
+
+| Package / area      | Primary docs                                                                                                                                             |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Monorepo            | [README.md](./README.md), [PACKAGE_GENERATOR.md](./PACKAGE_GENERATOR.md)                                                                                 |
+| `@rineex/ddd`       | [packages/ddd/README.md](./packages/ddd/README.md)                                                                                                       |
+| `@rineex/auth-core` | [packages/authentication/core/README.md](./packages/authentication/core/README.md), [Architecture.md](./packages/authentication/core/Architecture.md)    |
+| Auth methods        | [passwordless README](./packages/authentication/methods/passwordless/README.md), [OTP README](./packages/authentication/methods/otp/README.md)           |
+| `@rineex/pg-slonik` | [README](./packages/pg-slonik/README.md), [API](./packages/pg-slonik/docs/API.md)                                                                        |
+| `@rineex/ioredis`   | [README](./packages/ioredis/README.md)                                                                                                                   |
+| Nest middleware     | `packages/nest/*/README.md`                                                                                                                              |
+| Domain sub-docs     | [auth errors](./packages/authentication/core/src/domain/errors/README.md), [auth VOs](./packages/authentication/core/src/domain/value-objects/README.md) |
 
 ## License
 

@@ -1,257 +1,164 @@
-# Auth Core — Domain Foundations (DDD + Hexagonal)
+# Auth Core — Architecture (As Implemented)
 
-## 1. Purpose
+Framework-agnostic authentication core built on `@rineex/ddd`. This document
+describes **what exists in code today**, not aspirational designs. For planned
+features (Flow DSL, Principal/Credential model), see [FUTURE.md](./FUTURE.md).
 
-Design a **framework-agnostic, storage-agnostic authentication core** that:
+## Purpose
 
-- Works with **zero customization**
-- Supports **incremental auth methods**
-- Is suitable for **enterprise and simple products**
-- Is extensible without modifying existing domain code
-- Is independent of HTTP, DB, tokens, providers, or frameworks
+- Orchestrate authentication attempts via pluggable auth methods
+- Enforce policy decisions before and during authentication
+- Emit domain events for attempt lifecycle
+- Stay independent of HTTP, databases, and token formats
 
-This module defines **what authentication is**, not **how it is transported or
-stored**.
+## Packages
 
----
+| Package                                      | Role                                                            |
+| -------------------------------------------- | --------------------------------------------------------------- |
+| `@rineex/auth-core`                          | Shared identity model, attempt aggregate, policy engine, ports  |
+| `@rineex/authentication-method-otp`          | `AuthMethodPort` adapter for OTP                                |
+| `@rineex/authentication-method-passwordless` | Standalone challenge issue/verify (not yet on `AuthMethodPort`) |
 
-## 2. Architectural Constraints (Hard Rules)
+## Bounded Context
 
-These rules must never be violated:
+**In scope:** verifying proof of access, attempt orchestration, policy
+evaluation.
 
-1. Authentication is **not identity**
-2. Authentication methods are **plugins**
-3. Authentication flows are **data-driven**
-4. Infrastructure choices are **external**
-5. Domain owns **rules and invariants only**
-6. No provider, protocol, or framework knowledge in domain
-7. No auth method may require changing existing aggregates
+**Out of scope:** user profiles, authorization/permissions, HTTP, UI, concrete
+token formats, database schemas.
 
-If a new auth method breaks a rule → architecture is wrong.
+## Ubiquitous Language (Implemented)
 
----
+| Term         | Meaning in code                                                      |
+| ------------ | -------------------------------------------------------------------- |
+| Identity     | Actor that can authenticate (`Identity` entity, exported)            |
+| Auth Attempt | One authentication execution (`AuthenticationAttempt` aggregate)     |
+| Auth Method  | Concrete mechanism (`AuthMethod` VO; `AuthMethodPort` for plugins)   |
+| Auth Factor  | Category of proof (`AuthFactor` VO)                                  |
+| Auth Policy  | Named policy slot (`AuthPolicy` VO; evaluated by `AuthPolicyEngine`) |
+| Session      | Post-auth continuity (`Session` entity — in-tree, not exported)      |
+| MFA Session  | Step-up verification context (`MFASession` aggregate — in-tree)      |
 
-## 3. Bounded Context
+**Not implemented:** Principal, Credential, Auth Proof, TrustLevel, Flow DSL.
 
-### Authentication Context (this module)
+> **Naming note:** Two types named `Identity` exist — an **entity** (exported)
+> and an **aggregate** (in-tree, unexported). Prefer the entity in new code
+> until the aggregate is published or renamed.
 
-Responsibilities:
+## Public Surface vs In-Tree
 
-- Verifying proof of access
-- Orchestrating authentication flows
-- Enforcing policies
-- Producing authenticated sessions
+### Exported from `@rineex/auth-core`
 
-Non-responsibilities:
+- **Aggregate:** `AuthenticationAttempt`
+- **Entity:** `Identity`
+- **Value objects:** `AuthAttemptId`, `AuthFactor`, `AuthMethod`, `AuthPolicy`,
+  `AuthStatus`, `IdentityId`, `IdentityProvider`, `RiskSignal`
+- **Events:** `AuthenticationStartedEvent`, `AuthenticationFailedEvent`,
+  `AuthenticationSucceededEvent`
+- **Policy:** `AuthPolicyEvaluator`, `AuthPolicyContext`, `AuthPolicyDecision`,
+  `AuthPolicyEngine`
+- **Ports:** `AuthMethodPort`, `AuthenticationAttemptRepositoryPort`,
+  `IdentityRepository`, `DomainEventPublisherPort`
 
-- User profile management
-- Authorization / permissions
-- HTTP handling
-- UI flows
-- Token formats
-- Database schemas
+### In-tree (not exported)
 
----
+- Domains: MFA, OAuth, session, token
+- Application services: flow start/verify, MFA start/issue/verify, OAuth
+  authorize (stub)
+- Error registries and most domain errors
+- Additional repository and observability ports
 
-## 4. Ubiquitous Language (Canonical)
+## Core Aggregates and Entities
 
-These terms have **single meanings** and must not be overloaded:
+### AuthenticationAttempt (exported aggregate)
 
-| Term         | Meaning                                         |
-| ------------ | ----------------------------------------------- |
-| Principal    | Any actor that can authenticate                 |
-| Credential   | Authentication material owned by a principal    |
-| Auth Factor  | Category of proof (knowledge, possession, etc.) |
-| Auth Method  | Concrete mechanism (password, otp, oauth, …)    |
-| Auth Attempt | One authentication execution                    |
-| Auth Flow    | Orchestration rules                             |
-| Auth Policy  | Constraints and conditions                      |
-| Auth Proof   | Verifiable evidence                             |
-| Auth Result  | Outcome of authentication                       |
-| Session      | Post-auth continuity                            |
+Lifecycle: `pending` → `succeed` | `failed`.
 
----
+Methods: `start`, `fail`, `registerAttempt`, `succeed`. Emits started, failed,
+succeeded events.
 
-## 5. Core Domain Aggregates
+### Identity (exported entity)
 
-### 5.1 Principal (Aggregate Root)
+Represents an authenticatable actor. Distinct from the unexported Identity
+aggregate in `identity.aggregate.ts`.
 
-Represents **who or what** is authenticating.
+### Session (entity, unexported)
 
-**Key rules**
+Holds `identityId`, token reference, expiry, revocation. Not an aggregate root.
 
-- Can exist without credentials
-- Can represent humans, services, or devices
-- Is auth-method agnostic
+### MFASession, OauthAuthorization, Token (unexported)
 
----
+Domain models exist with application services partially implemented. Not on the
+public package entry.
 
-### 5.2 Credential (Entity)
+## Auth Method Integration
 
-Represents **what the principal owns** to authenticate.
+### AuthMethodPort (OTP)
 
-**Key rules**
-
-- Domain never stores secrets
-- Lifecycle is domain-controlled
-- Verification is delegated to infrastructure
-
----
-
-### 5.3 AuthenticationAttempt (Aggregate Root)
-
-Represents **one authentication process**.
-
-**Why it exists**
-
-- Prevents replay
-- Supports MFA and step-up
-- Enables audit and risk evaluation
-
----
-
-### 5.4 AuthenticationSession (Aggregate Root)
-
-Represents **authenticated continuity**.
-
-**Key rules**
-
-- Created only after successful authentication
-- Stateless vs stateful is infrastructure choice
-- Trust level is domain-owned
-
----
-
-## 6. Value Objects (Core Concepts)
-
-Value Objects define meaning, not storage:
-
-- AuthMethodType
-- AuthFactorType
-- AuthProof
-- TrustLevel
-- RiskScore
-- Challenge
-- ContextSnapshot
-
-Auth factors are **categories**, not implementations:
-
-- Knowledge
-- Possession
-- Inherence
-- Delegated
-
----
-
-## 7. Authentication Methods (Extensibility Model)
-
-Authentication methods are **not services** and **not branches**.
-
-They are **capabilities described by data**.
-
-An Auth Method defines:
-
-- Its identifier
-- Supported factors
-- Required inputs
-- Output proof type
-
-The domain:
-
-- Does not know _how_ a method works
-- Does not know _who_ provides it
-- Does not change when a method is added
-
----
-
-## 8. Domain Services (Pure Logic)
-
-### Authentication Orchestrator
-
-Coordinates attempts, proofs, and policies.
-
-### Policy Evaluator
-
-Decides:
-
-- Whether authentication is allowed
-- Whether step-up is required
-- Which flow applies
-
-No domain service:
-
-- Talks to HTTP
-- Knows about tokens
-- Knows about databases
-
----
-
-## 9. Hexagonal Ports (Boundaries)
-
-### Persistence Ports
-
-- PrincipalRepository
-- CredentialRepository
-- AuthenticationAttemptRepository
-- AuthenticationSessionRepository
-
-### Capability Ports
-
-- AuthProofVerifier
-- ChallengeIssuer
-- RiskEvaluator
-- TokenIssuer
-
-Infrastructure implements ports. Domain only defines **contracts**.
-
----
-
-## 10. Phase 1 Auth Methods (Initial Scope)
-
-Start small, cover most use cases:
-
-1. Password (compatibility)
-2. Passwordless (email magic)
-3. OTP (TOTP + Email)
-4. OAuth2 / OIDC
-5. Social Login
-6. API Tokens (M2M)
-
-Everything else is additive.
-
----
-
-## 11. Explicit Non-Goals (For Now)
-
-These are **intentionally excluded**:
-
-- HTTP redirects
-- Cookies and headers
-- JWT structure
-- OAuth provider SDKs
-- UI workflows
-- Database schemas
-
-They belong to adapters, not the core.
-
----
-
-## 12. Extensibility Guarantees
-
-Before adding any auth feature, verify:
-
-- No existing aggregate changes
-- No domain branching
-- No infrastructure assumptions
-- No HTTP dependency
-- Enabled via configuration or policy
-
-Failing any → redesign first.
-
----
-
-## 13. Document Status
-
-- This document is **authoritative**
-- Any implementation must conform to it
-- Changes require architectural justification
+```typescript
+type AuthMethodPort = {
+  readonly method: AuthMethodName;
+  start(params: {
+    authAttemptId: AuthAttemptId;
+    ctx: unknown;
+  }): AuthMethodOutcome | Promise<AuthMethodOutcome>;
+  verify(params: {
+    authAttemptId: AuthAttemptId;
+    payload: unknown;
+  }): AuthMethodOutcome | Promise<AuthMethodOutcome>;
+};
+```
+
+`OtpAuthMethod` in `@rineex/authentication-method-otp` implements this port.
+
+### Passwordless (standalone)
+
+`IssuePasswordlessChallengeService` and `VerifyPasswordlessChallengeService`
+live in the passwordless package. They are **not** wired through
+`AuthMethodPort` today. See passwordless package README.
+
+## Policy Engine
+
+`AuthPolicyEngine` runs registered `AuthPolicyEvaluator` instances. First deny
+wins. Evaluators may return `requiresStepUp` for MFA escalation. No declarative
+policy DSL — evaluators are code.
+
+## Error Pattern
+
+Per bounded context:
+
+1. Const registry: `AuthCoreErrorRegistry` with namespaces (`AUTH_CORE_MFA`,
+   etc.)
+2. Error classes extend `DomainError<'NAMESPACE.CODE', Meta>`
+3. Architecture tests verify every error code is registered
+
+See [src/domain/errors/README.md](./src/domain/errors/README.md).
+
+## Layering
+
+```
+┌─────────────────────────────────────┐
+│  Application (flow + MFA services)  │  unexported
+├─────────────────────────────────────┤
+│  Domain (attempt, identity, policy) │  partially exported
+├─────────────────────────────────────┤
+│  Ports (inbound + outbound)         │  partially exported
+└─────────────────────────────────────┘
+         ▲
+         │ adapters (consumer-provided)
+```
+
+## Hard Rules (still apply)
+
+1. Authentication is not identity management
+2. Auth methods are plugins (`AuthMethodPort`)
+3. Infrastructure stays outside domain
+4. Domain owns invariants only
+5. New methods must not require changing `AuthenticationAttempt`
+
+## Related Docs
+
+- [Definition.md](./Definition.md) — contracts and registries
+- [RULES.md](./RULES.md) — package topology and port map
+- [GAP_ANALYSIS.md](./GAP_ANALYSIS.md) — remaining work
+- [ONBOARDING.md](./ONBOARDING.md) — contributor guide

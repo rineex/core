@@ -136,22 +136,27 @@ between domain, application, and infrastructure layers.
 4. Service calls `PasswordlessChallengeAggregate.issue()` factory method
 5. Aggregate validates invariants and emits `PasswordlessChallengeIssuedEvent`
 6. Service persists aggregate via `PasswordlessChallengeRepository`
-7. Service returns `Result.ok(challenge)` or `Result.fail(error)`
+7. Service returns `Result.ok(challenge)` or `Result.err(error)`
 
 ### Flow: Verifying a Challenge
 
 1. Application service receives challenge ID and secret
 2. Service loads challenge from repository via `findById()`
-3. Service checks if challenge exists (returns `Result.fail` if not found)
-4. Service checks if challenge is expired (returns `Result.fail` if expired)
+3. Service checks if challenge exists (returns `Result.err` if not found)
+4. Service checks if challenge is expired (returns `Result.err` if expired)
 5. Service calls `challenge.verify(secret)` on aggregate
 6. Aggregate validates secret using timing-safe comparison
 7. Aggregate updates status to `verified` and emits
    `PasswordlessChallengeVerifiedEvent`
 8. Service persists updated aggregate
-9. Service returns `Result.ok(challenge)` or `Result.fail(error)`
+9. Service returns `Result.ok(challenge)` or `Result.err(error)`
 
 ## Public API
+
+> **Export gap:** The runtime API described below exists in source but is **not
+> exported** from `src/index.ts` today — the package entry only loads type
+> augmentation for `AuthMethodRegistry`. Import from source paths in the
+> monorepo or wait until exports are added (see auth-core GAP_ANALYSIS.md).
 
 ### PasswordlessChallengeAggregate
 
@@ -247,7 +252,7 @@ type Input = {
 
 Any other error thrown during execution (e.g.
 `PasswordlessChallengeAlreadyUsedError` from the aggregate, or repository
-rejections) is caught and returned as `Result.fail(error)`.
+rejections) is caught and returned as `Result.err(error)`.
 
 ### Value Objects
 

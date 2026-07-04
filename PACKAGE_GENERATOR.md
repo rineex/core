@@ -8,7 +8,7 @@ established structure and configuration standards.
 ### Option 1: Using npm script (Recommended)
 
 ```bash
-pnpm generate:package <package-name> [description]
+pnpm g:pkg <package-name> [description]
 ```
 
 ### Option 2: Using Node.js directly
@@ -28,19 +28,19 @@ node scripts/generate-package.mjs <package-name> [description]
 ### Create a basic package
 
 ```bash
-pnpm generate:package validation
+pnpm g:pkg validation
 ```
 
 ### Create a package with description
 
 ```bash
-pnpm generate:package validation "Input validation utilities"
+pnpm g:pkg validation "Input validation utilities"
 ```
 
 ### Create a more complex package
 
 ```bash
-pnpm generate:package cache-manager "Redis and in-memory cache management"
+pnpm g:pkg cache-manager "Redis and in-memory cache management"
 ```
 
 ## What Gets Generated

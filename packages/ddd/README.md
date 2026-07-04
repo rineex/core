@@ -2,8 +2,6 @@
 
 > Domain-Driven Design (DDD) primitives for building maintainable, scalable
 > TypeScript applications.
->
-> _(Test change for version-in-same-PR workflow verification.)_
 
 [![npm version](https://img.shields.io/npm/v/@rineex/ddd)](https://www.npmjs.com/package/@rineex/ddd)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
@@ -32,7 +30,7 @@
 ## Overview
 
 `@rineex/ddd` provides type-safe building blocks for implementing Domain-Driven
-Design patterns. Used by `@rineex/authentication` and other Rineex packages.
+Design patterns. Used by `@rineex/auth-core` and other Rineex packages.
 
 **Features:** Value Objects, Entities, Aggregate Roots, Domain Events, Domain
 Errors (extensible namespaces), Result type, Application Service port, Clock
@@ -62,7 +60,12 @@ import {
   AggregateId,
   DomainID,
   Email,
+  IPAddress,
   DomainError,
+  InferErrorCodes,
+  registryErrorCodes,
+  CoreDomainErrorRegistry,
+  BaseMapper,
   InvalidValueObjectError,
   EntityValidationError,
   InvalidValueError,
@@ -191,6 +194,15 @@ email.value; // 'user@example.com'
 email.toString();
 ```
 
+### Pre-built: IPAddress
+
+```typescript
+import { IPAddress } from '@rineex/ddd';
+
+const ip = IPAddress.fromString('192.168.1.1');
+ip.value; // '192.168.1.1'
+```
+
 ### Pre-built: AggregateId & DomainID
 
 ```typescript
@@ -215,7 +227,7 @@ Entities have stable identity. Equality is by `id`, not attributes. Use
 `mutate(updater)` for state changes; it re-freezes and re-validates. Use
 `AggregateId` or extend `DomainID` for custom identity types.
 
-### Example (from `@rineex/authentication` OAuthAuthorization)
+### Example (from `@rineex/auth-core` OAuthAuthorization)
 
 ```typescript
 import { Entity, EntityProps, DomainID } from '@rineex/ddd';
@@ -535,11 +547,16 @@ there is no `DomainError` default.
 
 ### Layer contract
 
-| Layer                            | Mechanism                       |
-| -------------------------------- | ------------------------------- |
-| Domain (entity, VO, aggregate)   | Throw on invariant violation    |
-| Application (use case)           | Return `Result<O, E>`           |
-| Infrastructure (HTTP, messaging) | Unwrap `Result` at the boundary |
+| Layer                            | Mechanism                                  |
+| -------------------------------- | ------------------------------------------ |
+| Domain (entity, VO, aggregate)   | Throw on invariant violation               |
+| Application (use case)           | Return `Result<O, E>` from service methods |
+| Infrastructure (HTTP, messaging) | Unwrap `Result` at the boundary            |
+
+`ApplicationServicePort` returns `Promise<O>` — it is a structural seam for
+orchestration. Application services that model expected failures should return
+`Result` from their own `execute` methods (or wrap the port call at the
+composition root).
 
 ### Example
 
@@ -548,6 +565,7 @@ import { Result, UseCaseError, InvalidValueError } from '@rineex/ddd';
 
 // Creation
 const ok = Result.ok(42);
+const voidOk = Result.ok(); // Ok<void> for command use cases with no return value
 const failed = Result.err(new InvalidValueError('Invalid'));
 
 // Narrowing
@@ -596,10 +614,13 @@ function createAccount(
 
 ## Application Services
 
-Use `ApplicationServicePort<I, O>` for use-case orchestration.
+Use `ApplicationServicePort<I, O>` for use-case orchestration. The port
+signature is `execute(args: I): Promise<O>` — it does not return `Result`.
+Services that need explicit failure channels return `Result` from a dedicated
+method or wrap domain outcomes at the caller.
 
 ```typescript
-import { ApplicationServicePort, Result } from '@rineex/ddd';
+import { ApplicationServicePort, Result, InvalidValueError } from '@rineex/ddd';
 
 interface CreateUserInput {
   name: string;
@@ -619,6 +640,15 @@ class CreateUserService implements ApplicationServicePort<
     // validate, create entity, persist, publish events
     return { id: '...', name: args.name };
   }
+}
+
+// Command with no return value — use Result.ok()
+async function deactivateUser(
+  id: string,
+): Promise<Result<void, InvalidValueError>> {
+  if (!id) return Result.err(new InvalidValueError('ID required'));
+  // ... persist
+  return Result.ok();
 }
 ```
 
@@ -669,6 +699,47 @@ const frozen = deepFreeze({ a: 1, nested: { b: 2 } });
 
 5. **Persist then publish:** Save aggregate, then call `pullDomainEvents()` and
    publish.
+
+---
+
+## Core Concepts
+
+Value Objects, Entities, Aggregate Roots, and Domain Events are documented in
+the sections above. Domain errors use registry-backed codes; application
+outcomes use `Result`.
+
+---
+
+## Examples
+
+See [Aggregate Roots](#aggregate-roots) (Order example) and
+[Integration Guide](#integration-guide) for end-to-end patterns.
+
+---
+
+## Best Practices
+
+- Extend `DomainID` for branded aggregate identifiers
+- Use `mutate()` for entity state changes — never mutate `props` directly
+- Throw `DomainError` in domain layer; return `Result` in application layer
+- Register error codes in a bounded-context registry and verify with
+  architecture tests
+- Call `pullDomainEvents()` after persistence, then publish
+
+---
+
+## Error Handling
+
+See [Domain Errors](#domain-errors) for `DomainError`, registries, and built-in
+error classes.
+
+---
+
+## Contributing
+
+Develop in `packages/ddd`. Run `pnpm test`, `pnpm lint`, and `pnpm check-types`
+from the package directory. Add a changeset for publishable changes:
+`pnpm changeset` from the monorepo root.
 
 ---
 
@@ -733,6 +804,7 @@ Extends `Entity`. Adds:
 
 | Member                                         | Description                               |
 | ---------------------------------------------- | ----------------------------------------- |
+| `Result.ok()`                                  | Success with no value (`Ok<void>`)        |
 | `Result.ok(value)`                             | Success (`{ kind: 'ok', value }`)         |
 | `Result.err(error)`                            | Failure (`{ kind: 'err', error }`)        |
 | `Result.isOk(r)` / `Result.isErr(r)`           | Type guards                               |

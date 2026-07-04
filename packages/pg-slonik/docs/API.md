@@ -1,5 +1,7 @@
 # @rineex/pg-slonik — API Documentation
 
+> [← Back to package README](../README.md)
+
 ## 1. Overview
 
 **What it does:** NestJS module that provides one or more

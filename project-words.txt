@@ -35,3 +35,7 @@ Turborepo
 unplugin
 uuidv
 vitest
+Versionable
+versionable
+Explainability
+uppercased
