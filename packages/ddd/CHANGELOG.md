@@ -1,5 +1,14 @@
 # @rineex/ddd
 
+## 6.2.1
+
+### Patch Changes
+
+- Normalize `Email` value object to lowercase on construction.
+  ([#75](https://github.com/rineex/core/pull/75))
+  - Uppercase and mixed-case inputs are stored as lowercase
+  - Emails differing only by case compare equal via `equals()`
+
 ## 6.2.0
 
 ### Minor Changes
