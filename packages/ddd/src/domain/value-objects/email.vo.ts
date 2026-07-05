@@ -7,8 +7,7 @@ export class Email extends PrimitiveValueObject<string> {
   private static readonly schema = z.email();
 
   public constructor(value: string) {
-    super(value);
-    this.validate(value);
+    super(value.toLowerCase());
   }
 
   public static fromString(value: string): Email {
