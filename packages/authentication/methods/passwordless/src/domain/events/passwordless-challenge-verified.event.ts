@@ -43,8 +43,6 @@ export class PasswordlessChallengeVerifiedEvent extends DomainEvent<
    * The unique name identifier for this domain event.
    * Used for event routing, logging, and event store indexing.
    */
-  public readonly eventName = 'auth.passwordless.challenge_verified';
-
   /**
    * Creates a new PasswordlessChallengeVerifiedEvent instance.
    *
@@ -57,11 +55,18 @@ export class PasswordlessChallengeVerifiedEvent extends DomainEvent<
    * @returns {PasswordlessChallengeVerifiedEvent} A new instance of PasswordlessChallengeVerifiedEvent
    */
   public static create(
-    props: CreateEventProps<
-      PasswordlessChallengeVerifiedPayload,
-      PasswordlessChallengeId
-    >,
+    props: Omit<
+      CreateEventProps<
+        PasswordlessChallengeVerifiedPayload,
+        PasswordlessChallengeId
+      >,
+      'id' | 'eventName'
+    > & { id?: string },
   ): PasswordlessChallengeVerifiedEvent {
-    return new PasswordlessChallengeVerifiedEvent(props);
+    return new PasswordlessChallengeVerifiedEvent({
+      ...props,
+      id: props.id ?? crypto.randomUUID(),
+      eventName: 'auth.passwordless.challenge_verified',
+    });
   }
 }

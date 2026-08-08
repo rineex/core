@@ -98,7 +98,7 @@ class User extends Entity<DomainID, UserProps> {
     return {};
   }
 
-  public validate(): void {}
+  protected validateProps(_props: UserProps): void {}
 }
 
 declare const user: User;

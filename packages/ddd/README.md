@@ -249,10 +249,17 @@ export class OAuthAuthorization extends Entity<
   OAuthAuthorizationId,
   OAuthAuthorizationProps
 > {
-  constructor(
+  private constructor(
     props: EntityProps<OAuthAuthorizationId, OAuthAuthorizationProps>,
   ) {
     super({ ...props });
+    this.validate();
+  }
+
+  static create(
+    props: EntityProps<OAuthAuthorizationId, OAuthAuthorizationProps>,
+  ): OAuthAuthorization {
+    return new OAuthAuthorization(props);
   }
 
   toObject(): Record<string, unknown> {
@@ -264,15 +271,15 @@ export class OAuthAuthorization extends Entity<
     };
   }
 
-  validate(): void {
-    if (!this.props.redirectUri.startsWith('https://')) {
+  protected validateProps(props: OAuthAuthorizationProps): void {
+    if (!props.redirectUri.startsWith('https://')) {
       throw new Error('Redirect URI must use HTTPS');
     }
   }
 }
 
 // Usage
-const auth = new OAuthAuthorization({
+const auth = OAuthAuthorization.create({
   id: OAuthAuthorizationId.generate(),
   props: {
     provider: 'google',
@@ -308,10 +315,9 @@ class OrderCreatedEvent extends DomainEvent<
   AggregateId,
   { customerId: string }
 > {
-  readonly eventName = 'OrderCreated';
-
   static create(props: {
-    id?: string;
+    id: string;
+    eventName: string;
     aggregateId: AggregateId;
     schemaVersion: number;
     occurredAt: number;
@@ -322,10 +328,9 @@ class OrderCreatedEvent extends DomainEvent<
 }
 
 class OrderCompletedEvent extends DomainEvent<AggregateId, { total: number }> {
-  readonly eventName = 'OrderCompleted';
-
   static create(props: {
-    id?: string;
+    id: string;
+    eventName: string;
     aggregateId: AggregateId;
     schemaVersion: number;
     occurredAt: number;
@@ -342,11 +347,14 @@ class Order extends AggregateRoot<AggregateId, OrderProps> {
     props: OrderProps;
   }) {
     super(params);
+    this.validate();
   }
 
   create(): void {
-    this.addEvent(
+    this.recordEvent(
       OrderCreatedEvent.create({
+        id: crypto.randomUUID(),
+        eventName: 'OrderCreated',
         aggregateId: this.id,
         schemaVersion: 1,
         occurredAt: Date.now(),
@@ -356,8 +364,10 @@ class Order extends AggregateRoot<AggregateId, OrderProps> {
   }
 
   complete(): void {
-    this.addEvent(
+    this.recordEvent(
       OrderCompletedEvent.create({
+        id: crypto.randomUUID(),
+        eventName: 'OrderCompleted',
         aggregateId: this.id,
         schemaVersion: 1,
         occurredAt: Date.now(),
@@ -366,11 +376,11 @@ class Order extends AggregateRoot<AggregateId, OrderProps> {
     );
   }
 
-  validate(): void {
-    if (!this.props.customerId?.trim()) {
+  protected validateProps(props: OrderProps): void {
+    if (!props.customerId?.trim()) {
       throw EntityValidationError.create('Customer ID is required', {});
     }
-    if (this.props.total < 0) {
+    if (props.total < 0) {
       throw EntityValidationError.create('Total must be non-negative', {});
     }
   }
@@ -401,8 +411,9 @@ const events = order.pullDomainEvents(); // returns and clears
 
 ## Domain Events
 
-Events are immutable. Payload must be `Serializable` (primitives, arrays, plain
-objects). `id` is auto-generated if omitted.
+Events are immutable. Payload must be JSON-safe (primitives, arrays, and plain
+objects). Event factories must provide an ID and stable event name to the base
+constructor; the base class never generates IDs through a runtime-specific API.
 
 ### Example (from `domain.event.spec.ts`)
 
@@ -415,10 +426,9 @@ interface TestPayload extends DomainEventPayload {
 }
 
 class TestDomainEvent extends DomainEvent<AggregateId, TestPayload> {
-  readonly eventName = 'TestEvent';
-
   static create(props: {
-    id?: string;
+    id: string;
+    eventName: string;
     aggregateId: AggregateId;
     schemaVersion: number;
     occurredAt: number;
@@ -430,6 +440,8 @@ class TestDomainEvent extends DomainEvent<AggregateId, TestPayload> {
 
 // Usage
 const event = TestDomainEvent.create({
+  id: crypto.randomUUID(),
+  eventName: 'TestEvent',
   aggregateId: AggregateId.generate(),
   schemaVersion: 1,
   occurredAt: Date.now(),
@@ -772,25 +784,25 @@ from the package directory. Add a changeset for publishable changes:
 
 ### Entity\<ID, Props\>
 
-| Member            | Description                    |
-| ----------------- | ------------------------------ |
-| `id`              | Identity                       |
-| `createdAt`       | Creation date                  |
-| `props`           | Read-only (protected)          |
-| `equals(other)`   | By `id`                        |
-| `mutate(updater)` | Safe state change + revalidate |
-| `validate()`      | Abstract                       |
-| `toObject()`      | Abstract                       |
+| Member                 | Description                                   |
+| ---------------------- | --------------------------------------------- |
+| `id`                   | Identity                                      |
+| `createdAt`            | Creation date                                 |
+| `props`                | Read-only (protected)                         |
+| `equals(other)`        | By `id`                                       |
+| `mutate(updater)`      | Safe state change + revalidate                |
+| `validateProps(props)` | Protected abstract candidate-state validation |
+| `toObject()`           | Abstract                                      |
 
 ### AggregateRoot\<ID, Props\>
 
 Extends `Entity`. Adds:
 
-| Member               | Description         |
-| -------------------- | ------------------- |
-| `addEvent(event)`    | Append domain event |
-| `domainEvents`       | Read-only copy      |
-| `pullDomainEvents()` | Return and clear    |
+| Member               | Description                                   |
+| -------------------- | --------------------------------------------- |
+| `recordEvent(event)` | Protected; append event after ownership check |
+| `domainEvents`       | Read-only copy                                |
+| `pullDomainEvents()` | Return and clear                              |
 
 ### DomainEvent\<AggregateId, Payload\>
 
@@ -801,7 +813,7 @@ Extends `Entity`. Adds:
 | `schemaVersion`  | Version             |
 | `occurredAt`     | Unix ms             |
 | `payload`        | Serializable data   |
-| `eventName`      | Abstract            |
+| `eventName`      | Stable event name   |
 | `toPrimitives()` | Plain object        |
 
 ### Result\<T, E extends UseCaseError\>

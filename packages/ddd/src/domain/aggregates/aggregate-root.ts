@@ -49,11 +49,15 @@ export abstract class AggregateRoot<
   private readonly _domainEvents: Event[] = [];
 
   /**
-   * Adds a domain event to the aggregate after validating invariants.
-   * @param domainEvent The domain event to add.
-   * @throws {EntityValidationError} If invariants are not met.
+   * Records a domain event owned by this aggregate.
+   * @param domainEvent The domain event to record.
+   * @throws {Error} If the event belongs to another aggregate.
    */
-  addEvent(domainEvent: Event): void {
+  protected recordEvent(domainEvent: Event): void {
+    if (!this.id.equals(domainEvent.aggregateId)) {
+      throw new Error('Domain event belongs to a different aggregate');
+    }
+
     this._domainEvents.push(domainEvent);
   }
 

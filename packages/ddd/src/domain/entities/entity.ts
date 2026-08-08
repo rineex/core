@@ -31,8 +31,12 @@ export interface EntityProps<ID extends EntityId, Props> {
  * @template ID - The specific Identity Value Object type.
  */
 export abstract class Entity<ID extends EntityId, Props> {
-  /** The timestamp when this entity was first instantiated/created */
-  public readonly createdAt: Date;
+  /** The timestamp when this entity was first instantiated/created. */
+  public get createdAt(): Date {
+    return new Date(this.#createdAtMillis);
+  }
+
+  #createdAtMillis: number;
   /** The immutable unique identifier for this entity */
   public readonly id: ID;
 
@@ -53,10 +57,13 @@ export abstract class Entity<ID extends EntityId, Props> {
    */
   protected constructor(params: EntityProps<ID, Props>) {
     this.id = params.id;
-    this.createdAt = params.createdAt ?? new Date();
-    this.#props = deepFreeze(params.props);
+    const createdAtMillis = (params.createdAt ?? new Date()).getTime();
+    if (!Number.isFinite(createdAtMillis)) {
+      throw new Error('Entity createdAt must be a valid date');
+    }
 
-    this.validate();
+    this.#createdAtMillis = createdAtMillis;
+    this.#props = deepFreeze(params.props);
   }
 
   private static normalize(value: unknown): unknown {
@@ -128,12 +135,17 @@ export abstract class Entity<ID extends EntityId, Props> {
    * This method should be called after construction and any mutation.
    * @throws {Error} Should throw a specific DomainError if validation fails.
    */
-  public abstract validate(): void;
+  public validate(): void {
+    this.validateProps(this.#props as Immutable<Props>);
+  }
+
+  protected abstract validateProps(props: Immutable<Props>): void;
 
   protected mutate(updater: (current: Props) => Props): void {
-    const next = updater(this.#props);
+    const next = deepFreeze(updater(this.#props));
 
-    this.#props = deepFreeze(next);
-    this.validate();
+    this.validateProps(next as Immutable<Props>);
+
+    this.#props = next;
   }
 }

@@ -12,8 +12,6 @@ interface OrderProps {
 }
 
 class OrderCreatedEvent extends DomainEvent<UUID, { customerId: string }> {
-  public readonly eventName = 'OrderCreated';
-
   public static create(props: {
     id?: string;
     aggregateId: UUID;
@@ -21,13 +19,15 @@ class OrderCreatedEvent extends DomainEvent<UUID, { customerId: string }> {
     occurredAt: number;
     payload: { customerId: string };
   }): OrderCreatedEvent {
-    return new OrderCreatedEvent(props);
+    return new OrderCreatedEvent({
+      ...props,
+      id: props.id ?? crypto.randomUUID(),
+      eventName: 'OrderCreated',
+    });
   }
 }
 
 class OrderCompletedEvent extends DomainEvent<UUID, { total: number }> {
-  public readonly eventName = 'OrderCompleted';
-
   public static create(props: {
     id?: string;
     aggregateId: UUID;
@@ -35,7 +35,11 @@ class OrderCompletedEvent extends DomainEvent<UUID, { total: number }> {
     occurredAt: number;
     payload: { total: number };
   }): OrderCompletedEvent {
-    return new OrderCompletedEvent(props);
+    return new OrderCompletedEvent({
+      ...props,
+      id: props.id ?? crypto.randomUUID(),
+      eventName: 'OrderCompleted',
+    });
   }
 }
 
@@ -43,10 +47,11 @@ class Order extends AggregateRoot<UUID, OrderProps> {
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(params: { id: UUID; createdAt?: Date; props: OrderProps }) {
     super(params);
+    this.validate();
   }
 
   public complete(): void {
-    this.addEvent(
+    this.recordEvent(
       OrderCompletedEvent.create({
         payload: { total: this.props.total },
         occurredAt: Date.now(),
@@ -56,8 +61,12 @@ class Order extends AggregateRoot<UUID, OrderProps> {
     );
   }
 
+  public record(event: DomainEvent): void {
+    this.recordEvent(event);
+  }
+
   public create(): void {
-    this.addEvent(
+    this.recordEvent(
       OrderCreatedEvent.create({
         payload: { customerId: this.props.customerId },
         occurredAt: Date.now(),
@@ -76,11 +85,11 @@ class Order extends AggregateRoot<UUID, OrderProps> {
     };
   }
 
-  public validate(): void {
-    if (!this.props.customerId || this.props.customerId.trim().length === 0) {
+  protected validateProps(props: OrderProps): void {
+    if (!props.customerId || props.customerId.trim().length === 0) {
       throw EntityValidationError.create('Customer ID is required', {});
     }
-    if (this.props.total < 0) {
+    if (props.total < 0) {
       throw EntityValidationError.create('Total must be non-negative', {});
     }
   }
@@ -113,6 +122,24 @@ describe('aggregateRoot', () => {
       expect(order.domainEvents).toHaveLength(2);
       expect(order.domainEvents[0]).toBeInstanceOf(OrderCreatedEvent);
       expect(order.domainEvents[1]).toBeInstanceOf(OrderCompletedEvent);
+    });
+
+    it('should reject an event belonging to another aggregate', () => {
+      const order = new Order({
+        props: { customerId: 'customer-1', total: 100 },
+        id: UUID.generate(),
+      });
+
+      expect(() =>
+        order.record(
+          OrderCreatedEvent.create({
+            payload: { customerId: 'customer-2' },
+            aggregateId: UUID.generate(),
+            occurredAt: Date.now(),
+            schemaVersion: 1,
+          }),
+        ),
+      ).toThrow('Domain event belongs to a different aggregate');
     });
 
     it('should return copy of events that does not affect original', () => {

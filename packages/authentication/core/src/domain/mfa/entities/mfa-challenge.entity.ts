@@ -58,6 +58,11 @@ export interface Props {
  * ```
  */
 export class MFAChallenge extends Entity<MfaChallengeId, Props> {
+  private constructor(params: EntityProps<MfaChallengeId, Props>) {
+    super(params);
+    this.validate();
+  }
+
   /**
    * Gets the challenge type.
    *
@@ -109,8 +114,8 @@ export class MFAChallenge extends Entity<MfaChallengeId, Props> {
    *
    * @throws {MfaChallengeExpiredError} If expiration time is before or equal to issue time
    */
-  validate(): void {
-    if (this.props.expiresAt <= this.props.issuedAt) {
+  protected validateProps(props: Props): void {
+    if (props.expiresAt <= props.issuedAt) {
       throw MfaChallengeExpiredError.create();
     }
   }

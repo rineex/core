@@ -13,6 +13,7 @@ type CreateAggregateTokenProps = EntityProps<IdentityId, TokenProps>;
 export class Token extends AggregateRoot<IdentityId, TokenProps> {
   protected constructor(props: CreateAggregateTokenProps) {
     super({ ...props });
+    this.validate();
   }
 
   public isActive(now = new Date()): boolean {
@@ -37,8 +38,8 @@ export class Token extends AggregateRoot<IdentityId, TokenProps> {
     };
   }
 
-  validate(): void {
-    if (this.props.expiresAt.getTime() <= Date.now()) {
+  protected validateProps(props: TokenProps): void {
+    if (props.expiresAt.getTime() <= Date.now()) {
       throw new Error('Token already expired');
     }
   }
