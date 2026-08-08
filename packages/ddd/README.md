@@ -36,6 +36,10 @@ Design patterns. Used by `@rineex/auth-core` and other Rineex packages.
 Errors (extensible namespaces), Result type, Application Service port, Clock
 port, HTTP status constants.
 
+For placement rules, aggregate design, event recording, mapper-based
+rehydration, and testing guidance, see [the DDD guide](./docs/DDD-GUIDE.md). For
+the breaking API migration, see [MIGRATION.md](./docs/MIGRATION.md).
+
 ---
 
 ## Installation
