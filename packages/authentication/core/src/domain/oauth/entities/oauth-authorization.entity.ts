@@ -20,6 +20,7 @@ export class OAuthAuthorization extends Entity<
     props: EntityProps<OAuthAuthorizationId, OAuthAuthorizationProps>,
   ) {
     super({ ...props });
+    this.validate();
   }
 
   toObject(): Record<string, unknown> {
@@ -32,21 +33,24 @@ export class OAuthAuthorization extends Entity<
     };
   }
 
-  validate(): void {
-    if (!this.props.redirectUri.startsWith('https://')) {
+  protected validateProps(props: OAuthAuthorizationProps): void {
+    if (!props.redirectUri.startsWith('https://')) {
       throw InvalidRedirectUriError.create({
-        redirectUri: this.props.redirectUri,
+        redirectUri: props.redirectUri,
       });
     }
   }
 
   protected restore(snapshot: Record<string, unknown>): void {
-    this.props.pkce = snapshot.pkce
-      ? Pkce.fromJSON(snapshot.pkce as Record<string, unknown>)
-      : undefined;
-    this.props.redirectUri = snapshot.redirectUri as string;
-    this.props.provider = snapshot.provider as OAuthProvider;
-    this.props.scope = snapshot.scope as string[];
+    this.mutate(current => ({
+      ...current,
+      pkce: snapshot.pkce
+        ? Pkce.fromJSON(snapshot.pkce as Record<string, unknown>)
+        : undefined,
+      redirectUri: snapshot.redirectUri as string,
+      provider: snapshot.provider as OAuthProvider,
+      scope: snapshot.scope as string[],
+    }));
   }
 
   protected snapshot(): Record<string, unknown> {

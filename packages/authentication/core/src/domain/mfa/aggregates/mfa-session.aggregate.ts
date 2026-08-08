@@ -23,6 +23,7 @@ export class MFASession extends AggregateRoot<MfaSessionId, MfaSessionProps> {
 
   constructor(props: EntityProps<MfaSessionId, MfaSessionProps>) {
     super({ ...props });
+    this.validate();
   }
 
   issueChallenge(challenge: MFAChallenge, now: Date): void {
@@ -60,15 +61,15 @@ export class MFASession extends AggregateRoot<MfaSessionId, MfaSessionProps> {
     };
   }
 
-  validate(): void {
-    if (this.props.attemptsUsed > this.props.maxAttempts) {
+  protected validateProps(props: MfaSessionProps): void {
+    if (props.attemptsUsed > props.maxAttempts) {
       throw MfaAttemptsExceededError.create(
-        this.props.attemptsUsed,
-        this.props.maxAttempts,
+        props.attemptsUsed,
+        props.maxAttempts,
       );
     }
 
-    if (this.props.verifiedAt && this.props.challenges.length > 0) {
+    if (props.verifiedAt && props.challenges.length > 0) {
       throw new Error('Verified MFA session cannot have active challenges');
     }
   }

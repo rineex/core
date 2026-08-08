@@ -10,10 +10,10 @@ export class IdentityCreatedEvent extends DomainEvent<
   IdentityId,
   IdentityCreatedPayload
 > {
-  public readonly eventName = 'auth.identity.created';
-
   public static create(identityId: IdentityId): IdentityCreatedEvent {
     return new IdentityCreatedEvent({
+      id: crypto.randomUUID(),
+      eventName: 'auth.identity.created',
       payload: { identityId: identityId.toString() },
       aggregateId: identityId,
       occurredAt: Date.now(),

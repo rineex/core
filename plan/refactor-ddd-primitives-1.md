@@ -4,13 +4,13 @@ version: 1.0
 date_created: 2026-08-08
 last_updated: 2026-08-08
 owner: Rineex Team
-status: Planned
+status: Completed
 tags: [refactor, ddd, architecture, breaking-change]
 ---
 
 # Introduction
 
-![Status: Planned](https://img.shields.io/badge/status-Planned-blue)
+![Status: Completed](https://img.shields.io/badge/status-Completed-brightgreen)
 
 Refactor `@rineex/ddd` to enforce safe invariant validation, atomic entity
 mutation, aggregate-owned event recording, explicit event metadata, and
@@ -140,7 +140,8 @@ contract.
 - **TEST-008**: Creation emits creation events only when intended; mapper
   rehydration emits none.
 - **TEST-009**: Package type tests, unit tests, lint, and build pass; affected
-  authentication tests pass.
+  authentication tests pass. Authentication typecheck still reports unrelated
+  pre-existing repository symbols and registry/test fixture errors.
 
 ## 7. Risks & Assumptions
 

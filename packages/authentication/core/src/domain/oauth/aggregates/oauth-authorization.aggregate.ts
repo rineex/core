@@ -35,6 +35,7 @@ export class OauthAuthorization extends AggregateRoot<
     props: EntityProps<OAuthAuthorizationId, OAuthAuthorizationProps>,
   ) {
     super(props);
+    this.validate();
   }
 
   grantConsent(now: Date): void {
@@ -89,8 +90,8 @@ export class OauthAuthorization extends AggregateRoot<
     };
   }
 
-  validate() {
-    if (this.props.expiresAt.getTime() <= Date.now()) {
+  protected validateProps(props: OAuthAuthorizationProps) {
+    if (props.expiresAt.getTime() <= Date.now()) {
       throw AuthorizationExpiredError.create();
     }
   }

@@ -22,6 +22,7 @@ class User extends Entity<UUID, UserProps> {
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(params: EntityProps<UUID, UserProps>) {
     super(params);
+    this.validate();
   }
 
   public toObject(): Record<string, unknown> {
@@ -37,11 +38,11 @@ class User extends Entity<UUID, UserProps> {
     this.mutate(props => ({ ...props, name }));
   }
 
-  public validate(): void {
-    if (!this.props.name || this.props.name.trim().length === 0) {
+  protected validateProps(props: UserProps): void {
+    if (!props.name || props.name.trim().length === 0) {
       throw EntityValidationError.create('Name is required', {});
     }
-    if (!this.props.email || !this.props.email.includes('@')) {
+    if (!props.email || !props.email.includes('@')) {
       throw EntityValidationError.create('Valid email is required', {});
     }
   }
@@ -248,6 +249,21 @@ describe('entity', () => {
       expect(() => {
         (user as any).mutate((props: UserProps) => ({ ...props, name: '' }));
       }).toThrow(EntityValidationError);
+
+      expect(user.name).toBe('John Doe');
+    });
+
+    it('should protect createdAt from mutation through a returned Date', () => {
+      const createdAt = new Date('2023-01-01');
+      const user = new User({
+        props: { email: 'john@example.com', name: 'John Doe' },
+        createdAt,
+        id: UUID.generate(),
+      });
+
+      user.createdAt.setTime(new Date('2030-01-01').getTime());
+
+      expect(user.createdAt).toEqual(createdAt);
     });
   });
 

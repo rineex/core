@@ -34,6 +34,7 @@ export class Identity extends Entity<IdentityId, IdentityProps> {
    */
   private constructor(params: EntityProps<IdentityId, IdentityProps>) {
     super(params);
+    this.validate();
   }
 
   /**
@@ -78,11 +79,11 @@ export class Identity extends Entity<IdentityId, IdentityProps> {
   /**
    * Domain invariant validation.
    */
-  public validate(): void {
+  protected validateProps(props: IdentityProps): void {
     if (this.id == null) {
       throw new Error('Identity must have a valid IdentityId');
     }
-    if (typeof this.props.isActive !== 'boolean') {
+    if (typeof props.isActive !== 'boolean') {
       throw new Error('Identity.isActive must be a boolean');
     }
   }

@@ -56,6 +56,7 @@ export class AuthenticationAttempt extends AggregateRoot<
 
   private constructor(props: CreateAuthAttemptProps) {
     super(props);
+    this.validate();
   }
 
   public static start(props: StartAuthenticationProps): AuthenticationAttempt {
@@ -71,7 +72,9 @@ export class AuthenticationAttempt extends AggregateRoot<
       id: props.id,
     });
 
-    attempt.addEvent(new AuthenticationStartedEvent(attempt.id, props.method));
+    attempt.recordEvent(
+      new AuthenticationStartedEvent(attempt.id, props.method),
+    );
 
     return attempt;
   }
@@ -95,7 +98,7 @@ export class AuthenticationAttempt extends AggregateRoot<
       status: AuthStatus.create('failed'),
     }));
 
-    this.addEvent(new AuthenticationFailedEvent(this.id, reason));
+    this.recordEvent(new AuthenticationFailedEvent(this.id, reason));
   }
 
   public registerAttempt(factor: AuthFactor): void {
@@ -142,7 +145,7 @@ export class AuthenticationAttempt extends AggregateRoot<
       status: AuthStatus.create('succeed'),
     }));
 
-    this.addEvent(new AuthenticationSucceededEvent(this.id));
+    this.recordEvent(new AuthenticationSucceededEvent(this.id));
   }
 
   toObject() {
@@ -154,8 +157,8 @@ export class AuthenticationAttempt extends AggregateRoot<
     };
   }
 
-  validate(): void {
-    if (this.props.maxAttempts <= 0) {
+  protected validateProps(props: AuthenticationAttemptProps): void {
+    if (props.maxAttempts <= 0) {
       throw new Error('maxAttempts must be > 0');
     }
   }

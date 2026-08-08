@@ -52,10 +52,12 @@ export class StartMfaSessionApplicationService implements ApplicationServicePort
 
       const session = new MFASession({
         id: this.idGenerator.generate(),
-        maxAttempts: args.maxAttempts,
-        identityId: args.identityId,
-        attemptsUsed: 0,
-        challenges: [],
+        props: {
+          maxAttempts: args.maxAttempts,
+          identityId: args.identityId,
+          attemptsUsed: 0,
+          challenges: [],
+        },
       });
 
       await this.repository.save(session);

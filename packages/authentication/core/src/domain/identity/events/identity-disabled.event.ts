@@ -7,10 +7,10 @@ export type Payload = {
 };
 
 export class IdentityDisabledEvent extends DomainEvent<IdentityId, Payload> {
-  public readonly eventName = 'auth.identity.disabled';
-
   public static create(identityId: IdentityId): IdentityDisabledEvent {
     return new IdentityDisabledEvent({
+      id: crypto.randomUUID(),
+      eventName: 'auth.identity.disabled',
       payload: { identityId: identityId.toString() },
       aggregateId: identityId,
       occurredAt: Date.now(),

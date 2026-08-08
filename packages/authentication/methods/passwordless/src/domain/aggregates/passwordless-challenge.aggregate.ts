@@ -74,6 +74,11 @@ export class PasswordlessChallengeAggregate extends AggregateRoot<
   PasswordlessChallengeId,
   PasswordlessChallengeProps
 > {
+  private constructor(params: CreatePasswordlessProps) {
+    super(params);
+    this.validate();
+  }
+
   /**
    * Creates and issues a new passwordless challenge.
    *
@@ -97,7 +102,7 @@ export class PasswordlessChallengeAggregate extends AggregateRoot<
       id,
     });
 
-    challenge.addEvent(
+    challenge.recordEvent(
       PasswordlessChallengeIssuedEvent.create({
         payload: {
           expiresAt: challenge.props.expiresAt.toISOString(),
@@ -107,6 +112,7 @@ export class PasswordlessChallengeAggregate extends AggregateRoot<
         occurredAt: props.issuedAt.getTime(),
         aggregateId: challenge.id,
         schemaVersion: 1,
+        id: crypto.randomUUID(),
       }),
     );
 
@@ -176,15 +182,15 @@ export class PasswordlessChallengeAggregate extends AggregateRoot<
    * @throws {PasswordlessChallengeSecretRequired} If secret is missing
    * @throws {PasswordlessChallengeInvalidExpiration} If expiration is invalid
    */
-  validate(): void {
-    if (!this.props.channel) {
+  protected validateProps(props: PasswordlessChallengeProps): void {
+    if (!props.channel) {
       throw PasswordlessChallengeChannelRequired.create();
     }
-    if (!this.props.secret) {
+    if (!props.secret) {
       throw PasswordlessChallengeSecretRequired.create();
     }
 
-    if (this.props.expiresAt <= this.props.issuedAt) {
+    if (props.expiresAt <= props.issuedAt) {
       throw PasswordlessChallengeInvalidExpiration.create();
     }
   }
@@ -226,7 +232,7 @@ export class PasswordlessChallengeAggregate extends AggregateRoot<
       status: PasswordlessChallengeStatus.verified(),
     }));
 
-    this.addEvent(
+    this.recordEvent(
       PasswordlessChallengeVerifiedEvent.create({
         payload: {
           destination: this.props.destination.value,
@@ -236,6 +242,7 @@ export class PasswordlessChallengeAggregate extends AggregateRoot<
         occurredAt: now.getTime(),
         aggregateId: this.id,
         schemaVersion: 1,
+        id: crypto.randomUUID(),
       }),
     );
   }

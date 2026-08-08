@@ -13,6 +13,7 @@ type IdentityProps = {
 export class Identity extends AggregateRoot<IdentityId, IdentityProps> {
   private constructor(params: EntityProps<IdentityId, IdentityProps>) {
     super(params);
+    this.validate();
   }
 
   public static create(): Identity {
@@ -21,7 +22,7 @@ export class Identity extends AggregateRoot<IdentityId, IdentityProps> {
       id: IdentityId.generate(),
     });
 
-    identity.addEvent(IdentityCreatedEvent.create(identity.id));
+    identity.recordEvent(IdentityCreatedEvent.create(identity.id));
 
     return identity;
   }
@@ -56,7 +57,7 @@ export class Identity extends AggregateRoot<IdentityId, IdentityProps> {
       status: IdentityStatus.Disabled(),
     }));
 
-    this.addEvent(IdentityDisabledEvent.create(this.id));
+    this.recordEvent(IdentityDisabledEvent.create(this.id));
   }
 
   toObject() {
@@ -66,8 +67,8 @@ export class Identity extends AggregateRoot<IdentityId, IdentityProps> {
     };
   }
 
-  validate(): void {
-    if (!this.props.status) {
+  protected validateProps(props: IdentityProps): void {
+    if (!props.status) {
       throw IdentityDisabledError.create('Identity status is required', {
         identityId: this.id.toString(),
       });

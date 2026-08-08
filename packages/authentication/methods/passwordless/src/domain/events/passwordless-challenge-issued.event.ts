@@ -43,8 +43,6 @@ export class PasswordlessChallengeIssuedEvent extends DomainEvent<
    * The unique name identifier for this domain event.
    * Used for event routing, logging, and event store indexing.
    */
-  public readonly eventName = 'auth.passwordless.challenge_created';
-
   /**
    * Creates a new PasswordlessChallengeIssuedEvent instance.
    *
@@ -57,11 +55,18 @@ export class PasswordlessChallengeIssuedEvent extends DomainEvent<
    * @returns {PasswordlessChallengeIssuedEvent} A new instance of PasswordlessChallengeIssuedEvent
    */
   public static create(
-    props: CreateEventProps<
-      PasswordlessChallengeIssuedPayload,
-      PasswordlessChallengeId
-    >,
+    props: Omit<
+      CreateEventProps<
+        PasswordlessChallengeIssuedPayload,
+        PasswordlessChallengeId
+      >,
+      'id' | 'eventName'
+    > & { id?: string },
   ): PasswordlessChallengeIssuedEvent {
-    return new PasswordlessChallengeIssuedEvent(props);
+    return new PasswordlessChallengeIssuedEvent({
+      ...props,
+      id: props.id ?? crypto.randomUUID(),
+      eventName: 'auth.passwordless.challenge_created',
+    });
   }
 }

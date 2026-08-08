@@ -10,8 +10,6 @@ interface TestPayload extends DomainEventPayload {
 }
 
 class TestDomainEvent extends DomainEvent<UUID, TestPayload> {
-  public readonly eventName = 'TestEvent';
-
   // Expose protected constructor for testing
   public static create(props: {
     id?: string;
@@ -20,7 +18,11 @@ class TestDomainEvent extends DomainEvent<UUID, TestPayload> {
     occurredAt: number;
     payload: TestPayload;
   }): TestDomainEvent {
-    return new TestDomainEvent(props);
+    return new TestDomainEvent({
+      ...props,
+      id: props.id ?? crypto.randomUUID(),
+      eventName: 'TestEvent',
+    });
   }
 }
 
@@ -95,6 +97,31 @@ describe('domainEvent', () => {
       expect(() => {
         (event.payload as any).userId = 'user-2';
       }).toThrow('Cannot assign to read only property');
+    });
+
+    it('should reject invalid event metadata', () => {
+      const aggregateId = UUID.generate();
+      const base = {
+        eventName: 'TestEvent',
+        id: 'event-1',
+        aggregateId,
+        occurredAt: Date.now(),
+        schemaVersion: 1,
+        payload: { userId: 'user-1', action: 'login' },
+      };
+
+      expect(() =>
+        TestDomainEvent.create({ ...base, schemaVersion: 0 }),
+      ).toThrow('Event schema version must be a positive integer');
+      expect(() => TestDomainEvent.create({ ...base, occurredAt: -1 })).toThrow(
+        'Event occurrence timestamp must be a valid Unix timestamp',
+      );
+      expect(() =>
+        TestDomainEvent.create({
+          ...base,
+          payload: { userId: 'user-1', action: NaN as unknown as string },
+        }),
+      ).toThrow('Event payload must contain finite numbers');
     });
   });
 

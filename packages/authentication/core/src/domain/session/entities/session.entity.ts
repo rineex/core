@@ -17,6 +17,7 @@ type CreateSessionProps = EntityProps<SessionId, SessionProps>;
 export class Session extends Entity<SessionId, SessionProps> {
   protected constructor(props: CreateSessionProps) {
     super(props);
+    this.validate();
   }
 
   public static create(props: CreateSessionProps): Session {
@@ -46,8 +47,8 @@ export class Session extends Entity<SessionId, SessionProps> {
     };
   }
 
-  validate(): void {
-    if (this.props.expiresAt <= new Date(0)) {
+  protected validateProps(props: SessionProps): void {
+    if (props.expiresAt <= new Date(0)) {
       throw new Error('Session expiration must be valid');
     }
   }
