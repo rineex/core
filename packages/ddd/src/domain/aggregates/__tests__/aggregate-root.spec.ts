@@ -44,7 +44,6 @@ class OrderCompletedEvent extends DomainEvent<UUID, { total: number }> {
 }
 
 class Order extends AggregateRoot<UUID, OrderProps> {
-  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(params: { id: UUID; createdAt?: Date; props: OrderProps }) {
     super(params);
     this.validate();
@@ -61,10 +60,6 @@ class Order extends AggregateRoot<UUID, OrderProps> {
     );
   }
 
-  public record(event: DomainEvent): void {
-    this.recordEvent(event);
-  }
-
   public create(): void {
     this.recordEvent(
       OrderCreatedEvent.create({
@@ -74,6 +69,10 @@ class Order extends AggregateRoot<UUID, OrderProps> {
         schemaVersion: 1,
       }),
     );
+  }
+
+  public record(event: DomainEvent): void {
+    this.recordEvent(event);
   }
 
   public toObject(): Record<string, unknown> {

@@ -19,7 +19,6 @@ class User extends Entity<UUID, UserProps> {
     return this.props.name;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(params: EntityProps<UUID, UserProps>) {
     super(params);
     this.validate();
@@ -257,8 +256,8 @@ describe('entity', () => {
       const createdAt = new Date('2023-01-01');
       const user = new User({
         props: { email: 'john@example.com', name: 'John Doe' },
-        createdAt,
         id: UUID.generate(),
+        createdAt,
       });
 
       user.createdAt.setTime(new Date('2030-01-01').getTime());

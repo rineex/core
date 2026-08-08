@@ -31,15 +31,13 @@ export interface EntityProps<ID extends EntityId, Props> {
  * @template ID - The specific Identity Value Object type.
  */
 export abstract class Entity<ID extends EntityId, Props> {
+  /** The immutable unique identifier for this entity */
+  public readonly id: ID;
+
   /** The timestamp when this entity was first instantiated/created. */
   public get createdAt(): Date {
     return new Date(this.#createdAtMillis);
   }
-
-  #createdAtMillis: number;
-  /** The immutable unique identifier for this entity */
-  public readonly id: ID;
-
   /**
    * Read-only view of entity state.
    * External code can never mutate internal state.
@@ -47,6 +45,8 @@ export abstract class Entity<ID extends EntityId, Props> {
   protected get props(): Immutable<Props> {
     return this.#props as Immutable<Props>;
   }
+
+  #createdAtMillis: number;
 
   // protected props: Props;
   #props: Props;
@@ -139,8 +139,6 @@ export abstract class Entity<ID extends EntityId, Props> {
     this.validateProps(this.#props as Immutable<Props>);
   }
 
-  protected abstract validateProps(props: Immutable<Props>): void;
-
   protected mutate(updater: (current: Props) => Props): void {
     const next = deepFreeze(updater(this.#props));
 
@@ -148,4 +146,6 @@ export abstract class Entity<ID extends EntityId, Props> {
 
     this.#props = next;
   }
+
+  protected abstract validateProps(props: Immutable<Props>): void;
 }

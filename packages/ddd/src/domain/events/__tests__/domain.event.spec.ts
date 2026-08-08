@@ -102,12 +102,12 @@ describe('domainEvent', () => {
     it('should reject invalid event metadata', () => {
       const aggregateId = UUID.generate();
       const base = {
+        payload: { userId: 'user-1', action: 'login' },
         eventName: 'TestEvent',
-        id: 'event-1',
-        aggregateId,
         occurredAt: Date.now(),
         schemaVersion: 1,
-        payload: { userId: 'user-1', action: 'login' },
+        id: 'event-1',
+        aggregateId,
       };
 
       expect(() =>
@@ -119,7 +119,7 @@ describe('domainEvent', () => {
       expect(() =>
         TestDomainEvent.create({
           ...base,
-          payload: { userId: 'user-1', action: NaN as unknown as string },
+          payload: { action: NaN as unknown as string, userId: 'user-1' },
         }),
       ).toThrow('Event payload must contain finite numbers');
     });
