@@ -48,6 +48,12 @@ export abstract class AggregateRoot<
    */
   private readonly _domainEvents: Event[] = [];
 
+  public pullDomainEvents(): readonly Event[] {
+    const events = [...this._domainEvents];
+    this._domainEvents.length = 0;
+    return events;
+  }
+
   /**
    * Records a domain event owned by this aggregate.
    * @param domainEvent The domain event to record.
@@ -59,11 +65,5 @@ export abstract class AggregateRoot<
     }
 
     this._domainEvents.push(domainEvent);
-  }
-
-  public pullDomainEvents(): readonly Event[] {
-    const events = [...this._domainEvents];
-    this._domainEvents.length = 0;
-    return events;
   }
 }

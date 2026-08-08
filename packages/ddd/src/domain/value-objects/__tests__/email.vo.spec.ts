@@ -59,6 +59,7 @@ describe('email ValueObject', () => {
       try {
         // eslint-disable-next-line no-new
         new Email(invalidEmail);
+
         expect.fail('Expected InvalidValueObjectError to be thrown');
       } catch (error) {
         expect(error).toBeInstanceOf(InvalidValueObjectError);
