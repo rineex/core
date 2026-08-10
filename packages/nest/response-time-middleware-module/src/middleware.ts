@@ -1,6 +1,6 @@
 import type { NestMiddleware } from '@nestjs/common';
 import type { NextFunction, Request, Response } from 'express';
-import type { ResponseTimeOptions } from 'response-time';
+import type { ResponseTimeOptions } from './options';
 
 import { Inject, Injectable } from '@nestjs/common';
 import responseTime from 'response-time';

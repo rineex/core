@@ -1,5 +1,5 @@
 import type { NestMiddleware } from '@nestjs/common';
-import type { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
+import type { CorsOptions } from 'cors';
 import type { NextFunction, Request, Response } from 'express';
 
 import { Inject, Injectable } from '@nestjs/common';

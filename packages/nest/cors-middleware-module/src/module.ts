@@ -1,5 +1,5 @@
 import type { MiddlewareConsumer, NestModule, Provider } from '@nestjs/common';
-import type { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
+import type { CorsOptions } from 'cors';
 
 import { ConfigurableModuleBuilder, HttpStatus, Module } from '@nestjs/common';
 
