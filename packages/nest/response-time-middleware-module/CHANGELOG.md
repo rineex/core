@@ -1,5 +1,16 @@
 # @rineex/response-time-mw-module
 
+## 1.3.0
+
+### Minor Changes
+
+- Export middleware option types from Nest middleware modules and align CORS
+  ([#79](https://github.com/rineex/core/pull/79)) typing with the `cors`
+  package.
+  - Re-export `CookieParseOptions` from `@rineex/cookie-parser-mw-module`
+  - Export local `ResponseTimeOptions` from `@rineex/response-time-mw-module`
+  - Use `CorsOptions` from `cors` in `@rineex/cors-mw-module`
+
 ## 1.2.4
 
 ### Patch Changes
