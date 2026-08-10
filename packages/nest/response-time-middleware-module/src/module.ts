@@ -1,5 +1,5 @@
 import type { MiddlewareConsumer, NestModule } from '@nestjs/common';
-import type { ResponseTimeOptions } from 'response-time';
+import type { ResponseTimeOptions } from './options';
 
 import { ConfigurableModuleBuilder, Module } from '@nestjs/common';
 
