@@ -10,6 +10,9 @@
     "rootDir": ".",
     "skipLibCheck": true,
     "strict": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "target": "es2022"
   },
   "include": ["src/**/*", "tsup.config.ts", "vitest.config.ts"],
