@@ -1,5 +1,12 @@
 # @rineex/pg-slonik
 
+## 0.5.0
+
+### Minor Changes
+
+- Add source command skills for code review, testing, linting, git, security,
+  and ([#82](https://github.com/rineex/core/pull/82)) developer workflows
+
 ## 0.4.0
 
 ### Minor Changes
