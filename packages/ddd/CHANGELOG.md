@@ -1,5 +1,12 @@
 # @rineex/ddd
 
+## 7.1.0
+
+### Minor Changes
+
+- Add `Result.void()` convenience factory for command use cases that succeed
+  ([#84](https://github.com/rineex/core/pull/84)) without a value
+
 ## 7.0.0
 
 ### Major Changes
