@@ -99,5 +99,6 @@ export const Result = {
     return freeze({ kind: 'err', error });
   },
 
+  void: () => ok(undefined),
   ok,
 } as const;
