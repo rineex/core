@@ -1,5 +1,11 @@
 # @rineex/ddd
 
+## 7.2.0
+
+### Minor Changes
+
+- ddd improvement ([#86](https://github.com/rineex/core/pull/86))
+
 ## 7.1.0
 
 ### Minor Changes
