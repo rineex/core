@@ -1,4 +1,4 @@
-import { MergeDeep } from 'type-fest';
+import { Simplify } from 'type-fest';
 
 import type { ValueObject } from '../base/vo';
 
@@ -53,9 +53,8 @@ export type DeepPrimitive<T> = T extends null
 /**
  * JSON-safe shape returned by {@link Entity.toJSON}.
  */
-export type EntityJson<ID extends EntityId, Props> = MergeDeep<
-  DeepPrimitive<Props>,
-  {
+export type EntityJson<ID extends EntityId, Props extends object> = Simplify<
+  Omit<DeepPrimitive<Props>, 'createdAt' | 'id'> & {
     createdAt: string;
     id: JsonIdValue<ID['value']>;
   }

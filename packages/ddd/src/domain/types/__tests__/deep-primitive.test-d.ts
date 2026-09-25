@@ -87,6 +87,34 @@ expectAssignable<{
   id: string;
 }>(undefined as unknown as UserJson);
 
+// Entity metadata takes precedence over same-named props, as it does at runtime.
+interface ConflictingProps {
+  id: number;
+  createdAt: number;
+  name: string;
+}
+type ConflictingJson = EntityJson<DomainID, ConflictingProps>;
+declare const conflictingJson: ConflictingJson;
+expectType<string>(conflictingJson.id);
+expectType<string>(conflictingJson.createdAt);
+expectType<string>(conflictingJson.name);
+
+// Props still undergo deep primitive conversion; only root entity metadata is overridden.
+interface NestedProps {
+  profile: {
+    id: number;
+    createdAt: Date;
+    history: {
+      happenedAt: Date;
+    }[];
+  };
+}
+type NestedJson = EntityJson<DomainID, NestedProps>;
+declare const nestedJson: NestedJson;
+expectType<number>(nestedJson.profile.id);
+expectType<string>(nestedJson.profile.createdAt);
+expectType<string>(nestedJson.profile.history[0].happenedAt);
+
 // --- Entity.toJSON() returns structural type, not Record ---
 class User extends Entity<DomainID, UserProps> {
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
