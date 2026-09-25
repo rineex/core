@@ -1,5 +1,12 @@
 # @rineex/ddd
 
+## 8.0.0
+
+### Major Changes
+
+- Remove the deprecated `UUID` value object. Use a concrete `DomainID` subclass
+  ([#88](https://github.com/rineex/core/pull/88)) instead.
+
 ## 7.2.0
 
 ### Minor Changes
