@@ -1,10 +1,10 @@
-import { UUID } from './id.vo';
+import { DomainID } from './domain-id.vo';
 
 /**
  * AggregateId represents a strongly-typed aggregate identifier.
  *
- * - Backed by UUID v4
+ * - Backed by UUID v7
  * - Immutable
  * - Comparable only to AggregateId
  */
-export class AggregateId extends UUID {}
+export class AggregateId extends DomainID {}

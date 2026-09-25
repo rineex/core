@@ -1,5 +1,5 @@
 import type { Tagged } from 'type-fest';
-import { v4 } from 'uuid';
+import { v7 as uuid } from 'uuid';
 import z from 'zod';
 
 import { InvalidValueObjectError } from '../errors/invalid-vo.error';
@@ -70,7 +70,7 @@ export abstract class DomainID extends PrimitiveValueObject<UuID> {
   public static generate<T extends new (value: string) => DomainID>(
     this: T,
   ): InstanceType<T> {
-    return new this(v4()) as InstanceType<T>;
+    return new this(uuid()) as InstanceType<T>;
   }
 
   protected validate(value: UuID): void {

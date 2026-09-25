@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { EntityValidationError } from '../../errors/entity-validation.error';
-import { UUID } from '../../value-objects/id.vo';
+import { DomainID } from '../../value-objects/domain-id.vo';
 import { Entity, EntityProps } from '../entity';
 
 // Test implementations
@@ -10,7 +10,9 @@ interface UserProps {
   email: string;
 }
 
-class User extends Entity<UUID, UserProps> {
+class TestDomainId extends DomainID {}
+
+class User extends Entity<TestDomainId, UserProps> {
   get email(): string {
     return this.props.email;
   }
@@ -19,7 +21,7 @@ class User extends Entity<UUID, UserProps> {
     return this.props.name;
   }
 
-  constructor(params: EntityProps<UUID, UserProps>) {
+  constructor(params: EntityProps<TestDomainId, UserProps>) {
     super(params);
     this.validate();
   }
@@ -50,7 +52,7 @@ class User extends Entity<UUID, UserProps> {
 describe('entity', () => {
   describe('constructor', () => {
     it('should create a valid entity', () => {
-      const id = UUID.generate();
+      const id = TestDomainId.generate();
       const user = new User({
         props: { email: 'john@example.com', name: 'John Doe' },
         id,
@@ -62,7 +64,7 @@ describe('entity', () => {
     });
 
     it('should set createdAt to current date if not provided', () => {
-      const id = UUID.generate();
+      const id = TestDomainId.generate();
       const before = new Date();
       const user = new User({
         props: { email: 'john@example.com', name: 'John Doe' },
@@ -75,7 +77,7 @@ describe('entity', () => {
     });
 
     it('should use provided createdAt', () => {
-      const id = UUID.generate();
+      const id = TestDomainId.generate();
       const createdAt = new Date('2023-01-01');
       const user = new User({
         props: { email: 'john@example.com', name: 'John Doe' },
@@ -87,7 +89,7 @@ describe('entity', () => {
     });
 
     it('should freeze props', () => {
-      const id = UUID.generate();
+      const id = TestDomainId.generate();
       const user = new User({
         props: { email: 'john@example.com', name: 'John Doe' },
         id,
@@ -99,7 +101,7 @@ describe('entity', () => {
     });
 
     it('should throw error if validation fails', () => {
-      const id = UUID.generate();
+      const id = TestDomainId.generate();
 
       expect(() => {
         // eslint-disable-next-line no-new
@@ -121,7 +123,7 @@ describe('entity', () => {
 
   describe('equals', () => {
     it('should return true for entities with same ID', () => {
-      const id = UUID.generate();
+      const id = TestDomainId.generate();
       const user1 = new User({
         props: { email: 'john@example.com', name: 'John Doe' },
         id,
@@ -137,11 +139,11 @@ describe('entity', () => {
     it('should return false for entities with different IDs', () => {
       const user1 = new User({
         props: { email: 'john@example.com', name: 'John Doe' },
-        id: UUID.generate(),
+        id: TestDomainId.generate(),
       });
       const user2 = new User({
         props: { email: 'john@example.com', name: 'John Doe' },
-        id: UUID.generate(),
+        id: TestDomainId.generate(),
       });
 
       expect(user1.equals(user2)).toBe(false);
@@ -150,7 +152,7 @@ describe('entity', () => {
     it('should return true for same instance', () => {
       const user = new User({
         props: { email: 'john@example.com', name: 'John Doe' },
-        id: UUID.generate(),
+        id: TestDomainId.generate(),
       });
 
       expect(user.equals(user)).toBe(true);
@@ -159,7 +161,7 @@ describe('entity', () => {
     it('should return false for null or undefined', () => {
       const user = new User({
         props: { email: 'john@example.com', name: 'John Doe' },
-        id: UUID.generate(),
+        id: TestDomainId.generate(),
       });
 
       expect(user.equals(null)).toBe(false);
@@ -169,7 +171,7 @@ describe('entity', () => {
 
   describe('toObject', () => {
     it('should return object representation', () => {
-      const id = UUID.generate();
+      const id = TestDomainId.generate();
       const createdAt = new Date('2023-01-01');
       const user = new User({
         props: { email: 'john@example.com', name: 'John Doe' },
@@ -190,7 +192,7 @@ describe('entity', () => {
 
   describe('toJSON', () => {
     it('should return flattened primitive representation', () => {
-      const id = UUID.generate();
+      const id = TestDomainId.generate();
       const createdAt = new Date('2023-01-01');
       const user = new User({
         props: { email: 'john@example.com', name: 'John Doe' },
@@ -211,7 +213,7 @@ describe('entity', () => {
 
   describe('mutate', () => {
     it('should update props and revalidate', () => {
-      const id = UUID.generate();
+      const id = TestDomainId.generate();
       const user = new User({
         props: { email: 'john@example.com', name: 'John Doe' },
         id,
@@ -224,7 +226,7 @@ describe('entity', () => {
     });
 
     it('should freeze updated props', () => {
-      const id = UUID.generate();
+      const id = TestDomainId.generate();
       const user = new User({
         props: { email: 'john@example.com', name: 'John Doe' },
         id,
@@ -238,7 +240,7 @@ describe('entity', () => {
     });
 
     it('should throw error if validation fails after mutation', () => {
-      const id = UUID.generate();
+      const id = TestDomainId.generate();
       const user = new User({
         props: { email: 'john@example.com', name: 'John Doe' },
         id,
@@ -256,7 +258,7 @@ describe('entity', () => {
       const createdAt = new Date('2023-01-01');
       const user = new User({
         props: { email: 'john@example.com', name: 'John Doe' },
-        id: UUID.generate(),
+        id: TestDomainId.generate(),
         createdAt,
       });
 
@@ -268,7 +270,7 @@ describe('entity', () => {
 
   describe('props getter', () => {
     it('should return readonly props', () => {
-      const id = UUID.generate();
+      const id = TestDomainId.generate();
       const user = new User({
         props: { email: 'john@example.com', name: 'John Doe' },
         id,
