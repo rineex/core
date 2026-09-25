@@ -1,11 +1,9 @@
+import { EmptyObject } from 'type-fest';
+
 import { deepFreeze } from '@/utils';
 
 import { DeepImmutable } from '../types/deep-immutable.type';
 import { EntityId, EntityJson } from '../types';
-
-// export type Immutable<T> = {
-//   readonly [K in keyof T]: Immutable<T[K]>;
-// };
 
 export type Immutable<T> = DeepImmutable<T>;
 
@@ -14,7 +12,7 @@ export type Immutable<T> = DeepImmutable<T>;
  * Forces a single-object argument pattern to avoid positional argument errors.
  * @template ID - A type satisfying the EntityId interface.
  */
-export interface EntityProps<ID extends EntityId, Props> {
+export interface EntityProps<ID extends EntityId, Props extends EmptyObject> {
   /** The unique identity of the entity */
   readonly id: ID;
   /** Optional creation timestamp; defaults to 'now' if not provided */
@@ -30,7 +28,7 @@ export interface EntityProps<ID extends EntityId, Props> {
  * and better IDE intellisense.
  * @template ID - The specific Identity Value Object type.
  */
-export abstract class Entity<ID extends EntityId, Props> {
+export abstract class Entity<ID extends EntityId, Props extends EmptyObject> {
   /** The immutable unique identifier for this entity */
   public readonly id: ID;
 
@@ -140,11 +138,16 @@ export abstract class Entity<ID extends EntityId, Props> {
   }
 
   protected mutate(updater: (current: Props) => Props): void {
-    const next = deepFreeze(updater(this.#props));
+    const previous = this.#props;
+    const next = deepFreeze(updater(previous));
 
-    this.validateProps(next as Immutable<Props>);
-
-    this.#props = next;
+    try {
+      this.validateProps(next as Immutable<Props>);
+      this.#props = next;
+    } catch (error) {
+      this.#props = previous;
+      throw error;
+    }
   }
 
   protected abstract validateProps(props: Immutable<Props>): void;
