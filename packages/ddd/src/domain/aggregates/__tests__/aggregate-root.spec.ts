@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import { EntityValidationError } from '../../errors/entity-validation.error';
+import { DomainID } from '../../value-objects/domain-id.vo';
 import { DomainEvent } from '../../events/domain.event';
 import { AggregateRoot } from '../aggregate-root';
-import { UUID } from '../../value-objects/id.vo';
 
 // Test implementations
 interface OrderProps {
@@ -11,10 +11,15 @@ interface OrderProps {
   total: number;
 }
 
-class OrderCreatedEvent extends DomainEvent<UUID, { customerId: string }> {
+class TestDomainId extends DomainID {}
+
+class OrderCreatedEvent extends DomainEvent<
+  TestDomainId,
+  { customerId: string }
+> {
   public static create(props: {
     id?: string;
-    aggregateId: UUID;
+    aggregateId: TestDomainId;
     schemaVersion: number;
     occurredAt: number;
     payload: { customerId: string };
@@ -27,10 +32,10 @@ class OrderCreatedEvent extends DomainEvent<UUID, { customerId: string }> {
   }
 }
 
-class OrderCompletedEvent extends DomainEvent<UUID, { total: number }> {
+class OrderCompletedEvent extends DomainEvent<TestDomainId, { total: number }> {
   public static create(props: {
     id?: string;
-    aggregateId: UUID;
+    aggregateId: TestDomainId;
     schemaVersion: number;
     occurredAt: number;
     payload: { total: number };
@@ -43,8 +48,12 @@ class OrderCompletedEvent extends DomainEvent<UUID, { total: number }> {
   }
 }
 
-class Order extends AggregateRoot<UUID, OrderProps> {
-  constructor(params: { id: UUID; createdAt?: Date; props: OrderProps }) {
+class Order extends AggregateRoot<TestDomainId, OrderProps> {
+  constructor(params: {
+    id: TestDomainId;
+    createdAt?: Date;
+    props: OrderProps;
+  }) {
     super(params);
     this.validate();
   }
@@ -99,7 +108,7 @@ describe('aggregateRoot', () => {
     it('should add domain event', () => {
       const order = new Order({
         props: { customerId: 'customer-1', total: 100 },
-        id: UUID.generate(),
+        id: TestDomainId.generate(),
       });
 
       order.create();
@@ -112,7 +121,7 @@ describe('aggregateRoot', () => {
     it('should add multiple domain events', () => {
       const order = new Order({
         props: { customerId: 'customer-1', total: 100 },
-        id: UUID.generate(),
+        id: TestDomainId.generate(),
       });
 
       order.create();
@@ -126,14 +135,14 @@ describe('aggregateRoot', () => {
     it('should reject an event belonging to another aggregate', () => {
       const order = new Order({
         props: { customerId: 'customer-1', total: 100 },
-        id: UUID.generate(),
+        id: TestDomainId.generate(),
       });
 
       expect(() =>
         order.record(
           OrderCreatedEvent.create({
             payload: { customerId: 'customer-2' },
-            aggregateId: UUID.generate(),
+            aggregateId: TestDomainId.generate(),
             occurredAt: Date.now(),
             schemaVersion: 1,
           }),
@@ -144,7 +153,7 @@ describe('aggregateRoot', () => {
     it('should return copy of events that does not affect original', () => {
       const order = new Order({
         props: { customerId: 'customer-1', total: 100 },
-        id: UUID.generate(),
+        id: TestDomainId.generate(),
       });
 
       order.create();
@@ -156,7 +165,7 @@ describe('aggregateRoot', () => {
       modifiedEvents.push(
         OrderCreatedEvent.create({
           payload: { customerId: 'customer-2' },
-          aggregateId: UUID.generate(),
+          aggregateId: TestDomainId.generate(),
           occurredAt: Date.now(),
           schemaVersion: 1,
         }),
@@ -172,7 +181,7 @@ describe('aggregateRoot', () => {
     it('should return and clear domain events', () => {
       const order = new Order({
         props: { customerId: 'customer-1', total: 100 },
-        id: UUID.generate(),
+        id: TestDomainId.generate(),
       });
 
       order.create();
@@ -189,7 +198,7 @@ describe('aggregateRoot', () => {
     it('should return empty array when no events', () => {
       const order = new Order({
         props: { customerId: 'customer-1', total: 100 },
-        id: UUID.generate(),
+        id: TestDomainId.generate(),
       });
 
       const events = order.pullDomainEvents();
@@ -200,7 +209,7 @@ describe('aggregateRoot', () => {
     it('should clear events after pulling', () => {
       const order = new Order({
         props: { customerId: 'customer-1', total: 100 },
-        id: UUID.generate(),
+        id: TestDomainId.generate(),
       });
 
       order.create();
@@ -218,7 +227,7 @@ describe('aggregateRoot', () => {
     it('should return copy of events', () => {
       const order = new Order({
         props: { customerId: 'customer-1', total: 100 },
-        id: UUID.generate(),
+        id: TestDomainId.generate(),
       });
 
       order.create();
@@ -232,7 +241,7 @@ describe('aggregateRoot', () => {
 
   describe('inheritance from Entity', () => {
     it('should inherit entity properties', () => {
-      const id = UUID.generate();
+      const id = TestDomainId.generate();
       const order = new Order({
         props: { customerId: 'customer-1', total: 100 },
         id,
@@ -243,7 +252,7 @@ describe('aggregateRoot', () => {
     });
 
     it('should inherit entity methods', () => {
-      const id = UUID.generate();
+      const id = TestDomainId.generate();
       const order1 = new Order({
         props: { customerId: 'customer-1', total: 100 },
         id,

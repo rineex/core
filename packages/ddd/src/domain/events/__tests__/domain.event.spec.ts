@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { DomainEvent, DomainEventPayload } from '../domain.event';
-import { UUID } from '../../value-objects/id.vo';
+import { DomainID } from '../../value-objects/domain-id.vo';
 
 // Test implementations
 interface TestPayload extends DomainEventPayload {
@@ -9,11 +9,13 @@ interface TestPayload extends DomainEventPayload {
   action: string;
 }
 
-class TestDomainEvent extends DomainEvent<UUID, TestPayload> {
+class TestDomainId extends DomainID {}
+
+class TestDomainEvent extends DomainEvent<TestDomainId, TestPayload> {
   // Expose protected constructor for testing
   public static create(props: {
     id?: string;
-    aggregateId: UUID;
+    aggregateId: TestDomainId;
     schemaVersion: number;
     occurredAt: number;
     payload: TestPayload;
@@ -29,7 +31,7 @@ class TestDomainEvent extends DomainEvent<UUID, TestPayload> {
 describe('domainEvent', () => {
   describe('constructor', () => {
     it('should create a domain event with all properties', () => {
-      const aggregateId = UUID.generate();
+      const aggregateId = TestDomainId.generate();
       const occurredAt = Date.now();
       const payload: TestPayload = { userId: 'user-1', action: 'login' };
 
@@ -49,7 +51,7 @@ describe('domainEvent', () => {
     });
 
     it('should generate UUID if id not provided', () => {
-      const aggregateId = UUID.generate();
+      const aggregateId = TestDomainId.generate();
       const event1 = TestDomainEvent.create({
         payload: { userId: 'user-1', action: 'login' },
         occurredAt: Date.now(),
@@ -69,7 +71,7 @@ describe('domainEvent', () => {
     });
 
     it('should use provided id', () => {
-      const aggregateId = UUID.generate();
+      const aggregateId = TestDomainId.generate();
       const customId = 'custom-event-id';
 
       const event = TestDomainEvent.create({
@@ -84,7 +86,7 @@ describe('domainEvent', () => {
     });
 
     it('should freeze payload', () => {
-      const aggregateId = UUID.generate();
+      const aggregateId = TestDomainId.generate();
       const payload: TestPayload = { userId: 'user-1', action: 'login' };
 
       const event = TestDomainEvent.create({
@@ -100,7 +102,7 @@ describe('domainEvent', () => {
     });
 
     it('should reject invalid event metadata', () => {
-      const aggregateId = UUID.generate();
+      const aggregateId = TestDomainId.generate();
       const base = {
         payload: { userId: 'user-1', action: 'login' },
         eventName: 'TestEvent',
@@ -127,7 +129,7 @@ describe('domainEvent', () => {
 
   describe('toPrimitives', () => {
     it('should convert event to primitives', () => {
-      const aggregateId = UUID.generate();
+      const aggregateId = TestDomainId.generate();
       const occurredAt = Date.now();
       const payload: TestPayload = { userId: 'user-1', action: 'login' };
 
@@ -151,7 +153,7 @@ describe('domainEvent', () => {
     });
 
     it('should return primitives with correct structure', () => {
-      const aggregateId = UUID.generate();
+      const aggregateId = TestDomainId.generate();
       const event = TestDomainEvent.create({
         payload: { userId: 'user-1', action: 'login' },
         occurredAt: Date.now(),
@@ -172,7 +174,7 @@ describe('domainEvent', () => {
 
   describe('eventName', () => {
     it('should have correct event name', () => {
-      const aggregateId = UUID.generate();
+      const aggregateId = TestDomainId.generate();
       const event = TestDomainEvent.create({
         payload: { userId: 'user-1', action: 'login' },
         occurredAt: Date.now(),
@@ -186,7 +188,7 @@ describe('domainEvent', () => {
 
   describe('payload', () => {
     it('should store payload correctly', () => {
-      const aggregateId = UUID.generate();
+      const aggregateId = TestDomainId.generate();
       const payload: TestPayload = { userId: 'user-1', action: 'login' };
 
       const event = TestDomainEvent.create({
