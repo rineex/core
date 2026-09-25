@@ -1,5 +1,5 @@
-import { Primitive } from 'type-fest';
-
+import { EntityIdPrimitive } from '../types/value-object-like.type';
+import { ImmutableBrand } from '../types/immutable-brand.type';
 import { EntityId } from '../types';
 
 /**
@@ -20,9 +20,10 @@ import { EntityId } from '../types';
  * - Username
  * - Slug
  */
-export abstract class PrimitiveValueObject<
-  T extends Primitive,
-> implements EntityId {
+export abstract class PrimitiveValueObject<T extends EntityIdPrimitive>
+  implements EntityId, ImmutableBrand
+{
+  readonly __immutable = true as const;
   /**
    * The underlying primitive value.
    * Guaranteed to be valid after construction.
@@ -53,7 +54,7 @@ export abstract class PrimitiveValueObject<
    *
    * @param other - Another Value Object
    */
-  public equals(other: any): boolean {
+  public equals(other: unknown): boolean {
     if (other == null) return false;
 
     if (Object.getPrototypeOf(this) !== Object.getPrototypeOf(other)) {
@@ -65,12 +66,7 @@ export abstract class PrimitiveValueObject<
     return this.#value === other.#value;
   }
 
-  /**
-   * Returns the primitive value.
-   * Prefer explicit access over implicit coercion.
-   * @deprecated - instead use instance.value
-   */
-  public getValue(): T {
+  public toJSON(): T {
     return this.#value;
   }
 

@@ -2,7 +2,11 @@ import deepEqual from 'fast-deep-equal/es6';
 
 import { deepFreeze } from '@/utils/deep-freeze.util';
 
-export abstract class ValueObject<T> {
+import { ImmutableBrand } from '../types/immutable-brand.type';
+
+export abstract class ValueObject<T> implements ImmutableBrand {
+  readonly __immutable = true as const;
+
   get value(): T {
     return this.props;
   }
@@ -28,7 +32,7 @@ export abstract class ValueObject<T> {
   /**
    * Deep equality comparison of ValueObjects
    */
-  public equals(other?: ValueObject<T>): boolean {
+  public equals(other?: unknown): boolean {
     if (other == null) return false;
 
     // Check if they share the same constructor (Type check)
@@ -36,7 +40,7 @@ export abstract class ValueObject<T> {
       return false;
     }
 
-    return deepEqual(this.props, other.props);
+    return deepEqual(this.props, (other as ValueObject<T>).props);
   }
 
   /**
