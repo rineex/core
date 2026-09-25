@@ -52,14 +52,13 @@ expectAssignable<{
   readonly nested: { readonly name: string };
 }>(imm<{ id: number; nested: { name: string } }>());
 
-// --- Class instances are preserved (not recursively made readonly) ---
+// --- Property-only class instances are recursively readonly ---
 class Entity {
   constructor(public id: string) {}
 }
-expectType<Entity>(imm<Entity>());
-expectAssignable<Entity>(imm<Entity>());
+expectType<{ readonly id: string }>(imm<Entity>());
 
-// --- After immutability, value is still typed as instance of the class ---
+// --- Methods are preserved while instance properties become readonly ---
 class AggregateRoot {
   constructor(
     public readonly id: string,
@@ -67,11 +66,11 @@ class AggregateRoot {
   ) {}
   doSomething(): void {}
 }
-// DeepImmutable<AggregateRoot> must still be AggregateRoot (instance of it)
-expectType<AggregateRoot>(imm<AggregateRoot>());
-// Type-level "instanceof": immutable value is assignable where class is required
-function acceptInstanceOfAggregateRoot(_instance: AggregateRoot): void {}
-acceptInstanceOfAggregateRoot(imm<AggregateRoot>());
+expectType<{
+  readonly id: string;
+  readonly version: number;
+  readonly doSomething: () => void;
+}>(imm<AggregateRoot>());
 
 // --- Nested structures ---
 type Nested = {
@@ -88,5 +87,5 @@ expectAssignable<{
 // --- Edge: empty object ---
 expectType<{}>(imm<{}>());
 
-// --- Edge: tuple is treated as array → readonly (number | string)[] ---
-expectType<readonly (number | string)[]>(imm<[number, string]>());
+// --- Edge: tuples retain their readonly shape ---
+expectType<readonly [number, string]>(imm<[number, string]>());
