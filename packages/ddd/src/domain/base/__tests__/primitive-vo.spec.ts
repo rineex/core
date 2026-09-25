@@ -116,19 +116,19 @@ describe('primitiveValueObject', () => {
     it('should return the primitive value', () => {
       const vo = new StringVO('test');
 
-      expect(vo.getValue()).toBe('test');
+      expect(vo.value).toBe('test');
     });
 
     it('should return number value', () => {
       const vo = new NumberVO(42);
 
-      expect(vo.getValue()).toBe(42);
+      expect(vo.value).toBe(42);
     });
 
     it('should return boolean value', () => {
       const vo = new BooleanVO(true);
 
-      expect(vo.getValue()).toBe(true);
+      expect(vo.value).toBe(true);
     });
   });
 
