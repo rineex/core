@@ -150,6 +150,10 @@ class SimpleValueObject extends ValueObject<string> {
 For single primitives (string, number, boolean), extend
 `PrimitiveValueObject<T>`. Equality is by reference (`===`).
 
+Use `PrimitiveValueObject` for any validated primitive domain concept. Only
+string, number, and bigint wrappers are valid entity IDs; a boolean wrapper is
+not an identity type.
+
 ### Example (from `primitive-vo.spec.ts`)
 
 ```typescript
@@ -783,6 +787,9 @@ from the package directory. Add a changeset for publishable changes:
 | `validate(value)` | Abstract              |
 
 ### Entity\<ID, Props\>
+
+`Props` must be an object describing the entity's state. Do not use a scalar,
+array, or DTO as entity props.
 
 | Member                 | Description                                   |
 | ---------------------- | --------------------------------------------- |

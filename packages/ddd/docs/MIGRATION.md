@@ -38,3 +38,11 @@ static rehydrate(params: EntityProps<Id, Props>): Account {
 
 Creation factories may record creation events after construction. Rehydration
 factories must not.
+
+## Entity property types
+
+`Entity` and `AggregateRoot` property generics must be object shapes. If a
+property type was previously rejected because it did not satisfy `EmptyObject`,
+no migration is needed: ordinary interfaces and object types are supported.
+Primitive value objects still support booleans, but boolean value objects must
+not be used as entity IDs.
