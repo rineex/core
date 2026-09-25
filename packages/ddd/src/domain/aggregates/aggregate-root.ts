@@ -33,7 +33,7 @@ import { EntityId } from '../types';
  */
 export abstract class AggregateRoot<
   ID extends EntityId,
-  P,
+  P extends object,
   Event extends DomainEvent = DomainEvent,
 > extends Entity<ID, P> {
   /**

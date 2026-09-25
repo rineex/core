@@ -1,6 +1,8 @@
-import { EntityIdPrimitive } from '../types/value-object-like.type';
+import {
+  EntityIdPrimitive,
+  ValueObjectLike,
+} from '../types/value-object-like.type';
 import { ImmutableBrand } from '../types/immutable-brand.type';
-import { EntityId } from '../types';
 
 /**
  * Base class for primitive-based Value Objects.
@@ -21,7 +23,7 @@ import { EntityId } from '../types';
  * - Slug
  */
 export abstract class PrimitiveValueObject<T extends EntityIdPrimitive>
-  implements EntityId, ImmutableBrand
+  implements ValueObjectLike<T>, ImmutableBrand
 {
   readonly __immutable = true as const;
   /**

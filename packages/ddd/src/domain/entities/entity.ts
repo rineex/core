@@ -1,5 +1,3 @@
-import { EmptyObject } from 'type-fest';
-
 import { deepFreeze } from '@/utils';
 
 import { DeepImmutable } from '../types/deep-immutable.type';
@@ -12,7 +10,7 @@ export type Immutable<T> = DeepImmutable<T>;
  * Forces a single-object argument pattern to avoid positional argument errors.
  * @template ID - A type satisfying the EntityId interface.
  */
-export interface EntityProps<ID extends EntityId, Props extends EmptyObject> {
+export interface EntityProps<ID extends EntityId, Props extends object> {
   /** The unique identity of the entity */
   readonly id: ID;
   /** Optional creation timestamp; defaults to 'now' if not provided */
@@ -28,7 +26,7 @@ export interface EntityProps<ID extends EntityId, Props extends EmptyObject> {
  * and better IDE intellisense.
  * @template ID - The specific Identity Value Object type.
  */
-export abstract class Entity<ID extends EntityId, Props extends EmptyObject> {
+export abstract class Entity<ID extends EntityId, Props extends object> {
   /** The immutable unique identifier for this entity */
   public readonly id: ID;
 

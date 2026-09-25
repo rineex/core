@@ -4,7 +4,7 @@ import type { ImmutableBrand } from './immutable-brand.type';
  * The primitive kinds an entity id may wrap.
  * Excludes `symbol` (not serializable) and `null | undefined` (ids must exist).
  */
-export type EntityIdPrimitive = bigint | number | string;
+export type EntityIdPrimitive = bigint | boolean | number | string;
 
 /**
  * Shared runtime contract for every Value Object in the domain.
