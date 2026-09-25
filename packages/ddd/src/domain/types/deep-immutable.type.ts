@@ -1,32 +1,37 @@
+import { ImmutableBrand } from './immutable-brand.type';
+
+type IsTuple<T extends readonly unknown[]> = number extends T['length']
+  ? false
+  : true;
+
 /**
- * DeepImmutable<T> recursively marks T as immutable.
- * - Preserves class instances
- * - Converts Array, Map, Set to readonly
- * - Preserves functions and Date
- * - Preserves Promise types
+ * DeepImmutable<T>
+ *
+ * - Functions are preserved as-is.
+ * - `Date` is preserved (note: `Date` is mutable; prefer a `Timestamp` VO).
+ * - Types implementing `ImmutableBrand` (i.e. Value Objects) are preserved.
+ * - `Promise<U>` becomes `Promise<DeepImmutable<U>>`.
+ * - `Map`/`Set` become `ReadonlyMap`/`ReadonlySet` with deep-immutable args.
+ * - Arrays become `readonly` arrays; tuples keep their shape.
+ * - Everything else that is an object gets all properties `readonly`,
+ *   recursively.
  */
-export type DeepImmutable<T> =
-  // Functions are preserved
-  T extends (...args: any[]) => any
+export type DeepImmutable<T> = T extends (...args: never[]) => unknown
+  ? T
+  : T extends Date
     ? T
-    : // Date is preserved
-      T extends Date
+    : T extends ImmutableBrand
       ? T
-      : // Promise: deep readonly of the resolved type
-        T extends Promise<infer U>
+      : T extends Promise<infer U>
         ? Promise<DeepImmutable<U>>
-        : // Map: converted to ReadonlyMap with deep immutable keys & values
-          T extends Map<infer K, infer V>
+        : T extends Map<infer K, infer V>
           ? ReadonlyMap<DeepImmutable<K>, DeepImmutable<V>>
-          : // Set: converted to ReadonlySet with deep immutable elements
-            T extends Set<infer U>
+          : T extends Set<infer U>
             ? ReadonlySet<DeepImmutable<U>>
-            : // Array: converted to readonly array with deep immutable elements
-              T extends (infer U)[]
-              ? readonly DeepImmutable<U>[]
-              : // Plain objects (not class instances) are recursively made readonly
-                T extends object
-                ? T extends { constructor: Function }
-                  ? T // Preserve class instances
-                  : { readonly [K in keyof T]: DeepImmutable<T[K]> }
-                : T; // primitives remain as-is
+            : T extends readonly unknown[]
+              ? IsTuple<T> extends true
+                ? { readonly [K in keyof T]: DeepImmutable<T[K]> }
+                : readonly DeepImmutable<T[number]>[]
+              : T extends object
+                ? { readonly [K in keyof T]: DeepImmutable<T[K]> }
+                : T;
