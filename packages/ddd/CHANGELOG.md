@@ -1,5 +1,12 @@
 # @rineex/ddd
 
+## 8.0.1
+
+### Patch Changes
+
+- Preserve entity class types when they appear inside deeply immutable props.
+  ([#90](https://github.com/rineex/core/pull/90))
+
 ## 8.0.0
 
 ### Major Changes
