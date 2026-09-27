@@ -1,7 +1,8 @@
 import { deepFreeze } from '@/utils';
 
-import { type EntityBrand, EntityId, EntityJson } from '../types';
 import { DeepImmutable } from '../types/deep-immutable.type';
+import { EntityId, EntityJson } from '../types';
+import type { EntityBrand } from '../types';
 
 export type Immutable<T> = DeepImmutable<T>;
 
