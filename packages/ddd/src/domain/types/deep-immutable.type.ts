@@ -1,4 +1,5 @@
 import { ImmutableBrand } from './immutable-brand.type';
+import type { EntityBrand } from './entity-brand.type';
 
 type IsTuple<T extends readonly unknown[]> = number extends T['length']
   ? false
@@ -10,6 +11,7 @@ type IsTuple<T extends readonly unknown[]> = number extends T['length']
  * - Functions are preserved as-is.
  * - `Date` is preserved (note: `Date` is mutable; prefer a `Timestamp` VO).
  * - Types implementing `ImmutableBrand` (i.e. Value Objects) are preserved.
+ * - Entity instances are preserved as class instances.
  * - `Promise<U>` becomes `Promise<DeepImmutable<U>>`.
  * - `Map`/`Set` become `ReadonlyMap`/`ReadonlySet` with deep-immutable args.
  * - Arrays become `readonly` arrays; tuples keep their shape.
@@ -22,16 +24,18 @@ export type DeepImmutable<T> = T extends (...args: never[]) => unknown
     ? T
     : T extends ImmutableBrand
       ? T
-      : T extends Promise<infer U>
-        ? Promise<DeepImmutable<U>>
-        : T extends Map<infer K, infer V>
-          ? ReadonlyMap<DeepImmutable<K>, DeepImmutable<V>>
-          : T extends Set<infer U>
-            ? ReadonlySet<DeepImmutable<U>>
-            : T extends readonly unknown[]
-              ? IsTuple<T> extends true
-                ? { readonly [K in keyof T]: DeepImmutable<T[K]> }
-                : readonly DeepImmutable<T[number]>[]
-              : T extends object
-                ? { readonly [K in keyof T]: DeepImmutable<T[K]> }
-                : T;
+      : T extends EntityBrand
+        ? T
+        : T extends Promise<infer U>
+          ? Promise<DeepImmutable<U>>
+          : T extends Map<infer K, infer V>
+            ? ReadonlyMap<DeepImmutable<K>, DeepImmutable<V>>
+            : T extends Set<infer U>
+              ? ReadonlySet<DeepImmutable<U>>
+              : T extends readonly unknown[]
+                ? IsTuple<T> extends true
+                  ? { readonly [K in keyof T]: DeepImmutable<T[K]> }
+                  : readonly DeepImmutable<T[number]>[]
+                : T extends object
+                  ? { readonly [K in keyof T]: DeepImmutable<T[K]> }
+                  : T;

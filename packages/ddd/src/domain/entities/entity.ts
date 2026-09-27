@@ -1,7 +1,7 @@
 import { deepFreeze } from '@/utils';
 
+import { type EntityBrand, EntityId, EntityJson } from '../types';
 import { DeepImmutable } from '../types/deep-immutable.type';
-import { EntityId, EntityJson } from '../types';
 
 export type Immutable<T> = DeepImmutable<T>;
 
@@ -26,7 +26,12 @@ export interface EntityProps<ID extends EntityId, Props extends object> {
  * and better IDE intellisense.
  * @template ID - The specific Identity Value Object type.
  */
-export abstract class Entity<ID extends EntityId, Props extends object> {
+export abstract class Entity<
+  ID extends EntityId,
+  Props extends object,
+> implements EntityBrand {
+  declare readonly __entityBrand: true;
+
   /** The immutable unique identifier for this entity */
   public readonly id: ID;
 
