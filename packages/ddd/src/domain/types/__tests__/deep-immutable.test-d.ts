@@ -2,6 +2,8 @@
 import { expectAssignable, expectType } from 'tsd';
 
 import type { DeepImmutable } from '../deep-immutable.type';
+import { DomainID } from '../../value-objects/domain-id.vo';
+import { Entity } from '../../entities/entity';
 
 // Helper to get a value of type DeepImmutable<T> without runtime value (for type assertions only)
 function imm<T>(): DeepImmutable<T> {
@@ -53,10 +55,10 @@ expectAssignable<{
 }>(imm<{ id: number; nested: { name: string } }>());
 
 // --- Property-only class instances are recursively readonly ---
-class Entity {
+class PlainEntity {
   constructor(public id: string) {}
 }
-expectType<{ readonly id: string }>(imm<Entity>());
+expectType<{ readonly id: string }>(imm<PlainEntity>());
 
 // --- Methods are preserved while instance properties become readonly ---
 class AggregateRoot {
@@ -71,6 +73,11 @@ expectType<{
   readonly version: number;
   readonly doSomething: () => void;
 }>(imm<AggregateRoot>());
+
+// --- Entities preserve their class type, including private members ---
+declare abstract class ChildEntity extends Entity<DomainID, { name: string }> {}
+expectType<ChildEntity>(imm<ChildEntity>());
+expectType<{ readonly child: ChildEntity }>(imm<{ child: ChildEntity }>());
 
 // --- Nested structures ---
 type Nested = {
