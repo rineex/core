@@ -52,6 +52,30 @@ describe('result', () => {
   });
 
   describe('narrowing', () => {
+    it('identifies Result-shaped unknown values', () => {
+      const values: unknown[] = [
+        Result.ok(42),
+        Result.err(new InvalidValueError('bad')),
+        { value: null, kind: 'ok' },
+        { error: { code: 'TEST.ERROR' }, kind: 'err' },
+      ];
+
+      expect(values.every(Result.isResult)).toBe(true);
+    });
+
+    it.each([
+      undefined,
+      null,
+      42,
+      'ok',
+      {},
+      { kind: 'ok' },
+      { kind: 'err' },
+      { kind: 'other', value: 42 },
+    ])('rejects non-Result values: %j', value => {
+      expect(Result.isResult(value)).toBe(false);
+    });
+
     it('isOk narrows to value', () => {
       const result = Result.ok(42);
 

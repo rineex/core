@@ -43,6 +43,27 @@ function ok<T>(value?: T): Ok<T | void> {
 
 export const Result = {
   /**
+   * Checks whether an unknown value has the structural shape of a Result.
+   *
+   * This is useful at untyped boundaries such as HTTP handlers and message
+   * consumers. It validates the discriminant and the field required by that
+   * branch, but does not validate the contained value or error.
+   */
+  isResult(value: unknown): value is Result<unknown, UseCaseError> {
+    if (typeof value !== 'object' || value === null) {
+      return false;
+    }
+
+    const candidate = value as Record<PropertyKey, unknown>;
+
+    if (candidate.kind === 'ok') {
+      return Object.hasOwn(candidate, 'value');
+    }
+
+    return candidate.kind === 'err' && Object.hasOwn(candidate, 'error');
+  },
+
+  /**
    * Pattern-matches a Result into a single output value.
    */
   match<T, E extends UseCaseError, U>(

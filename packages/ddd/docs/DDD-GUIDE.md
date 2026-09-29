@@ -90,3 +90,13 @@ toDomain(row: AccountRow): Account {
 - aggregate event type, ID, payload, and order;
 - rehydration emits no creation event;
 - serialization contains primitives and no infrastructure objects.
+
+## Application outcomes
+
+Use `Result<T, E>` in application services for expected failures. At untyped
+boundaries such as HTTP or messaging, call `Result.isResult(value)` before using
+a value as a result. The guard validates the `kind` discriminant and its
+required branch field; it does not validate the contained payload or error.
+
+Do not use `Result` for domain invariant violations: entities and value objects
+throw domain errors when their invariants are violated.
