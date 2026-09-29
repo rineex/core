@@ -596,6 +596,12 @@ if (Result.isErr(failed)) {
   const error = failed.error; // InvalidValueError
 }
 
+// Untyped boundaries
+const payload: unknown = JSON.parse('{"kind":"ok","value":42}');
+if (Result.isResult(payload)) {
+  // payload is Result<unknown, UseCaseError>
+}
+
 // match
 const message = Result.match(failed, {
   ok: v => `ok ${v}`,
@@ -830,6 +836,7 @@ Extends `Entity`. Adds:
 | `Result.ok()`                                  | Success with no value (`Ok<void>`)        |
 | `Result.ok(value)`                             | Success (`{ kind: 'ok', value }`)         |
 | `Result.err(error)`                            | Failure (`{ kind: 'err', error }`)        |
+| `Result.isResult(value)`                       | Validates an unknown Result-shaped value  |
 | `Result.isOk(r)` / `Result.isErr(r)`           | Type guards                               |
 | `Result.match(r, { ok, err })`                 | Exhaustive fold                           |
 | `Result.flatMap(r, fn)`                        | Chain use cases; forwards err             |
