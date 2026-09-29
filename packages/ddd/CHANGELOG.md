@@ -1,5 +1,12 @@
 # @rineex/ddd
 
+## 8.0.2
+
+### Patch Changes
+
+- Add `Result.isResult` to validate Result-shaped values at runtime.
+  ([#92](https://github.com/rineex/core/pull/92))
+
 ## 8.0.1
 
 ### Patch Changes
