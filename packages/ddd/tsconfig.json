@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "strict": false,
+    "types": ["node"],
     "module": "commonjs",
     "declaration": true,
     "noImplicitAny": false,
@@ -11,7 +13,8 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "target": "es6",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
+    "ignoreDeprecations": "6.0",
     "skipLibCheck": true,
     "sourceMap": false,
     "outDir": "./dist",
