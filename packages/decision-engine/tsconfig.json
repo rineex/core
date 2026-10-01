@@ -2,9 +2,8 @@
   "compilerOptions": {
     "declaration": true,
     "esModuleInterop": true,
-    "ignoreDeprecations": "6.0",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "node16",
+    "moduleResolution": "node16",
     "noImplicitAny": true,
     "noUnusedLocals": true,
     "outDir": "./dist",
