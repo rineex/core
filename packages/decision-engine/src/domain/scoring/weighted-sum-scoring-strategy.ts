@@ -53,44 +53,48 @@ export class WeightedSumScoringStrategy<
    * are invalid.
    */
   public score(features: readonly FeatureValue[], policy: Policy): number {
-    let total = 0;
-    for (const feature of features) {
-      const normalizedValue = feature.normalizedValue;
-      if (
-        typeof normalizedValue !== 'number' ||
-        !Number.isFinite(normalizedValue)
-      ) {
-        throw new DecisionExecutionError(
-          'Feature normalized value must be finite.',
-          {
-            featureKey: feature.key,
-            normalizedValue: feature.normalizedValue,
-          },
-        );
-      }
-      let weight: number;
-      try {
-        weight = this.weightResolver.resolve(feature.key, policy);
-      } catch (error) {
-        throw new DecisionExecutionError(
-          'Feature weight resolution failed.',
-          { featureKey: feature.key },
-          error,
-        );
-      }
-      if (!Number.isFinite(weight)) {
-        throw new DecisionExecutionError('Feature weight must be finite.', {
-          featureKey: feature.key,
-          weight,
-        });
-      }
-      total += normalizedValue * weight;
-    }
+    const total = features.reduce(
+      (score, feature) => score + this.scoreFeature(feature, policy),
+      0,
+    );
+
     if (!Number.isFinite(total)) {
       throw new DecisionExecutionError('Weighted score must be finite.', {
         total,
       });
     }
     return total;
+  }
+
+  private scoreFeature(feature: FeatureValue, policy: Policy): number {
+    const { key, normalizedValue } = feature;
+    if (
+      typeof normalizedValue !== 'number' ||
+      !Number.isFinite(normalizedValue)
+    ) {
+      throw new DecisionExecutionError(
+        'Feature normalized value must be finite.',
+        { featureKey: key, normalizedValue },
+      );
+    }
+
+    let weight: number;
+    try {
+      weight = this.weightResolver.resolve(key, policy);
+    } catch (error) {
+      throw new DecisionExecutionError(
+        'Feature weight resolution failed.',
+        { featureKey: key },
+        error,
+      );
+    }
+
+    if (!Number.isFinite(weight)) {
+      throw new DecisionExecutionError('Feature weight must be finite.', {
+        featureKey: key,
+        weight,
+      });
+    }
+    return normalizedValue * weight;
   }
 }
