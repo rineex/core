@@ -29,14 +29,7 @@ export class DefaultDecisionValidator implements DecisionValidator {
     this.requireText(definition.id, 'definition id');
     this.requireText(definition.version, 'definition version');
 
-    if (
-      !definition.candidateRefResolver ||
-      typeof definition.candidateRefResolver.resolve !== 'function'
-    ) {
-      throw new InvalidDecisionDefinitionError(
-        'A candidate reference resolver is required.',
-      );
-    }
+    this.validateCandidateRefResolver(definition.candidateRefResolver);
 
     this.validateComponents(definition.constraints, 'constraint', 'id');
     this.validateComponents(definition.features, 'feature', 'key');
@@ -113,6 +106,20 @@ export class DefaultDecisionValidator implements DecisionValidator {
     if (typeof value !== 'string' || value.trim().length === 0) {
       throw new InvalidDecisionDefinitionError(
         `Decision ${label} must be a non-empty string.`,
+      );
+    }
+  }
+
+  private validateCandidateRefResolver(resolver: unknown): void {
+    if (!resolver || typeof resolver !== 'object') {
+      throw new InvalidDecisionDefinitionError(
+        'A candidate reference resolver is required.',
+      );
+    }
+
+    if (typeof (resolver as Record<string, unknown>).resolve !== 'function') {
+      throw new InvalidDecisionDefinitionError(
+        'A candidate reference resolver is required.',
       );
     }
   }
