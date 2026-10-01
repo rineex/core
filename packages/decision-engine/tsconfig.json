@@ -2,6 +2,7 @@
   "compilerOptions": {
     "declaration": true,
     "esModuleInterop": true,
+    "ignoreDeprecations": "6.0",
     "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitAny": true,
