@@ -20,5 +20,7 @@ export class DecisionExecutionError extends DecisionError {
     message: string,
     details?: Readonly<Record<string, unknown>>,
     cause?: unknown,
-  );
+  ) {
+    super(message, details, cause);
+  }
 }

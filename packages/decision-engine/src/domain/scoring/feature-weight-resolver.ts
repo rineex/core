@@ -9,7 +9,7 @@ export interface FeatureWeightResolver<Policy> {
    *
    * @param featureKey - Stable feature identifier.
    * @param policy - Active decision policy.
-   * @returns Finite non-negative weight.
+   * @returns Finite weight. A policy may intentionally use a negative weight.
    */
   resolve: (featureKey: string, policy: Policy) => number;
 }

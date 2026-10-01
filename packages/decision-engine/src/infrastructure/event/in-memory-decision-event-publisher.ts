@@ -10,7 +10,7 @@ import type { DecisionEventHandler } from './decision-event-handler';
  *
  * Events and handlers are processed deterministically in registration order.
  */
-export abstract class InMemoryDecisionEventPublisher implements DecisionEventPublisher {
+export class InMemoryDecisionEventPublisher implements DecisionEventPublisher {
   /**
    * Registered handlers grouped by event type.
    */
@@ -19,7 +19,9 @@ export abstract class InMemoryDecisionEventPublisher implements DecisionEventPub
   /**
    * Creates an empty in-memory event publisher.
    */
-  public constructor();
+  public constructor() {
+    this.handlers = new Map();
+  }
 
   /**
    * Publishes events sequentially in the supplied order.
@@ -31,7 +33,16 @@ export abstract class InMemoryDecisionEventPublisher implements DecisionEventPub
    *
    * @throws When any registered handler fails.
    */
-  public async publish(events: readonly DecisionEvent[]): Promise<void>;
+  public async publish(events: readonly DecisionEvent[]): Promise<void> {
+    for (const event of events) {
+      const handlers = this.handlers.get(event.type) ?? [];
+      for (const handler of handlers) {
+        // Sequential delivery is the documented adapter contract.
+        // eslint-disable-next-line no-await-in-loop
+        await handler.handle(event);
+      }
+    }
+  }
 
   /**
    * Registers a handler for a specific decision event type.
@@ -46,5 +57,17 @@ export abstract class InMemoryDecisionEventPublisher implements DecisionEventPub
   public subscribe<Event extends DecisionEvent>(
     eventType: Event['type'],
     handler: DecisionEventHandler<Event>,
-  ): void;
+  ): void {
+    if (typeof eventType !== 'string' || eventType.trim().length === 0) {
+      throw new TypeError('Decision event type must be a non-empty string.');
+    }
+    if (!handler || typeof handler.handle !== 'function') {
+      throw new TypeError('Decision event handler is required.');
+    }
+    const handlers = this.handlers.get(eventType) ?? [];
+    this.handlers.set(eventType, [
+      ...handlers,
+      handler as DecisionEventHandler,
+    ]);
+  }
 }

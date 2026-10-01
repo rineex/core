@@ -1,6 +1,9 @@
 import type { CandidateEvaluation } from '../model/candidate-evaluation.js';
 import type { SelectionStrategy } from './selection-strategy.js';
 
+import { InvalidDecisionDefinitionError } from '../error/invalid-decision-definition-error.js';
+import { validateRankedEvaluations } from './validate-ranked-evaluations.js';
+
 /**
  * Selects up to a configured number of highest-ranked candidates.
  *
@@ -31,7 +34,15 @@ export class SelectTopNStrategy<
    * @throws InvalidDecisionDefinitionError when the limit is not a
    * positive integer.
    */
-  public constructor(limit: number);
+  public constructor(limit: number) {
+    if (!Number.isSafeInteger(limit) || limit <= 0) {
+      throw new InvalidDecisionDefinitionError(
+        'Selection limit must be a positive integer.',
+        { limit },
+      );
+    }
+    this.limit = limit;
+  }
 
   /**
    * Selects up to the configured number of highest-ranked candidates.
@@ -44,7 +55,10 @@ export class SelectTopNStrategy<
    */
   public select(
     evaluations: readonly CandidateEvaluation<Candidate>[],
-    context: Context,
-    policy: Policy,
-  ): readonly CandidateEvaluation<Candidate>[];
+    _context: Context,
+    _policy: Policy,
+  ): readonly CandidateEvaluation<Candidate>[] {
+    validateRankedEvaluations(evaluations);
+    return evaluations.slice(0, this.limit);
+  }
 }

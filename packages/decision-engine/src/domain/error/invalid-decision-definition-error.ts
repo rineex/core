@@ -21,5 +21,7 @@ export class InvalidDecisionDefinitionError extends DecisionError {
     message: string,
     details?: Readonly<Record<string, unknown>>,
     cause?: unknown,
-  );
+  ) {
+    super(message, details, cause);
+  }
 }

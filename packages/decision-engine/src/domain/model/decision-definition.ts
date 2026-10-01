@@ -1,3 +1,4 @@
+import type { CandidateRefResolver } from '../candidate/candidate-ref-resolver';
 import type { Constraint } from '../constraint/constraint';
 import type { Feature } from '../feature/feature';
 import type { Normalizer } from '../normalization/normalizer';
@@ -33,6 +34,9 @@ export interface DecisionDefinition<Candidate, Context, Policy> {
    * "v2"
    */
   readonly version: string;
+
+  /** Resolves the stable reference used for diagnostics and events. */
+  readonly candidateRefResolver: CandidateRefResolver<Candidate>;
 
   /**
    * Hard eligibility rules applied to every candidate.

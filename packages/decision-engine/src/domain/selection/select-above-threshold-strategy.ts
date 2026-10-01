@@ -1,6 +1,10 @@
 import type { CandidateEvaluation } from '../model/candidate-evaluation.js';
 import type { SelectionStrategy } from './selection-strategy.js';
 
+import { DecisionExecutionError } from '../error/decision-execution-error.js';
+import { InvalidDecisionDefinitionError } from '../error/invalid-decision-definition-error.js';
+import { validateRankedEvaluations } from './validate-ranked-evaluations.js';
+
 /**
  * Selects all ranked candidates whose score is greater than or equal
  * to a configured minimum threshold.
@@ -31,7 +35,15 @@ export class SelectAboveThresholdStrategy<
    *
    * @throws InvalidDecisionDefinitionError when the threshold is not finite.
    */
-  public constructor(threshold: number);
+  public constructor(threshold: number) {
+    if (!Number.isFinite(threshold)) {
+      throw new InvalidDecisionDefinitionError(
+        'Selection threshold must be finite.',
+        { threshold },
+      );
+    }
+    this.threshold = threshold;
+  }
 
   /**
    * Selects ranked candidates whose score is greater than or equal
@@ -45,7 +57,18 @@ export class SelectAboveThresholdStrategy<
    */
   public select(
     evaluations: readonly CandidateEvaluation<Candidate>[],
-    context: Context,
-    policy: Policy,
-  ): readonly CandidateEvaluation<Candidate>[];
+    _context: Context,
+    _policy: Policy,
+  ): readonly CandidateEvaluation<Candidate>[] {
+    validateRankedEvaluations(evaluations);
+    return evaluations.filter(evaluation => {
+      const score = evaluation.score;
+      if (typeof score !== 'number' || !Number.isFinite(score)) {
+        throw new DecisionExecutionError(
+          'Threshold selection requires finite candidate scores.',
+        );
+      }
+      return score >= this.threshold;
+    });
+  }
 }

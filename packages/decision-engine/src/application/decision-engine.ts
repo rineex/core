@@ -1,4 +1,5 @@
 import type { CandidateRejectedEvent } from '../domain/event/candidate-rejected-event.js';
+import type { DecisionCompletedEvent } from '../domain/event/decision-completed-event.js';
 import type { CandidateEvaluation } from '../domain/model/candidate-evaluation.js';
 import type { DecisionDefinition } from '../domain/model/decision-definition.js';
 import type { DecisionEvent } from '../domain/model/decision-event.js';
@@ -110,10 +111,14 @@ export class DecisionEngine {
       result,
     );
 
-    return {
+    const execution = {
       result,
       events,
     };
+
+    this.freezeOutput(execution);
+
+    return execution;
   }
 
   private candidateRefs<Candidate, Context, Policy extends DecisionPolicy>(
@@ -170,7 +175,7 @@ export class DecisionEngine {
       }));
     const eligibleCount = evaluations.length - rejectedEvents.length;
 
-    const completedEvent: DecisionEvent = {
+    const completedEvent: DecisionCompletedEvent = {
       type: 'decision.completed',
       definitionId: definition.id,
       definitionVersion: definition.version,
@@ -369,6 +374,21 @@ export class DecisionEngine {
     });
   }
 
+  /** Freezes engine-owned output while leaving caller-owned candidates mutable. */
+  private freezeOutput(value: unknown, seen = new WeakSet<object>()): void {
+    if (!value || typeof value !== 'object' || seen.has(value)) {
+      return;
+    }
+
+    seen.add(value);
+    for (const [key, nested] of Object.entries(value)) {
+      if (key !== 'candidate') {
+        this.freezeOutput(nested, seen);
+      }
+    }
+    Object.freeze(value);
+  }
+
   /**
    * Produces the final immutable candidate evaluations by marking only
    * candidates returned by the selection strategy as selected.
@@ -474,36 +494,20 @@ export class DecisionEngine {
         );
       }
 
-      for (const feature of after.features) {
-        if (feature.normalizedValue === undefined) {
-          throw new DecisionExecutionError(
-            'Normalizer did not produce a normalized feature value.',
-            {
-              definitionId: definition.id,
-              definitionVersion: definition.version,
-              stage: 'normalization',
-              componentId: definition.normalizer.id,
-              candidateRef: afterRef,
-              featureKey: feature.key,
-            },
-          );
-        }
-
-        if (!Number.isFinite(feature.normalizedValue)) {
-          throw new DecisionExecutionError(
-            'Normalizer produced a non-finite feature value.',
-            {
-              definitionId: definition.id,
-              definitionVersion: definition.version,
-              stage: 'normalization',
-              componentId: definition.normalizer.id,
-              candidateRef: afterRef,
-              featureKey: feature.key,
-              normalizedValue: feature.normalizedValue,
-            },
-          );
-        }
+      if (after.features.length !== before.features.length) {
+        throw new DecisionExecutionError(
+          'Normalizer changed the configured feature set.',
+          {
+            definitionId: definition.id,
+            definitionVersion: definition.version,
+            stage: 'normalization',
+            componentId: definition.normalizer.id,
+            candidateRef: afterRef,
+          },
+        );
       }
+
+      this.validateNormalizedFeatures(definition, before, after, afterRef);
     }
 
     let eligibleIndex = 0;
@@ -906,6 +910,56 @@ export class DecisionEngine {
       }
 
       references.add(candidateRef);
+    }
+  }
+
+  private validateNormalizedFeatures<
+    Candidate,
+    Context,
+    Policy extends DecisionPolicy,
+  >(
+    definition: DecisionDefinition<Candidate, Context, Policy>,
+    before: CandidateEvaluation<Candidate>,
+    after: CandidateEvaluation<Candidate>,
+    candidateRef: string,
+  ): void {
+    for (const [featureIndex, feature] of after.features.entries()) {
+      const originalFeature = before.features[featureIndex];
+      if (
+        !originalFeature ||
+        feature.key !== originalFeature.key ||
+        feature.objective !== originalFeature.objective ||
+        feature.rawValue !== originalFeature.rawValue
+      ) {
+        throw new DecisionExecutionError(
+          'Normalizer changed a feature identity or raw value.',
+          {
+            definitionId: definition.id,
+            definitionVersion: definition.version,
+            stage: 'normalization',
+            componentId: definition.normalizer.id,
+            candidateRef,
+            featureKey: feature.key,
+          },
+        );
+      }
+      if (
+        typeof feature.normalizedValue !== 'number' ||
+        !Number.isFinite(feature.normalizedValue)
+      ) {
+        throw new DecisionExecutionError(
+          'Normalizer must produce finite normalized feature values.',
+          {
+            definitionId: definition.id,
+            definitionVersion: definition.version,
+            stage: 'normalization',
+            componentId: definition.normalizer.id,
+            candidateRef,
+            featureKey: feature.key,
+            normalizedValue: feature.normalizedValue,
+          },
+        );
+      }
     }
   }
 }

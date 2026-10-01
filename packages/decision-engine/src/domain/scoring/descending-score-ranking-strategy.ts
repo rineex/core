@@ -1,6 +1,8 @@
 import type { CandidateEvaluation } from '../model/candidate-evaluation';
 import type { RankingStrategy } from '../ranking/ranking-strategy';
 
+import { DecisionExecutionError } from '../error/decision-execution-error.js';
+
 /**
  * Ranks eligible candidate evaluations by score in descending order.
  *
@@ -35,7 +37,26 @@ export class DescendingScoreRankingStrategy<
    */
   public rank(
     evaluations: readonly CandidateEvaluation<Candidate>[],
-    context: Context,
-    policy: Policy,
-  ): readonly CandidateEvaluation<Candidate>[];
+    _context: Context,
+    _policy: Policy,
+  ): readonly CandidateEvaluation<Candidate>[] {
+    const scored = evaluations.map((evaluation, index) => {
+      const score = evaluation.score;
+      if (
+        !evaluation.eligible ||
+        typeof score !== 'number' ||
+        !Number.isFinite(score)
+      ) {
+        throw new DecisionExecutionError(
+          'Ranking requires eligible candidates with finite scores.',
+        );
+      }
+      return { evaluation, index, score };
+    });
+    return scored
+      .sort(
+        (left, right) => right.score - left.score || left.index - right.index,
+      )
+      .map(({ evaluation }) => evaluation);
+  }
 }

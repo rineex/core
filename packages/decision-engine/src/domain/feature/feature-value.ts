@@ -1,3 +1,5 @@
+import type { FeatureObjective } from './feature-objective.js';
+
 /**
  * Represents a calculated value produced by a feature evaluation.
  *
@@ -12,6 +14,9 @@ export interface FeatureValue {
    * "delivery-time"
    */
   readonly key: string;
+
+  /** Optimization direction declared by the feature that produced this value. */
+  readonly objective: FeatureObjective;
 
   /**
    * Raw numeric value produced by the feature.

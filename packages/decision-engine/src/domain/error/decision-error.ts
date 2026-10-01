@@ -31,5 +31,9 @@ export abstract class DecisionError extends Error {
     message: string,
     details?: Readonly<Record<string, unknown>>,
     cause?: unknown,
-  );
+  ) {
+    super(message, cause === undefined ? undefined : { cause });
+    this.name = new.target.name;
+    this.details = details;
+  }
 }

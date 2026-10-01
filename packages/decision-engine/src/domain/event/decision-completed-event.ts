@@ -1,65 +1,16 @@
-import type { CandidateRefResolver } from '../candidate/candidate-ref-resolver.js';
-import type { Constraint } from '../constraint/constraint.js';
-import type { Feature } from '../feature/feature.js';
-import type { Normalizer } from '../normalization/normalizer.js';
-import type { RankingStrategy } from '../ranking/ranking-strategy.js';
-import type { ScoringStrategy } from '../scoring/scoring-strategy.js';
-import type { SelectionStrategy } from '../selection/selection-strategy.js';
+import type { DecisionEvent } from '../model/decision-event.js';
 
 /**
- * Defines the complete configuration required to execute a decision.
- *
- * A decision definition is immutable and reusable across multiple executions.
- *
- * @typeParam Candidate - Domain-specific candidate type.
- * @typeParam Context - Runtime decision context type.
- * @typeParam Policy - Business policy type.
+ * Payload emitted once a decision execution has completed.
  */
-export interface DecisionDefinition<Candidate, Context, Policy> {
-  /**
-   * Stable identifier of the decision definition.
-   */
-  readonly id: string;
+export interface DecisionCompletedEventPayload {
+  readonly candidateCount: number;
+  readonly eligibleCount: number;
+  readonly rejectedCount: number;
+  readonly selectedCandidateRefs: readonly string[];
+}
 
-  /**
-   * Behavioral version of the decision definition.
-   */
-  readonly version: string;
-
-  /**
-   * Resolves a stable reference for each candidate.
-   *
-   * Used for events, diagnostics, audit records, and explainability.
-   */
-  readonly candidateRefResolver: CandidateRefResolver<Candidate>;
-
-  /**
-   * Hard eligibility rules applied to every candidate.
-   */
-  readonly constraints: readonly Constraint<Candidate, Context, Policy>[];
-
-  /**
-   * Features extracted from eligible candidates.
-   */
-  readonly features: readonly Feature<Candidate, Context, Policy>[];
-
-  /**
-   * Feature normalization strategy.
-   */
-  readonly normalizer: Normalizer<Candidate>;
-
-  /**
-   * Candidate scoring strategy.
-   */
-  readonly scoringStrategy: ScoringStrategy<Policy>;
-
-  /**
-   * Candidate ranking strategy.
-   */
-  readonly rankingStrategy: RankingStrategy<Candidate, Context, Policy>;
-
-  /**
-   * Final selection strategy.
-   */
-  readonly selectionStrategy: SelectionStrategy<Candidate, Context, Policy>;
+/** Domain event representing completion of one decision execution. */
+export interface DecisionCompletedEvent extends DecisionEvent<DecisionCompletedEventPayload> {
+  readonly type: 'decision.completed';
 }

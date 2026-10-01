@@ -5,7 +5,7 @@
  *
  * @typeParam Payload - Immutable event-specific payload.
  */
-export interface DecisionEvent<Payload = Readonly<Record<string, unknown>>> {
+export interface DecisionEvent<Payload = unknown> {
   /**
    * Stable event type.
    *

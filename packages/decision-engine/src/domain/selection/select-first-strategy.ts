@@ -1,6 +1,8 @@
 import type { CandidateEvaluation } from '../model/candidate-evaluation.js';
 import type { SelectionStrategy } from './selection-strategy.js';
 
+import { validateRankedEvaluations } from './validate-ranked-evaluations.js';
+
 /**
  * Selects the first candidate from the ranked candidate evaluations.
  *
@@ -33,7 +35,10 @@ export class SelectFirstStrategy<
    */
   public select(
     evaluations: readonly CandidateEvaluation<Candidate>[],
-    context: Context,
-    policy: Policy,
-  ): readonly CandidateEvaluation<Candidate>[];
+    _context: Context,
+    _policy: Policy,
+  ): readonly CandidateEvaluation<Candidate>[] {
+    validateRankedEvaluations(evaluations);
+    return evaluations.length === 0 ? [] : [evaluations[0]];
+  }
 }
