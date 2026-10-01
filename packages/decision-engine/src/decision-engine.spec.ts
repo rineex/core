@@ -14,6 +14,8 @@ import {
   FeatureObjective,
   InMemoryDecisionEventPublisher,
   MinMaxNormalizer,
+  SelectAboveThresholdStrategy,
+  SelectFirstStrategy,
   SelectTopNStrategy,
   WeightedSumScoringStrategy,
 } from './index.js';
@@ -153,6 +155,29 @@ describe('decisionEngine', () => {
     ).toThrow('Candidate references must be unique');
   });
 
+  it('rejects blank candidate references and malformed normalizer output', () => {
+    const engine = new DecisionEngine(new DefaultDecisionValidator());
+    const blankReference = {
+      ...definition,
+      candidateRefResolver: { resolve: () => ' ' },
+    };
+    const badNormalizer = {
+      ...definition,
+      normalizer: {
+        id: 'bad-normalizer',
+        normalize: (evaluations: readonly CandidateEvaluation<Candidate>[]) =>
+          evaluations.map(evaluation => ({ ...evaluation, features: [] })),
+      },
+    };
+
+    expect(() => engine.execute(blankReference, request)).toThrow(
+      'Candidate reference must not be empty',
+    );
+    expect(() => engine.execute(badNormalizer, request)).toThrow(
+      'Normalizer changed the configured feature set',
+    );
+  });
+
   it('normalizes a zero-range feature to one without mutating source evaluations', () => {
     const evaluations: CandidateEvaluation<Candidate>[] = [
       {
@@ -189,6 +214,52 @@ describe('decisionEngine', () => {
     ).toEqual([1, 1]);
     expect(evaluations[0].features[0].normalizedValue).toBeUndefined();
   });
+
+  it('keeps score ties in input order and rejects invalid built-in strategy inputs', () => {
+    const ranked = new DescendingScoreRankingStrategy<
+      Candidate,
+      undefined,
+      Policy
+    >().rank(
+      [
+        { ...emptyEvaluation(request.candidates[0]), score: 1 },
+        { ...emptyEvaluation(request.candidates[1]), score: 1 },
+      ],
+      undefined,
+      request.policy,
+    );
+
+    expect(ranked.map(evaluation => evaluation.candidate.id)).toEqual([
+      'slow-cheap',
+      'fast-expensive',
+    ]);
+    expect(() => new SelectTopNStrategy(0)).toThrow('positive integer');
+    expect(() => new SelectAboveThresholdStrategy(Number.NaN)).toThrow(
+      'finite',
+    );
+    expect(() =>
+      new SelectFirstStrategy<Candidate, undefined, Policy>().select(
+        [{ ...emptyEvaluation(request.candidates[0]), rank: 1 }],
+        undefined,
+        request.policy,
+      ),
+    ).toThrow('Selection requires eligible');
+    expect(() =>
+      new WeightedSumScoringStrategy<Policy>({
+        resolve: () => Number.POSITIVE_INFINITY,
+      }).score(
+        [
+          {
+            key: 'quality',
+            objective: FeatureObjective.MAXIMIZE,
+            rawValue: 1,
+            normalizedValue: 1,
+          },
+        ],
+        request.policy,
+      ),
+    ).toThrow('Feature weight must be finite');
+  });
 });
 
 describe('inMemoryDecisionEventPublisher', () => {
@@ -217,4 +288,41 @@ describe('inMemoryDecisionEventPublisher', () => {
 
     expect(calls).toEqual(['first', 'second']);
   });
+
+  it('rejects blank subscriptions and propagates handler failures', async () => {
+    const publisher = new InMemoryDecisionEventPublisher();
+
+    expect(() =>
+      publisher.subscribe(' ', { handle: async () => undefined }),
+    ).toThrow('non-empty string');
+
+    publisher.subscribe('decision.completed', {
+      handle: async () => {
+        throw new Error('delivery failed');
+      },
+    });
+
+    await expect(publisher.publish([completedEvent()])).rejects.toThrow(
+      'delivery failed',
+    );
+  });
 });
+
+function completedEvent() {
+  return {
+    type: 'decision.completed' as const,
+    definitionId: 'definition',
+    definitionVersion: 'v1',
+    payload: {},
+  };
+}
+
+function emptyEvaluation(candidate: Candidate): CandidateEvaluation<Candidate> {
+  return {
+    candidate,
+    constraints: [],
+    eligible: true,
+    features: [],
+    selected: false,
+  };
+}
