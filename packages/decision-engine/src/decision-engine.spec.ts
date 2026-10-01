@@ -178,6 +178,46 @@ describe('decisionEngine', () => {
     );
   });
 
+  it('wraps invalid feature, score, and selection strategy output', () => {
+    const engine = new DecisionEngine(new DefaultDecisionValidator());
+    const nonFiniteFeature = {
+      ...definition,
+      features: [
+        {
+          ...definition.features[0],
+          evaluate: () => ({
+            key: 'quality',
+            objective: FeatureObjective.MAXIMIZE,
+            rawValue: Number.POSITIVE_INFINITY,
+          }),
+        },
+      ],
+    };
+    const nonFiniteScore = {
+      ...definition,
+      scoringStrategy: { id: 'bad-score', score: () => Number.NaN },
+    };
+    const unknownSelection = {
+      ...definition,
+      selectionStrategy: {
+        id: 'unknown-selection',
+        select: () => [
+          { ...emptyEvaluation({ ...request.candidates[0], id: 'unknown' }) },
+        ],
+      },
+    };
+
+    expect(() => engine.execute(nonFiniteFeature, request)).toThrow(
+      'Feature returned a non-finite raw value',
+    );
+    expect(() => engine.execute(nonFiniteScore, request)).toThrow(
+      'Scoring strategy produced a non-finite score',
+    );
+    expect(() => engine.execute(unknownSelection, request)).toThrow(
+      'Selection strategy returned a candidate outside the ranked set',
+    );
+  });
+
   it('normalizes a zero-range feature to one without mutating source evaluations', () => {
     const evaluations: CandidateEvaluation<Candidate>[] = [
       {
@@ -287,6 +327,33 @@ describe('inMemoryDecisionEventPublisher', () => {
     ]);
 
     expect(calls).toEqual(['first', 'second']);
+  });
+
+  it('preserves event order across event types', async () => {
+    const publisher = new InMemoryDecisionEventPublisher();
+    const calls: string[] = [];
+    publisher.subscribe('candidate.rejected', {
+      handle: async () => {
+        calls.push('rejected');
+      },
+    });
+    publisher.subscribe('decision.completed', {
+      handle: async () => {
+        calls.push('completed');
+      },
+    });
+
+    await publisher.publish([
+      {
+        type: 'candidate.rejected',
+        definitionId: 'definition',
+        definitionVersion: 'v1',
+        payload: { candidateRef: 'candidate', failedConstraints: [] },
+      },
+      completedEvent(),
+    ]);
+
+    expect(calls).toEqual(['rejected', 'completed']);
   });
 
   it('rejects blank subscriptions and propagates handler failures', async () => {

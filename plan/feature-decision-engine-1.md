@@ -4,21 +4,20 @@ version: 1.0
 date_created: 2026-10-01
 last_updated: 2026-10-01
 owner: Rineex Team
-status: Planned
+status: Completed
 tags: [feature, decision-engine, domain, validation]
 ---
 
 # Introduction
 
-![Status: Planned](https://img.shields.io/badge/status-Planned-blue)
+![Status: Completed](https://img.shields.io/badge/status-Completed-brightgreen)
 
 `@rineex/decision-engine` will be completed as a real decision-execution
 library, not retained as a placeholder. The package already contains a 911-line
 execution pipeline and contracts for constraints, features, normalization,
-scoring, ranking, selection, and events. Its public package entrypoint currently
-exposes only `initDecisionEngine`, and the implementation does not typecheck.
-This plan makes the intended engine internally consistent, executable, exported,
-and verified through end-to-end tests.
+scoring, ranking, selection, and events. The completed work makes the intended
+engine internally consistent, executable, exported, and verified through
+end-to-end and adversarial tests.
 
 ## 1. Requirements & Constraints
 
