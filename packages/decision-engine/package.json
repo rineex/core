@@ -1,0 +1,59 @@
+{
+  "name": "@rineex/decision-engine",
+  "version": "0.1.0",
+  "description": "Framework-agnostic decision engine for Rineex applications",
+  "author": "Rineex Team",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/**",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint 'src/**/*.ts'",
+    "lint:fix": "eslint 'src/**/*.ts' --fix",
+    "test": "vitest run",
+    "test:watch": "vitest --watch"
+  },
+  "keywords": [
+    "rineex",
+    "decision-engine",
+    "rules",
+    "policy",
+    "decision-making"
+  ],
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "provenance": true,
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rineex/core.git",
+    "directory": "packages/decision-engine"
+  },
+  "homepage": "https://github.com/rineex/core/tree/main/packages/decision-engine",
+  "packageManager": "pnpm@10.22.0",
+  "devDependencies": {
+    "@rineex/eslint-config": "workspace:*",
+    "@rineex/typescript-config": "workspace:*",
+    "@types/node": "24.10.4",
+    "tsup": "8.5.1",
+    "type-fest": "5.3.1",
+    "typescript": "5.9.3",
+    "vite-tsconfig-paths": "6.0.2",
+    "vitest": "4.0.16"
+  }
+}
