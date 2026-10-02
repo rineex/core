@@ -31,6 +31,19 @@ export type Result<T = void, E extends UseCaseError = UseCaseError> =
   | Err<E>
   | Ok<T>;
 
+/**
+ * Asynchronous result of an application use case.
+ *
+ * Resolves with either a successful value or an expected use-case failure.
+ *
+ * @template T Success value type. Defaults to void for command use cases.
+ * @template E Per-use-case error union.
+ */
+export type AsyncResult<
+  T = void,
+  E extends UseCaseError = UseCaseError,
+> = Promise<Result<T, E>>;
+
 function freeze<R extends Result<unknown, UseCaseError>>(result: R): R {
   return Object.freeze(result);
 }
