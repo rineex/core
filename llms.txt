@@ -1,0 +1,36 @@
+# Rineex Core agent reference
+
+This is the single machine-oriented entry point for coding agents and LLMs. Read it before changing this repository, then follow the linked human documentation for the relevant domain. The source code and package `src/index.ts` files are authoritative when documentation and code disagree.
+
+## Repository
+
+- Package manager: pnpm 10.22.0. Runtime used by the workspace: Node 24.12.0.
+- Workspace commands: `pnpm build`, `pnpm test`, `pnpm test:types`, `pnpm check-types`, `pnpm lint`, `pnpm prettier`.
+- Target one package with `pnpm --filter <package-name> <script>`.
+- Public API boundary: only exports from a package `src/index.ts` are supported. Never add consumer-facing deep imports.
+- Generated `dist` directories are build output. Do not commit them unless already tracked by a package.
+
+## Package boundaries
+
+- `@rineex/ddd`: framework-independent domain primitives. Read `docs/ddd.md`.
+- `@rineex/decision-engine`: synchronous, deterministic, side-effect-free decision evaluation. Read `docs/decision-engine.md`.
+- `@rineex/auth-core`: authentication domain contracts and ports. OTP is public; passwordless currently exports nothing. Read `docs/authentication.md`.
+- `@rineex/ioredis` and `@rineex/pg-slonik`: Nest lifecycle adapters. Read `docs/nestjs-integrations.md`.
+- Nest middleware modules apply middleware to every route. Configuration packages are private workspace tooling.
+
+## Documentation map
+
+- `README.md`: repository entry point.
+- `docs/development.md`: setup, validation, generator, releases.
+- `docs/architecture.md`: dependency direction and package selection.
+- `docs/packages.md`: full package catalog and export status.
+- `docs/api-reference.md`: public export inventory and package-specific contracts.
+- Package-level READMEs: installation and quick usage.
+
+## Change rules
+
+1. Inspect the target package entry point and tests before changing behavior.
+2. Preserve layer direction: domain packages do not depend on infrastructure/framework packages.
+3. When adding a public export, update its package README, the relevant `docs/*.md` guide, and the package catalog.
+4. Run the narrowest relevant checks first, then repository checks appropriate to the change.
+5. Keep release history in `CHANGELOG.md`; do not duplicate it in guides.

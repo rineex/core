@@ -6,9 +6,9 @@ An OTP implementation of the `@rineex/auth-core` authentication-method port.
 pnpm add @rineex/authentication-method-otp @rineex/auth-core
 ```
 
-Construct `OtpAuthMethod` with an `OtpChannelPort` and an OTP generator. The
-channel delivers and verifies `OtpCode` values for an `IdentityId`; it may be
-backed by SMS, email, push, voice, or another transport. The package exports
-`OtpAuthMethod` and `OtpChannelPort`.
+The package exports `OtpAuthMethod` and `OtpChannelPort`. Its constructor also
+requires an `OtpCode` generator, but `OtpCode` is not exported from the package
+root. This revision therefore does not provide a complete supported consumer
+integration; do not use a deep import to fill that gap.
 
 See [Authentication](../../../../docs/authentication.md) for input requirements.

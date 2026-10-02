@@ -28,13 +28,24 @@ developing this repository.
 
 ## Documentation
 
-- [Development workflow](docs/development.md)
-- [Architecture](docs/architecture.md)
-- [Package catalog](docs/packages.md)
-- [Decision engine](docs/decision-engine.md)
-- [Authentication](docs/authentication.md)
-- [NestJS integrations](docs/nestjs-integrations.md)
-- [DDD primitives](docs/ddd.md)
+- [Development workflow](docs/development.md) — prerequisites, workspace
+  commands, testing, releases, and package generation.
+- [Architecture](docs/architecture.md) — module boundaries, dependency
+  direction, and public API rules.
+- [Package catalog](docs/packages.md) — package names, dependencies, exports,
+  and supported status.
+- [API reference](docs/api-reference.md) — public export inventory and
+  package-specific contracts.
+- [Decision engine](docs/decision-engine.md) — pipeline behavior, complete
+  selection example, events, and extension points.
+- [Authentication](docs/authentication.md) — core contracts, policy evaluation,
+  OTP integration, and current passwordless boundary.
+- [NestJS integrations](docs/nestjs-integrations.md) — Redis, Slonik, middleware
+  configuration, and lifecycle behavior.
+- [DDD primitives](docs/ddd.md) — value objects, entities, aggregates, events,
+  results, errors, and mappers.
+- [LLM and agent reference](llms.txt) — a single machine-oriented entry point
+  that links to the authoritative human guides.
 
-Every package has a focused README next to its source. Package release history
+Every package has a focused README beside its source. Package release history
 remains in its `CHANGELOG.md`.

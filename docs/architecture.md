@@ -1,34 +1,68 @@
 # Architecture
 
-Rineex Core is a library monorepo, not an application. The root package
-orchestrates workspace-wide build, test, lint, formatting, and release commands.
-Each package owns its source, build configuration, tests, and public entry
-point.
+Rineex Core is a library monorepo, not a runnable application. The root package
+owns repository-wide tasks. Each library owns source, tests, build
+configuration, package metadata, and a single public entry point.
 
-## Dependency direction
-
-`@rineex/ddd` supplies general domain abstractions. Authentication packages
-build on it. The decision engine is standalone. NestJS integration packages
-adapt third-party infrastructure to Nest's dependency-injection lifecycle and
-should remain at the edge of an application.
+## Layers and dependency direction
 
 ```text
-@rineex/ddd ──> @rineex/auth-core ──> authentication method packages
+@rineex/ddd
+  └─ generic domain modeling, errors, results, mapper support
+       └─ @rineex/auth-core
+            └─ OTP and passwordless method packages
 
-application ──> @rineex/decision-engine
-application ──> NestJS integration packages ──> Redis / Slonik / Express middleware
+@rineex/decision-engine
+  └─ standalone deterministic decision pipeline
+
+Application composition root
+  └─ NestJS adapters
+       ├─ @rineex/ioredis
+       ├─ @rineex/pg-slonik
+       └─ HTTP middleware modules
+            └─ third-party infrastructure
 ```
 
-## Public API rule
+The dependency direction is intentional. Core domain packages should not import
+NestJS, a database driver, or a transport. Nest adapters sit at the application
+boundary and manage framework life cycles. `@rineex/decision-engine` is
+independent of both groups.
 
-Treat only a package's `src/index.ts` exports as its supported API. Source files
-not exported there are implementation details, even when they are visible in the
-repository. This protects consumers from deep-import breakage and keeps
-documentation aligned with published artifacts.
+## Public API contract
 
-## Build artifacts
+The supported API of a package is exactly the set of exports from its
+`src/index.ts`. Do not import a package's other source files through a deep
+path; those files may move, become private, or disappear without a compatibility
+guarantee. The documentation identifies packages with deliberately empty entry
+points so consumers do not mistake internal source for a supported API.
 
-Packages declare `main`, `module`, and `types` paths under `dist/`; tsup
-produces those artifacts. Configuration packages are private workspace
-dependencies and expose configuration files rather than a runtime library entry
-point.
+## Package output
+
+Publishable libraries generally declare these fields:
+
+```json
+{
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts"
+}
+```
+
+tsup builds these outputs from `src/index.ts`. Configuration packages are
+private workspace dependencies and intentionally expose configuration files
+instead of runtime APIs.
+
+## Choosing a package
+
+- Model domain concepts and use explicit success/failure values with
+  `@rineex/ddd`.
+- Select candidates by constraints and weighted preferences with
+  `@rineex/decision-engine`.
+- Build authentication domain state/contracts with `@rineex/auth-core`; add OTP
+  through its dedicated method package.
+- Wire Redis or PostgreSQL into a Nest application with the matching Nest
+  adapter.
+- Apply common Express middleware globally in Nest with the middleware modules.
+
+The [package catalog](packages.md) is the complete index; detailed guides
+explain each integration boundary.

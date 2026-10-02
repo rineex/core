@@ -1,53 +1,119 @@
 # NestJS integrations
 
-These packages use Nest configurable modules and apply their middleware to all
-routes. Install the package together with the peer dependencies shown in its
-`package.json`.
+These packages adapt third-party infrastructure to NestJS dependency injection
+and lifecycle hooks. Install a module together with the peer dependencies
+declared in its package metadata. The HTTP middleware packages configure all
+routes with `forRoutes('*')`.
 
 ## Redis
 
-`RedisModule.register(options, { connection })` configures a single Redis
-URL/options object or a cluster-node list. Inject the created client with
-`@InjectRedis()` or `@InjectRedis('name')`. `RedisHealthModule` exposes
-`RedisHealthIndicator.isHealthy(key)` for Terminus health checks.
+```bash
+pnpm add @rineex/ioredis ioredis @nestjs/common @nestjs/terminus
+```
 
-## PostgreSQL with Slonik
-
-Register each named pool and inject it by name:
+Register a single connection with a URL or ioredis options:
 
 ```ts
+import { Module } from '@nestjs/common';
+import { InjectRedis, RedisModule } from '@rineex/ioredis';
+import type Redis from 'ioredis';
+
+@Module({
+  imports: [
+    RedisModule.register(
+      { type: 'single', url: process.env.REDIS_URL },
+      { connection: 'cache' },
+    ),
+  ],
+})
+export class AppModule {}
+
+class CacheService {
+  constructor(@InjectRedis('cache') private readonly redis: Redis) {}
+}
+```
+
+For a cluster, use `{ type: 'cluster', nodes, options }`.
+`getRedisConnectionToken(connection?)` and `getRedisOptionsToken(connection?)`
+expose the generated injection-token strings. `RedisModule` is global, tracks
+created clients, pings them during application bootstrap, and attempts `quit()`
+for every tracked client on shutdown.
+
+`RedisHealthModule` exports `RedisHealthIndicator`. Its `isHealthy(key)` pings
+the configured health client and returns the Terminus `up` or `down` result. The
+health client is supplied through the `REDIS_HEALTH_INDICATOR` provider token.
+
+## PostgreSQL through Slonik
+
+```bash
+pnpm add @rineex/pg-slonik slonik @nestjs/common
+```
+
+```ts
+import { Module } from '@nestjs/common';
+import { InjectPool, SlonikModule } from '@rineex/pg-slonik';
+import type { DatabasePool } from 'slonik';
+
 @Module({
   imports: [
     SlonikModule.register({
-      connections: [{ name: 'DEFAULT', dsn: process.env.DATABASE_URL! }],
+      connections: [
+        { name: 'DEFAULT', dsn: process.env.DATABASE_URL! },
+        { name: 'replica', dsn: process.env.REPLICA_DATABASE_URL! },
+      ],
     }),
   ],
 })
 export class AppModule {}
 
-class Repository {
-  constructor(@InjectPool() private readonly pool: DatabasePool) {}
+class UserRepository {
+  constructor(
+    @InjectPool() private readonly writer: DatabasePool,
+    @InjectPool('replica') private readonly reader: DatabasePool,
+  ) {}
 }
 ```
 
-Pools are verified during creation, retried on connection failure (nine retries
-with a three-second delay by default), and closed during application shutdown.
-`SlonikModule` is global by default.
+Every configured connection has `name`, `dsn`, optional Slonik `options`, and
+optional `tags`. `InjectPool(name?)` injects the matching pool;
+`createSlonikToken(name?)` produces its token. The module is global by default;
+set the configurable-module extra `isGlobal: false` when module-local scope is
+required.
 
-## HTTP middleware modules
+`createSlonikConnection` creates a pool, verifies it through `pool.connect`, and
+retries failures. `handleRetry` defaults to nine retries and a three-second
+delay; it accepts alternative attempt count, delay, pool name, verbose logging,
+and retry predicate. `SlonikModule` ends registered pools during shutdown. The
+current public `SlonikModule.register` override accepts only the connection
+options, so its configurable-module `isGlobal` extra remains at its default
+`true` through that public method.
 
-All modules use `register` or `registerAsync` from Nest's
-`ConfigurableModuleBuilder` and attach middleware to `'*'` routes.
+## Global HTTP middleware
 
-| Module         | Export                | Underlying package |
-| -------------- | --------------------- | ------------------ |
-| Cookie parser  | `CookieParserModule`  | `cookie-parser`    |
-| CORS           | `CorsModule`          | `cors`             |
-| Helmet         | `HelmetModule`        | `helmet`           |
-| Ignore favicon | `IgnoreFaviconModule` | built in           |
-| Response time  | `ResponseTimeModule`  | `response-time`    |
+Each middleware module supports Nest's generated `register` and `registerAsync`
+methods. Import one module once at an appropriate application level.
 
-`CorsModule` defaults to credentials enabled, standard allowed methods/headers,
-and `204` for preflight responses; supplied options override those defaults.
-`IgnoreFaviconModule` responds with `204` when a request URL includes
-`favicon.ico`. Response-time options are `digits`, `header`, and `suffix`.
+```ts
+@Module({
+  imports: [
+    CookieParserModule.register({ secret: process.env.COOKIE_SECRET }),
+    CorsModule.register({ origin: ['https://app.example.com'] }),
+    HelmetModule.register(),
+    IgnoreFaviconModule.register(),
+    ResponseTimeModule.register({ header: 'X-Response-Time', digits: 1 }),
+  ],
+})
+export class HttpModule {}
+```
+
+| Package/module        | Options and behavior                                                                                                                                       |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CookieParserModule`  | Passes `CookieParseOptions` to `cookie-parser` for every request.                                                                                          |
+| `CorsModule`          | Passes `CorsOptions` to `cors`. Defaults: credentials enabled, module allowed methods/headers, `204` preflight status; supplied options override defaults. |
+| `HelmetModule`        | Passes `HelmetOptions` to `helmet`.                                                                                                                        |
+| `IgnoreFaviconModule` | No meaningful options; returns `204` if `req.originalUrl` contains `favicon.ico`, otherwise calls next.                                                    |
+| `ResponseTimeModule`  | Passes `digits`, `header`, and `suffix` options to `response-time`.                                                                                        |
+
+These modules are Express-oriented: their middleware types use Express
+request/response objects, so install the listed Express peer dependency and use
+them with a compatible Nest HTTP adapter.
