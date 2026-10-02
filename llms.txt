@@ -1,36 +1,113 @@
-# Rineex Core agent reference
+# Rineex Core complete agent reference
 
-This is the single machine-oriented entry point for coding agents and LLMs. Read it before changing this repository, then follow the linked human documentation for the relevant domain. The source code and package `src/index.ts` files are authoritative when documentation and code disagree.
+Rineex Core is a pnpm/Turborepo monorepo of TypeScript libraries. This document is self-contained documentation for coding agents and LLMs. Read it before changing the repository. Source code and each package's `src/index.ts` are authoritative if they conflict with this file.
 
-## Repository
+## Toolchain and workflow
 
-- Package manager: pnpm 10.22.0. Runtime used by the workspace: Node 24.12.0.
-- Workspace commands: `pnpm build`, `pnpm test`, `pnpm test:types`, `pnpm check-types`, `pnpm lint`, `pnpm prettier`.
-- Target one package with `pnpm --filter <package-name> <script>`.
-- Public API boundary: only exports from a package `src/index.ts` are supported. Never add consumer-facing deep imports.
-- Generated `dist` directories are build output. Do not commit them unless already tracked by a package.
+- Use pnpm 10.22.0. The workspace Volta configuration specifies Node 24.12.0.
+- Install with `corepack enable && pnpm install`.
+- Run repository checks: `pnpm build`, `pnpm test`, `pnpm test:types`, `pnpm check-types`, `pnpm lint`, and `pnpm prettier`.
+- Run a package check with `pnpm --filter <package-name> <script>`.
+- Most libraries use tsup and Vitest. Cookie-parser, CORS, favicon-ignore, and response-time modules use Jest commands. Do not commit generated `dist` directories unless a package already tracks them.
+- Pre-commit formats and spell-checks staged Markdown/JSON/YAML/HTML/TS/TSX. Pre-push runs `pnpm test`.
+- Create a library skeleton with `pnpm g:pkg name "description"`; then design its exports, tests, and README deliberately.
+- Use Changesets for publishable changes: `pnpm changeset`, `pnpm changeset:version`, `pnpm build`, `pnpm changeset:publish`.
 
-## Package boundaries
+## Architecture and change rules
 
-- `@rineex/ddd`: framework-independent domain primitives. Read `docs/ddd.md`.
-- `@rineex/decision-engine`: synchronous, deterministic, side-effect-free decision evaluation. Read `docs/decision-engine.md`.
-- `@rineex/auth-core`: authentication domain contracts and ports. OTP is public; passwordless currently exports nothing. Read `docs/authentication.md`.
-- `@rineex/ioredis` and `@rineex/pg-slonik`: Nest lifecycle adapters. Read `docs/nestjs-integrations.md`.
-- Nest middleware modules apply middleware to every route. Configuration packages are private workspace tooling.
+- The supported consumer API is only a package root `src/index.ts` export. Never introduce or recommend deep imports.
+- `@rineex/ddd` is framework-independent domain infrastructure. `@rineex/auth-core` builds on it. Authentication methods build on auth core.
+- `@rineex/decision-engine` is standalone and must remain deterministic, synchronous, side-effect free, and infrastructure independent.
+- Redis, Slonik, and HTTP middleware packages are NestJS/Express infrastructure adapters. Keep framework/database/network code out of domain packages.
+- When adding a public export, update the package README, the relevant human guide under `docs`, `docs/packages.md`, `docs/api-reference.md`, and this file.
+- Do not document internal source files as stable API. Explicitly flag incomplete public surfaces rather than suggesting a deep-import workaround.
 
-## Documentation map
+## Package inventory
 
-- `README.md`: repository entry point.
-- `docs/development.md`: setup, validation, generator, releases.
-- `docs/architecture.md`: dependency direction and package selection.
-- `docs/packages.md`: full package catalog and export status.
-- `docs/api-reference.md`: public export inventory and package-specific contracts.
-- Package-level READMEs: installation and quick usage.
+| Package | Status and purpose |
+| --- | --- |
+| `@rineex/ddd` | Public generic DDD primitives, errors, results, values, and mapper support. |
+| `@rineex/decision-engine` | Public deterministic candidate decision pipeline. |
+| `@rineex/auth-core` | Public authentication domain contracts, policy engine, and ports. |
+| `@rineex/authentication-method-otp` | Exports OTP method/port but lacks a public OTP-code construction boundary. |
+| `@rineex/authentication-method-passwordless` | Root exports nothing; internal implementation only. |
+| `@rineex/ioredis` | Public NestJS ioredis module, decorator, helpers, and health indicator. |
+| `@rineex/pg-slonik` | Public NestJS Slonik module and pool injection decorator. |
+| Nest middleware packages | Public global Cookie parser, CORS, Helmet, favicon-ignore, and response-time modules. |
+| `@rineex/eslint-config` | Private workspace ESLint configuration entry points. |
+| `@rineex/typescript-config` | Private workspace TypeScript JSON configurations. |
+| `@rineex/libs` | Root exports nothing. |
 
-## Change rules
+## DDD package
 
-1. Inspect the target package entry point and tests before changing behavior.
-2. Preserve layer direction: domain packages do not depend on infrastructure/framework packages.
-3. When adding a public export, update its package README, the relevant `docs/*.md` guide, and the package catalog.
-4. Run the narrowest relevant checks first, then repository checks appropriate to the change.
-5. Keep release history in `CHANGELOG.md`; do not duplicate it in guides.
+Install with `pnpm add @rineex/ddd`.
+
+- `ValueObject<T>` validates structured props, deep-freezes them, compares concrete class plus deep value, and offers `value`, `equals`, `toJSON`, and `toString`.
+- `PrimitiveValueObject<T>` is the equivalent for one string, number, or boolean primitive and compares strict primitive equality plus concrete class.
+- Built-in values: `AggregateId`, `DomainID`, `Email`, `IPAddress`, `Timestamp`, `Url`, `UserAgent`. `DomainID.generate()` creates UUID v7 IDs. `Email.fromString()` normalizes lowercase. `Timestamp` accepts non-negative integer milliseconds and has `toDate()`. `Url.create()` validates a URL.
+- `Entity<ID, Props>` compares IDs, stores immutable props, requires `validateProps` and `toObject`, and allows transitions only through protected `mutate`.
+- `AggregateRoot` records events through protected `recordEvent`; `pullDomainEvents()` returns and clears pending events. Publish events after the aggregate persistence transaction succeeds.
+- `DomainEvent` validates ID, name, schema version, timestamp, and JSON-safe payload; it deep-freezes payload and serializes with `toPrimitives()`.
+- Use thrown domain errors for invariant violations. Use `Result<T, E>` and `AsyncResult<T, E>` for expected application outcomes. Available helpers: `Result.ok`, `err`, `void`, `match`, `map`, `mapError`, `flatMap`, `isOk`, `isErr`, `isResult`.
+- `DomainError` has a machine-readable `NAMESPACE.ERROR_NAME` code, immutable primitive metadata, and `toObject`. Use error registries and `InferErrorCodes` to keep codes typed.
+- `BaseMapper` provides list mapping around abstract domain/persistence/DTO transforms. Map at infrastructure boundaries.
+
+## Decision engine
+
+Install with `pnpm add @rineex/decision-engine`.
+
+Execution order is: validate definition/request; resolve unique non-empty candidate references; evaluate all constraints; evaluate eligible candidate features; normalize; score; rank; select; mark selections; freeze result/events. The engine returns `{ result, events }` and never publishes events.
+
+- Definition fields: stable `id`/`version`, candidate reference resolver, constraints, features, normalizer, scoring strategy, ranking strategy, selection strategy.
+- Request fields: candidates, typed context, versioned policy with `id`, `version`, and `values`, plus optional correlation ID.
+- Constraints are hard rules and return `{ constraintId, satisfied: true }` or `{ constraintId, satisfied: false, reasonCode, details? }`. All constraints run so rejections are explainable.
+- Features return finite numeric raw values and use `FeatureObjective.MAXIMIZE` or `MINIMIZE`.
+- Built-ins: `MinMaxNormalizer`; `WeightedSumScoringStrategy` with `FeatureWeightResolver`; `DescendingScoreRankingStrategy`; `SelectFirstStrategy`; `SelectTopNStrategy(positiveSafeInteger)`; `SelectAboveThresholdStrategy(finiteNumber)`.
+- Equal raw values normalize to `1`. Score ties preserve input order. Selectors receive ranked eligible evaluations only.
+- Output evaluations retain constraints, eligibility, features, optional score/rank, and selection status. Result and all nested collections are frozen.
+- Events: one `candidate.rejected` for every ineligible candidate, then one `decision.completed` with counts and selected references. Use `InMemoryDecisionEventPublisher` only outside the engine when ordered in-memory dispatch is appropriate.
+- Custom constraints/features/strategies must be deterministic and side-effect free. Supply external facts in context/policy; keep database, HTTP, random, time, telemetry, and messaging outside the engine.
+
+## Authentication
+
+Install core with `pnpm add @rineex/auth-core @rineex/ddd`.
+
+`@rineex/auth-core` publicly exports identity aggregates/entities/value objects/events, policy contracts/engine, inbound and outbound ports, and auth context/factor/method/policy/provider/risk types. Root does not export application services, MFA/OAuth implementation code, or infrastructure adapters.
+
+- `AuthMethodPort` has a method name plus `start({ authAttemptId, ctx })` and `verify({ authAttemptId, payload })`, each returning `{ ok: true }` or `{ ok: false, violation: UseCaseError }` synchronously or asynchronously.
+- Implement identity, authentication-attempt, session, token, and OAuth repositories in infrastructure. Keep persistence DTOs outside the domain. Publish domain events only after successful persistence.
+- `AuthPolicyEvaluator` receives immutable `AuthPolicyContext` facts and returns `null`, `{ allowed: false, reason }`, or `{ allowed: true, requiresStepUp }`. `AuthPolicyEngine` processes policies in order: first deny wins; any allow can require step-up. Compute external risk/device facts upstream.
+- OTP root exports `OtpAuthMethod` and `OtpChannelPort`. It reads identity from `ctx.identityId` or `ctx.metadata.identityId` and verifies a payload containing `IdentityId` and string code. However its constructor requires an internal `OtpCode` generator while `OtpCode` is not root-exported. Do not use deep imports; this package is not a complete supported consumer integration until it exposes that boundary.
+- Passwordless contains internal challenge/service/channel code but its root exports nothing. Do not consume it externally.
+
+## NestJS infrastructure
+
+### Redis
+
+Install `@rineex/ioredis`, `ioredis`, `@nestjs/common`, and `@nestjs/terminus`.
+
+Register `RedisModule` with `{ type: 'single', url?, options? }` or `{ type: 'cluster', nodes, options? }`. Use the configurable-module connection extra for named connections and inject with `@InjectRedis(name?)`. Helpers `getRedisConnectionToken`, `getRedisOptionsToken`, and `createRedisConnection` are public. The global module tracks clients, pings on bootstrap, and attempts `quit()` on shutdown. `RedisHealthModule` exports `RedisHealthIndicator.isHealthy(key)`, which returns Terminus up/down after pinging its configured client.
+
+### Slonik/PostgreSQL
+
+Install `@rineex/pg-slonik`, `slonik`, and `@nestjs/common`.
+
+Register `SlonikModule.register({ connections })`; every connection needs `name`, `dsn`, optional Slonik `options`, and optional `tags`. Inject with `@InjectPool()` for `DEFAULT` or `@InjectPool(name)`. `createSlonikToken(name?)` builds pool tokens. Pool creation verifies connectivity and retries by default nine times with a three-second delay; `handleRetry` accepts custom retry controls. Pools end at shutdown. The public override of `SlonikModule.register` accepts only connection options, so it remains global through its default extra.
+
+### HTTP middleware
+
+All modules use generated `register`/`registerAsync` APIs and apply middleware to every Express route.
+
+- Cookie parser: `CookieParserModule` forwards `CookieParseOptions` to `cookie-parser`.
+- CORS: `CorsModule` forwards options to `cors`; defaults credentials enabled, allowed methods/headers, `204` preflight response; supplied values override defaults.
+- Helmet: `HelmetModule` forwards `HelmetOptions` to `helmet`.
+- Favicon ignore: `IgnoreFaviconModule` returns `204` when `originalUrl` includes `favicon.ico`.
+- Response time: `ResponseTimeModule` forwards `digits`, `header`, and `suffix` to `response-time`.
+
+## Tooling packages
+
+`@rineex/eslint-config` is private and exposes `base`, `next-js`, `react-internal`, and `db` configuration entry points. `@rineex/typescript-config` is private and contains `base.json` and `react-library.json`. Neither is a runtime application dependency.
+
+## Human documentation
+
+Use `README.md` as the human entry point. Deep guides live in `docs/development.md`, `docs/architecture.md`, `docs/packages.md`, `docs/api-reference.md`, `docs/ddd.md`, `docs/decision-engine.md`, `docs/authentication.md`, and `docs/nestjs-integrations.md`. Package READMEs provide installation-focused guidance; changelogs are release history only.
