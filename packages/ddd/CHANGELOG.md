@@ -1,5 +1,12 @@
 # @rineex/ddd
 
+## 8.0.3
+
+### Patch Changes
+
+- Add the `AsyncResult` alias for asynchronous application use cases.
+  ([#95](https://github.com/rineex/core/pull/95))
+
 ## 8.0.2
 
 ### Patch Changes
